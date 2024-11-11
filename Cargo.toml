@@ -6,3 +6,8 @@ license = "MIT OR Apache-2.0"
 description = "Cronet bindings for Rust"
 
 [dependencies]
+bytes = "1.0"
+futures = "0.3"
+
+[build-dependencies]
+bindgen = "0.69"
