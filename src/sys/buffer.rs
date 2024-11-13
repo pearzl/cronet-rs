@@ -1,5 +1,10 @@
 use crate::bindings::{
-    Cronet_BufferCallbackPtr, Cronet_BufferPtr, Cronet_Buffer_Create, Cronet_Buffer_CreateWith, Cronet_Buffer_Destroy, Cronet_Buffer_GetClientContext, Cronet_Buffer_GetData, Cronet_Buffer_GetDataFunc, Cronet_Buffer_GetSize, Cronet_Buffer_GetSizeFunc, Cronet_Buffer_InitWithAlloc, Cronet_Buffer_InitWithAllocFunc, Cronet_Buffer_InitWithDataAndCallback, Cronet_Buffer_InitWithDataAndCallbackFunc, Cronet_Buffer_SetClientContext, Cronet_ClientContext, Cronet_RawDataPtr
+    Cronet_BufferCallbackPtr, Cronet_BufferPtr, Cronet_Buffer_Create, Cronet_Buffer_CreateWith,
+    Cronet_Buffer_Destroy, Cronet_Buffer_GetClientContext, Cronet_Buffer_GetData,
+    Cronet_Buffer_GetDataFunc, Cronet_Buffer_GetSize, Cronet_Buffer_GetSizeFunc,
+    Cronet_Buffer_InitWithAlloc, Cronet_Buffer_InitWithAllocFunc,
+    Cronet_Buffer_InitWithDataAndCallback, Cronet_Buffer_InitWithDataAndCallbackFunc,
+    Cronet_Buffer_SetClientContext, Cronet_ClientContext, Cronet_RawDataPtr,
 };
 
 pub struct Buffer {
@@ -28,7 +33,7 @@ impl Buffer {
         }
     }
 
-    pub fn set_client_context(&self, client_context: Cronet_ClientContext) {
+    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe {
             Cronet_Buffer_SetClientContext(self.ptr, client_context);
         }

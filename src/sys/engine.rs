@@ -37,7 +37,7 @@ impl Engine {
         }
     }
 
-    pub fn set_client_context(&self, client_context: Cronet_ClientContext) {
+    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe { Cronet_Engine_SetClientContext(self.ptr, client_context) }
     }
 
@@ -83,7 +83,11 @@ impl Engine {
         executor: Executor,
     ) {
         unsafe {
-            Cronet_Engine_AddRequestFinishedListener(self.ptr, listener.as_ptr(), executor.as_ptr());
+            Cronet_Engine_AddRequestFinishedListener(
+                self.ptr,
+                listener.as_ptr(),
+                executor.as_ptr(),
+            );
         }
     }
 

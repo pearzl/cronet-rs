@@ -20,10 +20,12 @@ impl PublicKeyPins {
     }
 
     pub fn from_borrowed_ptr(ptr: Cronet_PublicKeyPinsPtr) -> Self {
-        PublicKeyPins{ptr, is_owned_ptr: false}
+        PublicKeyPins {
+            ptr,
+            is_owned_ptr: false,
+        }
     }
 }
-
 
 impl Drop for PublicKeyPins {
     fn drop(&mut self) {
@@ -39,11 +41,14 @@ impl PublicKeyPins {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_PublicKeyPins_Create();
-            Self { ptr, is_owned_ptr:true }
+            Self {
+                ptr,
+                is_owned_ptr: true,
+            }
         }
     }
 
-    pub fn host_set(&self, host: &CStr) {
+    pub fn host_set(&mut self, host: &CStr) {
         unsafe {
             Cronet_PublicKeyPins_host_set(self.ptr, host.as_ptr());
         }
@@ -53,13 +58,13 @@ impl PublicKeyPins {
         unsafe { Cronet_PublicKeyPins_pins_sha256_add(self.ptr, element.as_ptr()) }
     }
 
-    pub fn include_subdomains_set(&self, include_subdomains: bool) {
+    pub fn include_subdomains_set(&mut self, include_subdomains: bool) {
         unsafe {
             Cronet_PublicKeyPins_include_subdomains_set(self.ptr, include_subdomains);
         }
     }
 
-    pub fn expiration_date_set(&self, expiration_date: i64) {
+    pub fn expiration_date_set(&mut self, expiration_date: i64) {
         unsafe {
             Cronet_PublicKeyPins_expiration_date_set(self.ptr, expiration_date);
         }

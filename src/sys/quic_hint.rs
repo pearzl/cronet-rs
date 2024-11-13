@@ -18,7 +18,10 @@ impl QuicHint {
     }
 
     pub fn from_borrowed_ptr(ptr: Cronet_QuicHintPtr) -> Self {
-        QuicHint {ptr, is_owned_ptr: false}
+        QuicHint {
+            ptr,
+            is_owned_ptr: false,
+        }
     }
 }
 
@@ -34,23 +37,26 @@ impl QuicHint {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_QuicHint_Create();
-            Self { ptr , is_owned_ptr: true}
+            Self {
+                ptr,
+                is_owned_ptr: true,
+            }
         }
     }
 
-    pub fn host_set(&self, host: &CStr) {
+    pub fn host_set(&mut self, host: &CStr) {
         unsafe {
             Cronet_QuicHint_host_set(self.ptr, host.as_ptr());
         }
     }
 
-    pub fn port_set(&self, port: i32) {
+    pub fn port_set(&mut self, port: i32) {
         unsafe {
             Cronet_QuicHint_port_set(self.ptr, port);
         }
     }
 
-    pub fn alternate_port_set(&self, alternate_port: i32) {
+    pub fn alternate_port_set(&mut self, alternate_port: i32) {
         unsafe {
             Cronet_QuicHint_alternate_port_set(self.ptr, alternate_port);
         }

@@ -28,7 +28,7 @@ impl RequestFinishedInfo {
         }
     }
 
-    pub fn metrics_set(&self, metrics: Metrics) {
+    pub fn metrics_set(&mut self, metrics: Metrics) {
         unsafe {
             Cronet_RequestFinishedInfo_metrics_set(self.ptr, metrics.as_ptr());
         }
@@ -46,7 +46,10 @@ impl RequestFinishedInfo {
         }
     }
 
-    pub fn finished_reason_set(&self, finished_reason: Cronet_RequestFinishedInfo_FINISHED_REASON) {
+    pub fn finished_reason_set(
+        &mut self,
+        finished_reason: Cronet_RequestFinishedInfo_FINISHED_REASON,
+    ) {
         unsafe {
             Cronet_RequestFinishedInfo_finished_reason_set(self.ptr, finished_reason);
         }

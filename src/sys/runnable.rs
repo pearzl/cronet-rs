@@ -14,7 +14,7 @@ impl Drop for Runnable {
 }
 
 impl Runnable {
-    pub fn set_client_context(&self, client_context: Cronet_ClientContext) {
+    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe { Cronet_Runnable_SetClientContext(self.ptr, client_context) }
     }
 

@@ -38,17 +38,20 @@ impl HttpHeader {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_HttpHeader_Create();
-            Self { ptr , is_owned_ptr: true}
+            Self {
+                ptr,
+                is_owned_ptr: true,
+            }
         }
     }
 
-    pub fn name_set(&self, name: &CStr) {
+    pub fn name_set(&mut self, name: &CStr) {
         unsafe {
             Cronet_HttpHeader_name_set(self.ptr, name.as_ptr());
         }
     }
 
-    pub fn value_set(&self, value: &CStr) {
+    pub fn value_set(&mut self, value: &CStr) {
         unsafe {
             Cronet_HttpHeader_value_set(self.ptr, value.as_ptr());
         }

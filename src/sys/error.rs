@@ -27,23 +27,23 @@ impl Error {
         }
     }
 
-    pub fn error_code_set(&self, error_code: Cronet_Error_ERROR_CODE) {
+    pub fn error_code_set(&mut self, error_code: Cronet_Error_ERROR_CODE) {
         unsafe { Cronet_Error_error_code_set(self.ptr, error_code) }
     }
 
-    pub fn message_set(&self, message: &CStr) {
+    pub fn message_set(&mut self, message: &CStr) {
         unsafe { Cronet_Error_message_set(self.ptr, message.as_ptr()) }
     }
 
-    pub fn internal_error_code_set(&self, internal_error_code: i32) {
+    pub fn internal_error_code_set(&mut self, internal_error_code: i32) {
         unsafe { Cronet_Error_internal_error_code_set(self.ptr, internal_error_code) }
     }
 
-    pub fn immediately_retryable_set(&self, immediately_retryable: bool) {
+    pub fn immediately_retryable_set(&mut self, immediately_retryable: bool) {
         unsafe { Cronet_Error_immediately_retryable_set(self.ptr, immediately_retryable) }
     }
 
-    pub fn quic_detailed_error_code_set(&self, quic_detailed_error_code: i32) {
+    pub fn quic_detailed_error_code_set(&mut self, quic_detailed_error_code: i32) {
         unsafe { Cronet_Error_quic_detailed_error_code_set(self.ptr, quic_detailed_error_code) }
     }
 

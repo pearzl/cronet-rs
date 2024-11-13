@@ -14,8 +14,9 @@ impl DateTime {
     }
 
     pub fn from_borrowed_ptr(ptr: Cronet_DateTimePtr) -> DateTime {
-        DateTime{
-            ptr, is_owned_ptr: false
+        DateTime {
+            ptr,
+            is_owned_ptr: false,
         }
     }
 }
@@ -32,11 +33,14 @@ impl DateTime {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_DateTime_Create();
-            DateTime { ptr, is_owned_ptr: true }
+            DateTime {
+                ptr,
+                is_owned_ptr: true,
+            }
         }
     }
 
-    pub fn value_set(&self, value: i64) {
+    pub fn value_set(&mut self, value: i64) {
         unsafe {
             Cronet_DateTime_value_set(self.ptr, value);
         }

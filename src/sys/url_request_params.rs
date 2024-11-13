@@ -52,7 +52,7 @@ impl UrlRequestParams {
         }
     }
 
-    pub fn http_method_set(&self, http_method: &CStr) {
+    pub fn http_method_set(&mut self, http_method: &CStr) {
         unsafe { Cronet_UrlRequestParams_http_method_set(self.ptr, http_method.as_ptr()) }
     }
 
@@ -62,25 +62,28 @@ impl UrlRequestParams {
         }
     }
 
-    pub fn disable_cache_set(&self, disable_cache: bool) {
+    pub fn disable_cache_set(&mut self, disable_cache: bool) {
         unsafe {
             Cronet_UrlRequestParams_disable_cache_set(self.ptr, disable_cache);
         }
     }
 
-    pub fn priority_set(&self, priority: Cronet_UrlRequestParams_REQUEST_PRIORITY) {
+    pub fn priority_set(&mut self, priority: Cronet_UrlRequestParams_REQUEST_PRIORITY) {
         unsafe {
             Cronet_UrlRequestParams_priority_set(self.ptr, priority);
         }
     }
 
-    pub fn upload_data_provider_set(&self, upload_data_provider: UploadDataProvider) {
+    pub fn upload_data_provider_set(&mut self, upload_data_provider: UploadDataProvider) {
         unsafe {
-            Cronet_UrlRequestParams_upload_data_provider_set(self.ptr, upload_data_provider.as_ptr());
+            Cronet_UrlRequestParams_upload_data_provider_set(
+                self.ptr,
+                upload_data_provider.as_ptr(),
+            );
         }
     }
 
-    pub fn upload_data_provider_executor_set(&self, upload_data_provider_executor: Executor) {
+    pub fn upload_data_provider_executor_set(&mut self, upload_data_provider_executor: Executor) {
         unsafe {
             Cronet_UrlRequestParams_upload_data_provider_executor_set(
                 self.ptr,
@@ -89,7 +92,7 @@ impl UrlRequestParams {
         }
     }
 
-    pub fn allow_direct_executor_set(&self, allow_direct_executor: bool) {
+    pub fn allow_direct_executor_set(&mut self, allow_direct_executor: bool) {
         unsafe {
             Cronet_UrlRequestParams_allow_direct_executor_set(self.ptr, allow_direct_executor);
         }
@@ -113,7 +116,7 @@ impl UrlRequestParams {
         }
     }
 
-    pub fn request_finished_executor_set(&self, request_finished_executor: Executor) {
+    pub fn request_finished_executor_set(&mut self, request_finished_executor: Executor) {
         unsafe {
             Cronet_UrlRequestParams_request_finished_executor_set(
                 self.ptr,
@@ -122,7 +125,7 @@ impl UrlRequestParams {
         }
     }
 
-    pub fn idempotency_set(&self, idempotency: Cronet_UrlRequestParams_IDEMPOTENCY) {
+    pub fn idempotency_set(&mut self, idempotency: Cronet_UrlRequestParams_IDEMPOTENCY) {
         unsafe {
             Cronet_UrlRequestParams_idempotency_set(self.ptr, idempotency);
         }
@@ -143,7 +146,7 @@ impl UrlRequestParams {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_headers_at(self.ptr, index);
             assert!(!ptr.is_null());
-                HttpHeader::from_borrowed_ptr(ptr)
+            HttpHeader::from_borrowed_ptr(ptr)
         }
     }
 

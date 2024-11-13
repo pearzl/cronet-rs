@@ -7,7 +7,6 @@ use crate::bindings::{
 pub struct Executor {
     ptr: Cronet_ExecutorPtr,
     is_owned_ptr: bool,
-    
 }
 
 impl Executor {
@@ -16,7 +15,10 @@ impl Executor {
     }
 
     pub fn from_borrowed_ptr(ptr: Cronet_ExecutorPtr) -> Self {
-        Executor{ptr, is_owned_ptr: false}
+        Executor {
+            ptr,
+            is_owned_ptr: false,
+        }
     }
 }
 
@@ -29,7 +31,7 @@ impl Drop for Executor {
 }
 
 impl Executor {
-    pub fn set_client_conetxt(&self, client_conetxt: Cronet_ClientContext) {
+    pub fn set_client_conetxt(&mut self, client_conetxt: Cronet_ClientContext) {
         unsafe { Cronet_Executor_SetClientContext(self.ptr, client_conetxt) }
     }
 
@@ -40,7 +42,10 @@ impl Executor {
     pub fn create_with(execute_func: Cronet_Executor_ExecuteFunc) -> Self {
         unsafe {
             let ptr = Cronet_Executor_CreateWith(execute_func);
-            Self { ptr , is_owned_ptr: true}
+            Self {
+                ptr,
+                is_owned_ptr: true,
+            }
         }
     }
 }

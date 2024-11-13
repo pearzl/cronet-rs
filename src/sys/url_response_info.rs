@@ -35,7 +35,7 @@ impl UrlResponseInfo {
         }
     }
 
-    pub fn url_set(&self, url: &CStr) {
+    pub fn url_set(&mut self, url: &CStr) {
         unsafe {
             Cronet_UrlResponseInfo_url_set(self.ptr, url.as_ptr());
         }
@@ -47,13 +47,13 @@ impl UrlResponseInfo {
         }
     }
 
-    pub fn http_status_code_set(&self, http_status_code: i32) {
+    pub fn http_status_code_set(&mut self, http_status_code: i32) {
         unsafe {
             Cronet_UrlResponseInfo_http_status_code_set(self.ptr, http_status_code);
         }
     }
 
-    pub fn http_status_text_set(&self, http_status_text: &CStr) {
+    pub fn http_status_text_set(&mut self, http_status_text: &CStr) {
         unsafe {
             Cronet_UrlResponseInfo_http_status_text_set(self.ptr, http_status_text.as_ptr());
         }
@@ -65,19 +65,19 @@ impl UrlResponseInfo {
         }
     }
 
-    pub fn was_cached_set(&self, was_cached: bool) {
+    pub fn was_cached_set(&mut self, was_cached: bool) {
         unsafe {
             Cronet_UrlResponseInfo_was_cached_set(self.ptr, was_cached);
         }
     }
 
-    pub fn negotiated_protocol_set(&self, negotiated_protocol: &CStr) {
+    pub fn negotiated_protocol_set(&mut self, negotiated_protocol: &CStr) {
         unsafe {
             Cronet_UrlResponseInfo_negotiated_protocol_set(self.ptr, negotiated_protocol.as_ptr());
         }
     }
 
-    pub fn proxy_server_set(&self, proxy_server: &CStr) {
+    pub fn proxy_server_set(&mut self, proxy_server: &CStr) {
         unsafe {
             Cronet_UrlResponseInfo_proxy_server_set(self.ptr, proxy_server.as_ptr());
         }

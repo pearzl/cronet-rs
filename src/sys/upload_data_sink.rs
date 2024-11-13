@@ -24,7 +24,7 @@ impl UploadDataSink {
         }
     }
 
-    pub fn set_client_conetxt(&self, client_conetxt: Cronet_ClientContext) {
+    pub fn set_client_conetxt(&mut self, client_conetxt: Cronet_ClientContext) {
         unsafe { Cronet_UploadDataSink_SetClientContext(self.ptr, client_conetxt) }
     }
 

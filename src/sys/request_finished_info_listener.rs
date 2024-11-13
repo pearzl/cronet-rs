@@ -17,23 +17,23 @@ impl RequestFinishedInfoListener {
     }
 
     pub fn from_borrowed_ptr(ptr: Cronet_RequestFinishedInfoListenerPtr) -> Self {
-        RequestFinishedInfoListener {ptr, is_owned_ptr: false}
+        RequestFinishedInfoListener {
+            ptr,
+            is_owned_ptr: false,
+        }
     }
 }
 
-
-
 impl Drop for RequestFinishedInfoListener {
     fn drop(&mut self) {
-        if self.is_owned_ptr{
-
+        if self.is_owned_ptr {
             unsafe { Cronet_RequestFinishedInfoListener_Destroy(self.ptr) }
         }
     }
 }
 
 impl RequestFinishedInfoListener {
-    pub fn set_client_context(&self, client_context: Cronet_ClientContext) {
+    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe { Cronet_RequestFinishedInfoListener_SetClientContext(self.ptr, client_context) }
     }
 
@@ -46,7 +46,10 @@ impl RequestFinishedInfoListener {
     ) -> Self {
         unsafe {
             let ptr = Cronet_RequestFinishedInfoListener_CreateWith(on_request_finished_func);
-            Self { ptr, is_owned_ptr: true }
+            Self {
+                ptr,
+                is_owned_ptr: true,
+            }
         }
     }
 }

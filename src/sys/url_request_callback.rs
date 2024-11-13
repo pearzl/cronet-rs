@@ -25,7 +25,7 @@ impl Drop for UrlRequestCallback {
 }
 
 impl UrlRequestCallback {
-    pub fn set_client_conetxt(&self, client_context: Cronet_ClientContext) {
+    pub fn set_client_conetxt(&mut self, client_context: Cronet_ClientContext) {
         unsafe { Cronet_UrlRequestCallback_SetClientContext(self.ptr, client_context) }
     }
 

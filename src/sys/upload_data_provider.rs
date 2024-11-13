@@ -17,7 +17,10 @@ impl UploadDataProvider {
     }
 
     pub fn from_borrowed_ptr(ptr: Cronet_UploadDataProviderPtr) -> Self {
-        UploadDataProvider {ptr, is_owned_ptr: false}
+        UploadDataProvider {
+            ptr,
+            is_owned_ptr: false,
+        }
     }
 }
 
@@ -30,7 +33,7 @@ impl Drop for UploadDataProvider {
 }
 
 impl UploadDataProvider {
-    pub fn set_client_context(&self, client_context: Cronet_ClientContext) {
+    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe { Cronet_UploadDataProvider_SetClientContext(self.ptr, client_context) }
     }
 
@@ -51,7 +54,10 @@ impl UploadDataProvider {
                 rewind_func,
                 close_func,
             );
-            Self { ptr, is_owned_ptr: true }
+            Self {
+                ptr,
+                is_owned_ptr: true,
+            }
         }
     }
 }

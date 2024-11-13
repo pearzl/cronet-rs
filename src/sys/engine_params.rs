@@ -49,55 +49,55 @@ impl EngineParams {
         }
     }
 
-    pub fn enable_check_result_set(&self, enable_check_result: bool) {
+    pub fn enable_check_result_set(&mut self, enable_check_result: bool) {
         unsafe {
             Cronet_EngineParams_enable_check_result_set(self.ptr, enable_check_result);
         }
     }
 
-    pub fn user_agent_set(&self, user_agent: &CStr) {
+    pub fn user_agent_set(&mut self, user_agent: &CStr) {
         unsafe {
             Cronet_EngineParams_user_agent_set(self.ptr, user_agent.as_ptr());
         }
     }
 
-    pub fn accept_language_set(&self, accept_language: &CStr) {
+    pub fn accept_language_set(&mut self, accept_language: &CStr) {
         unsafe {
             Cronet_EngineParams_accept_language_set(self.ptr, accept_language.as_ptr());
         }
     }
 
-    pub fn storage_path_set(&self, storage_path: &CStr) {
+    pub fn storage_path_set(&mut self, storage_path: &CStr) {
         unsafe {
             Cronet_EngineParams_storage_path_set(self.ptr, storage_path.as_ptr());
         }
     }
 
-    pub fn enable_quic_set(&self, enable_quic: bool) {
+    pub fn enable_quic_set(&mut self, enable_quic: bool) {
         unsafe {
             Cronet_EngineParams_enable_quic_set(self.ptr, enable_quic);
         }
     }
 
-    pub fn enable_http2_set(&self, enable_http2: bool) {
+    pub fn enable_http2_set(&mut self, enable_http2: bool) {
         unsafe {
             Cronet_EngineParams_enable_http2_set(self.ptr, enable_http2);
         }
     }
 
-    pub fn enable_brotli_set(&self, enable_brotli: bool) {
+    pub fn enable_brotli_set(&mut self, enable_brotli: bool) {
         unsafe {
             Cronet_EngineParams_enable_brotli_set(self.ptr, enable_brotli);
         }
     }
 
-    pub fn http_cache_mode_set(&self, http_cache_mode: Cronet_EngineParams_HTTP_CACHE_MODE) {
+    pub fn http_cache_mode_set(&mut self, http_cache_mode: Cronet_EngineParams_HTTP_CACHE_MODE) {
         unsafe {
             Cronet_EngineParams_http_cache_mode_set(self.ptr, http_cache_mode);
         }
     }
 
-    pub fn http_cache_max_size_set(&self, http_cache_max_size: i64) {
+    pub fn http_cache_max_size_set(&mut self, http_cache_max_size: i64) {
         unsafe {
             Cronet_EngineParams_http_cache_max_size_set(self.ptr, http_cache_max_size);
         }
@@ -116,7 +116,7 @@ impl EngineParams {
     }
 
     pub fn enable_public_key_pinning_bypass_for_local_trust_anchors_set(
-        &self,
+        &mut self,
         enable_public_key_pinning_bypass_for_local_trust_anchors: bool,
     ) {
         unsafe {
@@ -127,13 +127,13 @@ impl EngineParams {
         }
     }
 
-    pub fn network_thread_priority_set(&self, network_thread_priority: f64) {
+    pub fn network_thread_priority_set(&mut self, network_thread_priority: f64) {
         unsafe {
             Cronet_EngineParams_network_thread_priority_set(self.ptr, network_thread_priority);
         }
     }
 
-    pub fn experimental_options_set(&self, experimental_options: &CStr) {
+    pub fn experimental_options_set(&mut self, experimental_options: &CStr) {
         unsafe {
             Cronet_EngineParams_experimental_options_set(self.ptr, experimental_options.as_ptr());
         }
@@ -192,7 +192,7 @@ impl EngineParams {
         unsafe {
             let ptr = Cronet_EngineParams_quic_hints_at(self.ptr, index);
             assert!(!ptr.is_null());
-                QuicHint::from_borrowed_ptr(ptr)
+            QuicHint::from_borrowed_ptr(ptr)
         }
     }
 
@@ -210,7 +210,7 @@ impl EngineParams {
         unsafe {
             let ptr = Cronet_EngineParams_public_key_pins_at(self.ptr, index);
             assert!(!ptr.is_null());
-                PublicKeyPins::from_borrowed_ptr(ptr)
+            PublicKeyPins::from_borrowed_ptr(ptr)
         }
     }
 
