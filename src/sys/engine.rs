@@ -19,7 +19,13 @@ use super::{
 };
 
 pub struct Engine {
-    pub ptr: Cronet_EnginePtr,
+    ptr: Cronet_EnginePtr,
+}
+
+impl Engine {
+    pub fn as_ptr(&self) -> Cronet_EnginePtr {
+        self.ptr
+    }
 }
 
 impl Engine {
@@ -40,7 +46,7 @@ impl Engine {
     }
 
     pub fn start_with_params(&self, params: &EngineParams) -> Cronet_RESULT {
-        unsafe { Cronet_Engine_StartWithParams(self.ptr, params.ptr) }
+        unsafe { Cronet_Engine_StartWithParams(self.ptr, params.as_ptr()) }
     }
 
     pub fn start_net_log_to_file(&self, file_name: &CStr, log_all: bool) -> bool {
@@ -77,12 +83,12 @@ impl Engine {
         executor: Executor,
     ) {
         unsafe {
-            Cronet_Engine_AddRequestFinishedListener(self.ptr, listener.ptr, executor.ptr);
+            Cronet_Engine_AddRequestFinishedListener(self.ptr, listener.as_ptr(), executor.as_ptr());
         }
     }
 
     pub fn remove_request_finished_listener(&self, listener: &RequestFinishedInfoListener) {
-        unsafe { Cronet_Engine_RemoveRequestFinishedListener(self.ptr, listener.ptr) }
+        unsafe { Cronet_Engine_RemoveRequestFinishedListener(self.ptr, listener.as_ptr()) }
     }
 
     pub fn create_with(

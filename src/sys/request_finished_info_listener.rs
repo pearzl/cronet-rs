@@ -7,12 +7,28 @@ use crate::bindings::{
 };
 
 pub struct RequestFinishedInfoListener {
-    pub ptr: Cronet_RequestFinishedInfoListenerPtr,
+    ptr: Cronet_RequestFinishedInfoListenerPtr,
+    is_owned_ptr: bool,
 }
+
+impl RequestFinishedInfoListener {
+    pub fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {
+        self.ptr
+    }
+
+    pub fn from_borrowed_ptr(ptr: Cronet_RequestFinishedInfoListenerPtr) -> Self {
+        RequestFinishedInfoListener {ptr, is_owned_ptr: false}
+    }
+}
+
+
 
 impl Drop for RequestFinishedInfoListener {
     fn drop(&mut self) {
-        unsafe { Cronet_RequestFinishedInfoListener_Destroy(self.ptr) }
+        if self.is_owned_ptr{
+
+            unsafe { Cronet_RequestFinishedInfoListener_Destroy(self.ptr) }
+        }
     }
 }
 
@@ -30,7 +46,7 @@ impl RequestFinishedInfoListener {
     ) -> Self {
         unsafe {
             let ptr = Cronet_RequestFinishedInfoListener_CreateWith(on_request_finished_func);
-            Self { ptr }
+            Self { ptr, is_owned_ptr: true }
         }
     }
 }

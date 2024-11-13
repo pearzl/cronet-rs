@@ -10,13 +10,27 @@ use crate::bindings::{
 };
 
 pub struct PublicKeyPins {
-    pub ptr: Cronet_PublicKeyPinsPtr,
+    ptr: Cronet_PublicKeyPinsPtr,
+    is_owned_ptr: bool,
 }
+
+impl PublicKeyPins {
+    pub fn as_ptr(&self) -> Cronet_PublicKeyPinsPtr {
+        self.ptr
+    }
+
+    pub fn from_borrowed_ptr(ptr: Cronet_PublicKeyPinsPtr) -> Self {
+        PublicKeyPins{ptr, is_owned_ptr: false}
+    }
+}
+
 
 impl Drop for PublicKeyPins {
     fn drop(&mut self) {
-        unsafe {
-            Cronet_PublicKeyPins_Destroy(self.ptr);
+        if self.is_owned_ptr {
+            unsafe {
+                Cronet_PublicKeyPins_Destroy(self.ptr);
+            }
         }
     }
 }
@@ -25,7 +39,7 @@ impl PublicKeyPins {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_PublicKeyPins_Create();
-            Self { ptr }
+            Self { ptr, is_owned_ptr:true }
         }
     }
 

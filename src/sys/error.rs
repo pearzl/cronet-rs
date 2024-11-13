@@ -10,7 +10,7 @@ use crate::bindings::{
 };
 
 pub struct Error {
-    pub ptr: Cronet_ErrorPtr,
+    ptr: Cronet_ErrorPtr,
 }
 
 impl Drop for Error {

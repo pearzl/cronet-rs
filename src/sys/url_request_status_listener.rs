@@ -6,7 +6,13 @@ use crate::bindings::{
 };
 
 pub struct UrlRequestStatusListener {
-    pub ptr: Cronet_UrlRequestStatusListenerPtr,
+    ptr: Cronet_UrlRequestStatusListenerPtr,
+}
+
+impl UrlRequestStatusListener {
+    pub fn as_ptr(&self) -> Cronet_UrlRequestStatusListenerPtr {
+        self.ptr
+    }
 }
 
 impl UrlRequestStatusListener {

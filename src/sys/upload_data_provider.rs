@@ -7,12 +7,25 @@ use crate::bindings::{
 };
 
 pub struct UploadDataProvider {
-    pub ptr: Cronet_UploadDataProviderPtr,
+    ptr: Cronet_UploadDataProviderPtr,
+    is_owned_ptr: bool,
+}
+
+impl UploadDataProvider {
+    pub fn as_ptr(&self) -> Cronet_UploadDataProviderPtr {
+        self.ptr
+    }
+
+    pub fn from_borrowed_ptr(ptr: Cronet_UploadDataProviderPtr) -> Self {
+        UploadDataProvider {ptr, is_owned_ptr: false}
+    }
 }
 
 impl Drop for UploadDataProvider {
     fn drop(&mut self) {
-        unsafe { Cronet_UploadDataProvider_Destroy(self.ptr) }
+        if self.is_owned_ptr {
+            unsafe { Cronet_UploadDataProvider_Destroy(self.ptr) }
+        }
     }
 }
 
@@ -38,7 +51,7 @@ impl UploadDataProvider {
                 rewind_func,
                 close_func,
             );
-            Self { ptr }
+            Self { ptr, is_owned_ptr: true }
         }
     }
 }

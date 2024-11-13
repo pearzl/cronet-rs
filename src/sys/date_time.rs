@@ -4,12 +4,27 @@ use crate::bindings::{
 };
 
 pub struct DateTime {
-    pub ptr: Cronet_DateTimePtr,
+    ptr: Cronet_DateTimePtr,
+    is_owned_ptr: bool,
+}
+
+impl DateTime {
+    pub fn as_ptr(&self) -> Cronet_DateTimePtr {
+        self.ptr
+    }
+
+    pub fn from_borrowed_ptr(ptr: Cronet_DateTimePtr) -> DateTime {
+        DateTime{
+            ptr, is_owned_ptr: false
+        }
+    }
 }
 
 impl Drop for DateTime {
     fn drop(&mut self) {
-        unsafe { Cronet_DateTime_Destroy(self.ptr) }
+        if self.is_owned_ptr {
+            unsafe { Cronet_DateTime_Destroy(self.ptr) }
+        }
     }
 }
 
@@ -17,7 +32,7 @@ impl DateTime {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_DateTime_Create();
-            DateTime { ptr }
+            DateTime { ptr, is_owned_ptr: true }
         }
     }
 

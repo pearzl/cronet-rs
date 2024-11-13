@@ -53,11 +53,11 @@ impl UrlRequest {
         unsafe {
             Cronet_UrlRequest_InitWithParams(
                 self.ptr,
-                engine.ptr,
+                engine.as_ptr(),
                 url.as_ptr(),
-                params.ptr,
-                callback.ptr,
-                executor.ptr,
+                params.as_ptr(),
+                callback.as_ptr(),
+                executor.as_ptr(),
             )
         }
     }
@@ -71,7 +71,7 @@ impl UrlRequest {
     }
 
     pub fn read(&self, buffer: &mut Buffer) -> Cronet_RESULT {
-        unsafe { Cronet_UrlRequest_Read(self.ptr, buffer.ptr) }
+        unsafe { Cronet_UrlRequest_Read(self.ptr, buffer.as_ptr()) }
     }
 
     pub fn cancel(&self) {
@@ -83,7 +83,7 @@ impl UrlRequest {
     }
 
     pub fn get_status(&self, listener: &UrlRequestStatusListener) {
-        unsafe { Cronet_UrlRequest_GetStatus(self.ptr, listener.ptr) }
+        unsafe { Cronet_UrlRequest_GetStatus(self.ptr, listener.as_ptr()) }
     }
 
     pub fn create_with(

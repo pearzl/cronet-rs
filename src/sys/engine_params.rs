@@ -26,7 +26,13 @@ use crate::bindings::{
 use super::{public_key_pins::PublicKeyPins, quic_hint::QuicHint};
 
 pub struct EngineParams {
-    pub ptr: Cronet_EngineParamsPtr,
+    ptr: Cronet_EngineParamsPtr,
+}
+
+impl EngineParams {
+    pub fn as_ptr(&self) -> Cronet_EngineParamsPtr {
+        self.ptr
+    }
 }
 
 impl Drop for EngineParams {
@@ -99,13 +105,13 @@ impl EngineParams {
 
     pub fn quic_hint_add(&self, element: &QuicHint) {
         unsafe {
-            Cronet_EngineParams_quic_hints_add(self.ptr, element.ptr);
+            Cronet_EngineParams_quic_hints_add(self.ptr, element.as_ptr());
         }
     }
 
     pub fn public_key_pins_add(&self, element: &PublicKeyPins) {
         unsafe {
-            Cronet_EngineParams_public_key_pins_add(self.ptr, element.ptr);
+            Cronet_EngineParams_public_key_pins_add(self.ptr, element.as_ptr());
         }
     }
 
@@ -185,7 +191,8 @@ impl EngineParams {
     pub fn quic_hints_at(&self, index: u32) -> QuicHint {
         unsafe {
             let ptr = Cronet_EngineParams_quic_hints_at(self.ptr, index);
-            QuicHint { ptr }
+            assert!(!ptr.is_null());
+                QuicHint::from_borrowed_ptr(ptr)
         }
     }
 
@@ -202,7 +209,8 @@ impl EngineParams {
     pub fn public_key_pins_at(&self, index: u32) -> PublicKeyPins {
         unsafe {
             let ptr = Cronet_EngineParams_public_key_pins_at(self.ptr, index);
-            PublicKeyPins { ptr }
+            assert!(!ptr.is_null());
+                PublicKeyPins::from_borrowed_ptr(ptr)
         }
     }
 

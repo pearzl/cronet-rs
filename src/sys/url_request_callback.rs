@@ -9,7 +9,13 @@ use crate::bindings::{
 };
 
 pub struct UrlRequestCallback {
-    pub ptr: Cronet_UrlRequestCallbackPtr,
+    ptr: Cronet_UrlRequestCallbackPtr,
+}
+
+impl UrlRequestCallback {
+    pub fn as_ptr(&self) -> Cronet_UrlRequestCallbackPtr {
+        self.ptr
+    }
 }
 
 impl Drop for UrlRequestCallback {

@@ -8,12 +8,25 @@ use crate::bindings::{
 };
 
 pub struct QuicHint {
-    pub ptr: Cronet_QuicHintPtr,
+    ptr: Cronet_QuicHintPtr,
+    is_owned_ptr: bool,
+}
+
+impl QuicHint {
+    pub fn as_ptr(&self) -> Cronet_QuicHintPtr {
+        self.ptr
+    }
+
+    pub fn from_borrowed_ptr(ptr: Cronet_QuicHintPtr) -> Self {
+        QuicHint {ptr, is_owned_ptr: false}
+    }
 }
 
 impl Drop for QuicHint {
     fn drop(&mut self) {
-        unsafe { Cronet_QuicHint_Destroy(self.ptr) }
+        if self.is_owned_ptr {
+            unsafe { Cronet_QuicHint_Destroy(self.ptr) }
+        }
     }
 }
 
@@ -21,7 +34,7 @@ impl QuicHint {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_QuicHint_Create();
-            Self { ptr }
+            Self { ptr , is_owned_ptr: true}
         }
     }
 

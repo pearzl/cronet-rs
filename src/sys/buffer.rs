@@ -3,7 +3,13 @@ use crate::bindings::{
 };
 
 pub struct Buffer {
-    pub ptr: Cronet_BufferPtr,
+    ptr: Cronet_BufferPtr,
+}
+
+impl Buffer {
+    pub fn as_ptr(&self) -> Cronet_BufferPtr {
+        self.ptr
+    }
 }
 
 impl Drop for Buffer {

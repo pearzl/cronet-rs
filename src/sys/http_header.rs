@@ -7,13 +7,29 @@ use crate::bindings::{
 };
 
 pub struct HttpHeader {
-    pub ptr: Cronet_HttpHeaderPtr,
+    ptr: Cronet_HttpHeaderPtr,
+    is_owned_ptr: bool,
+}
+
+impl HttpHeader {
+    pub fn as_ptr(&self) -> Cronet_HttpHeaderPtr {
+        self.ptr
+    }
+
+    pub fn from_borrowed_ptr(ptr: Cronet_HttpHeaderPtr) -> HttpHeader {
+        HttpHeader {
+            ptr,
+            is_owned_ptr: false,
+        }
+    }
 }
 
 impl Drop for HttpHeader {
     fn drop(&mut self) {
-        unsafe {
-            Cronet_HttpHeader_Destroy(self.ptr);
+        if self.is_owned_ptr {
+            unsafe {
+                Cronet_HttpHeader_Destroy(self.ptr);
+            }
         }
     }
 }
@@ -22,7 +38,7 @@ impl HttpHeader {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_HttpHeader_Create();
-            Self { ptr }
+            Self { ptr , is_owned_ptr: true}
         }
     }
 

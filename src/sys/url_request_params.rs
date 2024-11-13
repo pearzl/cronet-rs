@@ -29,7 +29,13 @@ use super::{
 };
 
 pub struct UrlRequestParams {
-    pub ptr: Cronet_UrlRequestParamsPtr,
+    ptr: Cronet_UrlRequestParamsPtr,
+}
+
+impl UrlRequestParams {
+    pub fn as_ptr(&self) -> Cronet_UrlRequestParamsPtr {
+        self.ptr
+    }
 }
 
 impl Drop for UrlRequestParams {
@@ -52,7 +58,7 @@ impl UrlRequestParams {
 
     pub fn request_headers_add(&self, element: &HttpHeader) {
         unsafe {
-            Cronet_UrlRequestParams_request_headers_add(self.ptr, element.ptr);
+            Cronet_UrlRequestParams_request_headers_add(self.ptr, element.as_ptr());
         }
     }
 
@@ -70,7 +76,7 @@ impl UrlRequestParams {
 
     pub fn upload_data_provider_set(&self, upload_data_provider: UploadDataProvider) {
         unsafe {
-            Cronet_UrlRequestParams_upload_data_provider_set(self.ptr, upload_data_provider.ptr);
+            Cronet_UrlRequestParams_upload_data_provider_set(self.ptr, upload_data_provider.as_ptr());
         }
     }
 
@@ -78,7 +84,7 @@ impl UrlRequestParams {
         unsafe {
             Cronet_UrlRequestParams_upload_data_provider_executor_set(
                 self.ptr,
-                upload_data_provider_executor.ptr,
+                upload_data_provider_executor.as_ptr(),
             );
         }
     }
@@ -102,7 +108,7 @@ impl UrlRequestParams {
         unsafe {
             Cronet_UrlRequestParams_request_finished_listener_set(
                 self.ptr,
-                request_finished_listener.ptr,
+                request_finished_listener.as_ptr(),
             );
         }
     }
@@ -111,7 +117,7 @@ impl UrlRequestParams {
         unsafe {
             Cronet_UrlRequestParams_request_finished_executor_set(
                 self.ptr,
-                request_finished_executor.ptr,
+                request_finished_executor.as_ptr(),
             );
         }
     }
@@ -136,7 +142,8 @@ impl UrlRequestParams {
     pub fn request_headers_at(&self, index: u32) -> HttpHeader {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_headers_at(self.ptr, index);
-            HttpHeader { ptr }
+            assert!(!ptr.is_null());
+                HttpHeader::from_borrowed_ptr(ptr)
         }
     }
 
@@ -157,14 +164,16 @@ impl UrlRequestParams {
     pub fn upload_data_provider_get(&self) -> UploadDataProvider {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_get(self.ptr);
-            UploadDataProvider { ptr }
+            assert!(!ptr.is_null());
+            UploadDataProvider::from_borrowed_ptr(ptr)
         }
     }
 
     pub fn upload_data_provider_executor_get(&self) -> Executor {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_executor_get(self.ptr);
-            Executor { ptr }
+            assert!(!ptr.is_null());
+            Executor::from_borrowed_ptr(ptr)
         }
     }
 
@@ -189,14 +198,16 @@ impl UrlRequestParams {
     pub fn request_finished_listener_get(&self) -> RequestFinishedInfoListener {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_listener_get(self.ptr);
-            RequestFinishedInfoListener { ptr }
+            assert!(!ptr.is_null());
+            RequestFinishedInfoListener::from_borrowed_ptr(ptr)
         }
     }
 
     pub fn request_finished_executor_get(&self) -> Executor {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_executor_get(self.ptr);
-            Executor { ptr }
+            assert!(!ptr.is_null());
+            Executor::from_borrowed_ptr(ptr)
         }
     }
 

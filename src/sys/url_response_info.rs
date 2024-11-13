@@ -18,7 +18,7 @@ use crate::bindings::{
 use super::http_header::HttpHeader;
 
 pub struct UrlResponseInfo {
-    pub ptr: Cronet_UrlResponseInfoPtr,
+    ptr: Cronet_UrlResponseInfoPtr,
 }
 
 impl Drop for UrlResponseInfo {
@@ -61,7 +61,7 @@ impl UrlResponseInfo {
 
     pub fn all_headers_list_add(&self, element: &HttpHeader) {
         unsafe {
-            Cronet_UrlResponseInfo_all_headers_list_add(self.ptr, element.ptr);
+            Cronet_UrlResponseInfo_all_headers_list_add(self.ptr, element.as_ptr());
         }
     }
 
@@ -131,7 +131,8 @@ impl UrlResponseInfo {
     pub fn all_headers_list_at(&self, index: u32) -> HttpHeader {
         unsafe {
             let ptr = Cronet_UrlResponseInfo_all_headers_list_at(self.ptr, index);
-            HttpHeader { ptr }
+            assert!(!ptr.is_null());
+            HttpHeader::from_borrowed_ptr(ptr)
         }
     }
 

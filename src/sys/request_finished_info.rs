@@ -30,13 +30,13 @@ impl RequestFinishedInfo {
 
     pub fn metrics_set(&self, metrics: Metrics) {
         unsafe {
-            Cronet_RequestFinishedInfo_metrics_set(self.ptr, metrics.ptr);
+            Cronet_RequestFinishedInfo_metrics_set(self.ptr, metrics.as_ptr());
         }
     }
 
     pub fn metrics_move(&self, metrics: Metrics) {
         unsafe {
-            Cronet_RequestFinishedInfo_metrics_move(self.ptr, metrics.ptr);
+            Cronet_RequestFinishedInfo_metrics_move(self.ptr, metrics.as_ptr());
         }
     }
 
@@ -55,7 +55,8 @@ impl RequestFinishedInfo {
     pub fn metrics_get(&self) -> Metrics {
         unsafe {
             let ptr = Cronet_RequestFinishedInfo_metrics_get(self.ptr);
-            Metrics { ptr }
+            assert!(!ptr.is_null());
+            Metrics::from_borrowed_ptr(ptr)
         }
     }
 
