@@ -15,6 +15,7 @@ extern "C" {
 #include <stdint.h>
 
 typedef const char* Cronet_String;
+typedef const char* Cronet_TestType;
 typedef void* Cronet_RawDataPtr;
 typedef void* Cronet_ClientContext;
 
