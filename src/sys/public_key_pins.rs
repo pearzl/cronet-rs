@@ -9,12 +9,12 @@ use crate::bindings::{
     Cronet_PublicKeyPins_pins_sha256_clear, Cronet_PublicKeyPins_pins_sha256_size,
 };
 
-pub struct PublicKeyPins {
+pub(crate) struct PublicKeyPins {
     ptr: Cronet_PublicKeyPinsPtr,
 }
 
 impl PublicKeyPins {
-    pub fn as_ptr(&self) -> Cronet_PublicKeyPinsPtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_PublicKeyPinsPtr {
         self.ptr
     }
 }
@@ -28,72 +28,72 @@ impl Drop for PublicKeyPins {
 }
 
 impl PublicKeyPins {
-    pub fn create() -> Self {
+    pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_PublicKeyPins_Create();
             Self { ptr }
         }
     }
 
-    pub fn host_set(&mut self, host: &CStr) {
+    pub(crate) fn host_set(&mut self, host: &CStr) {
         unsafe {
             Cronet_PublicKeyPins_host_set(self.ptr, host.as_ptr());
         }
     }
 
-    pub fn pins_sha256_add(&self, element: &CStr) {
+    pub(crate) fn pins_sha256_add(&self, element: &CStr) {
         unsafe { Cronet_PublicKeyPins_pins_sha256_add(self.ptr, element.as_ptr()) }
     }
 
-    pub fn include_subdomains_set(&mut self, include_subdomains: bool) {
+    pub(crate) fn include_subdomains_set(&mut self, include_subdomains: bool) {
         unsafe {
             Cronet_PublicKeyPins_include_subdomains_set(self.ptr, include_subdomains);
         }
     }
 
-    pub fn expiration_date_set(&mut self, expiration_date: i64) {
+    pub(crate) fn expiration_date_set(&mut self, expiration_date: i64) {
         unsafe {
             Cronet_PublicKeyPins_expiration_date_set(self.ptr, expiration_date);
         }
     }
 
-    pub fn host_get(&self) -> &CStr {
+    pub(crate) fn host_get(&self) -> &CStr {
         unsafe {
             let ptr = Cronet_PublicKeyPins_host_get(self.ptr);
             CStr::from_ptr(ptr)
         }
     }
 
-    pub fn pins_sha256_size(&self) -> u32 {
+    pub(crate) fn pins_sha256_size(&self) -> u32 {
         unsafe { Cronet_PublicKeyPins_pins_sha256_size(self.ptr) }
     }
 
-    pub fn pins_sha256_at(&self, index: u32) -> &CStr {
+    pub(crate) fn pins_sha256_at(&self, index: u32) -> &CStr {
         unsafe {
             let ptr = Cronet_PublicKeyPins_pins_sha256_at(self.ptr, index);
             CStr::from_ptr(ptr)
         }
     }
 
-    pub fn pins_sha256_clear(&self) {
+    pub(crate) fn pins_sha256_clear(&self) {
         unsafe { Cronet_PublicKeyPins_pins_sha256_clear(self.ptr) }
     }
 
-    pub fn include_subdomains_get(&self) -> bool {
+    pub(crate) fn include_subdomains_get(&self) -> bool {
         unsafe { Cronet_PublicKeyPins_include_subdomains_get(self.ptr) }
     }
 
-    pub fn expiration_date_get(&self) -> i64 {
+    pub(crate) fn expiration_date_get(&self) -> i64 {
         unsafe { Cronet_PublicKeyPins_expiration_date_get(self.ptr) }
     }
 }
 
-pub struct BorrowedPublicKeyPins {
+pub(crate) struct BorrowedPublicKeyPins {
     inner: ManuallyDrop<PublicKeyPins>,
 }
 
 impl BorrowedPublicKeyPins {
-    pub fn from_ptr(ptr: Cronet_PublicKeyPinsPtr) -> Self {
+    pub(crate) fn from_ptr(ptr: Cronet_PublicKeyPinsPtr) -> Self {
         let value = PublicKeyPins { ptr };
         BorrowedPublicKeyPins {
             inner: ManuallyDrop::new(value),

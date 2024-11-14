@@ -18,18 +18,18 @@ use super::{
     request_finished_info_listener::RequestFinishedInfoListener,
 };
 
-pub struct Engine {
+pub(crate) struct Engine {
     ptr: Cronet_EnginePtr,
 }
 
 impl Engine {
-    pub fn as_ptr(&self) -> Cronet_EnginePtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_EnginePtr {
         self.ptr
     }
 }
 
 impl Engine {
-    pub fn create() -> Self {
+    pub(crate) fn create() -> Self {
         unsafe {
             Engine {
                 ptr: Cronet_Engine_Create(),
@@ -37,48 +37,48 @@ impl Engine {
         }
     }
 
-    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
+    pub(crate) fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe { Cronet_Engine_SetClientContext(self.ptr, client_context) }
     }
 
-    pub fn get_client_context(&self) -> Cronet_ClientContext {
+    pub(crate) fn get_client_context(&self) -> Cronet_ClientContext {
         unsafe { Cronet_Engine_GetClientContext(self.ptr) }
     }
 
     #[must_use]
-    pub fn start_with_params(&self, params: &EngineParams) -> Cronet_RESULT {
+    pub(crate) fn start_with_params(&self, params: &EngineParams) -> Cronet_RESULT {
         unsafe { Cronet_Engine_StartWithParams(self.ptr, params.as_ptr()) }
     }
 
-    pub fn start_net_log_to_file(&self, file_name: &CStr, log_all: bool) -> bool {
+    pub(crate) fn start_net_log_to_file(&self, file_name: &CStr, log_all: bool) -> bool {
         unsafe { Cronet_Engine_StartNetLogToFile(self.ptr, file_name.as_ptr(), log_all) }
     }
 
-    pub fn stop_net_log(&self) {
+    pub(crate) fn stop_net_log(&self) {
         unsafe {
             Cronet_Engine_StopNetLog(self.ptr);
         }
     }
 
-    pub fn shutdown(&self) -> Cronet_RESULT {
+    pub(crate) fn shutdown(&self) -> Cronet_RESULT {
         unsafe { Cronet_Engine_Shutdown(self.ptr) }
     }
 
-    pub fn get_version_string(&self) -> &CStr {
+    pub(crate) fn get_version_string(&self) -> &CStr {
         unsafe {
             let v = Cronet_Engine_GetVersionString(self.ptr);
             CStr::from_ptr(v)
         }
     }
 
-    pub fn get_default_user_agent(&self) -> &CStr {
+    pub(crate) fn get_default_user_agent(&self) -> &CStr {
         unsafe {
             let v = Cronet_Engine_GetDefaultUserAgent(self.ptr);
             CStr::from_ptr(v)
         }
     }
 
-    pub fn add_request_finished_listener(
+    pub(crate) fn add_request_finished_listener(
         &self,
         listener: RequestFinishedInfoListener,
         executor: Executor,
@@ -92,12 +92,12 @@ impl Engine {
         }
     }
 
-    pub fn remove_request_finished_listener(&self, listener: &RequestFinishedInfoListener) {
+    pub(crate) fn remove_request_finished_listener(&self, listener: &RequestFinishedInfoListener) {
         unsafe { Cronet_Engine_RemoveRequestFinishedListener(self.ptr, listener.as_ptr()) }
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub fn create_with(
+    pub(crate) fn create_with(
         start_with_params_func: Cronet_Engine_StartWithParamsFunc,
         start_net_log_to_file_func: Cronet_Engine_StartNetLogToFileFunc,
         stop_net_log_func: Cronet_Engine_StopNetLogFunc,

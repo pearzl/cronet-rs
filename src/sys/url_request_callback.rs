@@ -8,12 +8,12 @@ use crate::bindings::{
     Cronet_UrlRequestCallback_SetClientContext,
 };
 
-pub struct UrlRequestCallback {
+pub(crate) struct UrlRequestCallback {
     ptr: Cronet_UrlRequestCallbackPtr,
 }
 
 impl UrlRequestCallback {
-    pub fn as_ptr(&self) -> Cronet_UrlRequestCallbackPtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestCallbackPtr {
         self.ptr
     }
 }
@@ -25,15 +25,15 @@ impl Drop for UrlRequestCallback {
 }
 
 impl UrlRequestCallback {
-    pub fn set_client_conetxt(&mut self, client_context: Cronet_ClientContext) {
+    pub(crate) fn set_client_conetxt(&mut self, client_context: Cronet_ClientContext) {
         unsafe { Cronet_UrlRequestCallback_SetClientContext(self.ptr, client_context) }
     }
 
-    pub fn get_client_conetxt(&self) -> Cronet_ClientContext {
+    pub(crate) fn get_client_conetxt(&self) -> Cronet_ClientContext {
         unsafe { Cronet_UrlRequestCallback_GetClientContext(self.ptr) }
     }
 
-    pub fn create_with(
+    pub(crate) fn create_with(
         on_redirect_received_func: Cronet_UrlRequestCallback_OnRedirectReceivedFunc,
         on_response_started_func: Cronet_UrlRequestCallback_OnResponseStartedFunc,
         on_read_completed_func: Cronet_UrlRequestCallback_OnReadCompletedFunc,

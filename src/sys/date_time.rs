@@ -5,12 +5,12 @@ use crate::bindings::{
     Cronet_DateTime_value_set,
 };
 
-pub struct DateTime {
+pub(crate) struct DateTime {
     ptr: Cronet_DateTimePtr,
 }
 
 impl DateTime {
-    pub fn as_ptr(&self) -> Cronet_DateTimePtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_DateTimePtr {
         self.ptr
     }
 }
@@ -22,30 +22,30 @@ impl Drop for DateTime {
 }
 
 impl DateTime {
-    pub fn create() -> Self {
+    pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_DateTime_Create();
             DateTime { ptr }
         }
     }
 
-    pub fn value_set(&mut self, value: i64) {
+    pub(crate) fn value_set(&mut self, value: i64) {
         unsafe {
             Cronet_DateTime_value_set(self.ptr, value);
         }
     }
 
-    pub fn value_get(&self) -> i64 {
+    pub(crate) fn value_get(&self) -> i64 {
         unsafe { Cronet_DateTime_value_get(self.ptr) }
     }
 }
 
-pub struct BorrowedDateTime {
+pub(crate) struct BorrowedDateTime {
     inner: ManuallyDrop<DateTime>,
 }
 
 impl BorrowedDateTime {
-    pub fn from_ptr(ptr: Cronet_DateTimePtr) -> Self {
+    pub(crate) fn from_ptr(ptr: Cronet_DateTimePtr) -> Self {
         let value = DateTime { ptr };
         BorrowedDateTime {
             inner: ManuallyDrop::new(value),

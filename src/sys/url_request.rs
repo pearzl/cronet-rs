@@ -16,7 +16,7 @@ use super::{
     url_request_params::UrlRequestParams, url_request_status_listener::UrlRequestStatusListener,
 };
 
-pub struct UrlRequest {
+pub(crate) struct UrlRequest {
     ptr: Cronet_UrlRequestPtr,
 }
 
@@ -27,22 +27,22 @@ impl Drop for UrlRequest {
 }
 
 impl UrlRequest {
-    pub fn create() -> Self {
+    pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_UrlRequest_Create();
             Self { ptr }
         }
     }
 
-    pub fn set_client_conetxt(&mut self, client_conetxt: Cronet_ClientContext) {
+    pub(crate) fn set_client_conetxt(&mut self, client_conetxt: Cronet_ClientContext) {
         unsafe { Cronet_UrlRequest_SetClientContext(self.ptr, client_conetxt) }
     }
 
-    pub fn get_client_conetxt(&self) -> Cronet_ClientContext {
+    pub(crate) fn get_client_conetxt(&self) -> Cronet_ClientContext {
         unsafe { Cronet_UrlRequest_GetClientContext(self.ptr) }
     }
 
-    pub fn init_with_params(
+    pub(crate) fn init_with_params(
         &self,
         engine: &Engine,
         url: &CStr,
@@ -62,31 +62,31 @@ impl UrlRequest {
         }
     }
 
-    pub fn start(&self) -> Cronet_RESULT {
+    pub(crate) fn start(&self) -> Cronet_RESULT {
         unsafe { Cronet_UrlRequest_Start(self.ptr) }
     }
 
-    pub fn follow_redirect(&self) -> Cronet_RESULT {
+    pub(crate) fn follow_redirect(&self) -> Cronet_RESULT {
         unsafe { Cronet_UrlRequest_FollowRedirect(self.ptr) }
     }
 
-    pub fn read(&self, buffer: &mut Buffer) -> Cronet_RESULT {
+    pub(crate) fn read(&self, buffer: &mut Buffer) -> Cronet_RESULT {
         unsafe { Cronet_UrlRequest_Read(self.ptr, buffer.as_ptr()) }
     }
 
-    pub fn cancel(&self) {
+    pub(crate) fn cancel(&self) {
         unsafe { Cronet_UrlRequest_Cancel(self.ptr) }
     }
 
-    pub fn is_done(&self) -> bool {
+    pub(crate) fn is_done(&self) -> bool {
         unsafe { Cronet_UrlRequest_IsDone(self.ptr) }
     }
 
-    pub fn get_status(&self, listener: &UrlRequestStatusListener) {
+    pub(crate) fn get_status(&self, listener: &UrlRequestStatusListener) {
         unsafe { Cronet_UrlRequest_GetStatus(self.ptr, listener.as_ptr()) }
     }
 
-    pub fn create_with(
+    pub(crate) fn create_with(
         init_with_params_func: Cronet_UrlRequest_InitWithParamsFunc,
         start_func: Cronet_UrlRequest_StartFunc,
         follow_redirect_func: Cronet_UrlRequest_FollowRedirectFunc,

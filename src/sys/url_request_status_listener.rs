@@ -5,28 +5,28 @@ use crate::bindings::{
     Cronet_UrlRequestStatusListener_SetClientContext,
 };
 
-pub struct UrlRequestStatusListener {
+pub(crate) struct UrlRequestStatusListener {
     ptr: Cronet_UrlRequestStatusListenerPtr,
 }
 
 impl UrlRequestStatusListener {
-    pub fn as_ptr(&self) -> Cronet_UrlRequestStatusListenerPtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestStatusListenerPtr {
         self.ptr
     }
 }
 
 impl UrlRequestStatusListener {
-    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
+    pub(crate) fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe {
             Cronet_UrlRequestStatusListener_SetClientContext(self.ptr, client_context);
         }
     }
 
-    pub fn get_client_context(&self) -> Cronet_ClientContext {
+    pub(crate) fn get_client_context(&self) -> Cronet_ClientContext {
         unsafe { Cronet_UrlRequestStatusListener_GetClientContext(self.ptr) }
     }
 
-    pub fn create_with(
+    pub(crate) fn create_with(
         &self,
         on_status_func: Cronet_UrlRequestStatusListener_OnStatusFunc,
     ) -> Self {

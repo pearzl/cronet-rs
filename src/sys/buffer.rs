@@ -7,12 +7,12 @@ use crate::bindings::{
     Cronet_Buffer_SetClientContext, Cronet_ClientContext, Cronet_RawDataPtr,
 };
 
-pub struct Buffer {
+pub(crate) struct Buffer {
     ptr: Cronet_BufferPtr,
 }
 
 impl Buffer {
-    pub fn as_ptr(&self) -> Cronet_BufferPtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_BufferPtr {
         self.ptr
     }
 }
@@ -26,26 +26,26 @@ impl Drop for Buffer {
 }
 
 impl Buffer {
-    pub fn create() -> Self {
+    pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_Buffer_Create();
             Buffer { ptr }
         }
     }
 
-    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
+    pub(crate) fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe {
             Cronet_Buffer_SetClientContext(self.ptr, client_context);
         }
     }
 
-    pub fn get_client_context(&self) {
+    pub(crate) fn get_client_context(&self) {
         unsafe {
             Cronet_Buffer_GetClientContext(self.ptr);
         }
     }
 
-    pub fn init_with_data_and_callback(&self, data: Box<[u8]>, callback: Cronet_BufferCallbackPtr) {
+    pub(crate) fn init_with_data_and_callback(&self, data: Box<[u8]>, callback: Cronet_BufferCallbackPtr) {
         let len = data.len();
         let ptr = Box::into_raw(data);
         unsafe {
@@ -58,21 +58,21 @@ impl Buffer {
         }
     }
 
-    pub fn init_with_alloc(&self, size: u64) {
+    pub(crate) fn init_with_alloc(&self, size: u64) {
         unsafe {
             Cronet_Buffer_InitWithAlloc(self.ptr, size);
         }
     }
 
-    pub fn get_size(&self) -> u64 {
+    pub(crate) fn get_size(&self) -> u64 {
         unsafe { Cronet_Buffer_GetSize(self.ptr) }
     }
 
-    pub fn get_data(&self) -> Cronet_RawDataPtr {
+    pub(crate) fn get_data(&self) -> Cronet_RawDataPtr {
         unsafe { Cronet_Buffer_GetData(self.ptr) }
     }
 
-    pub fn crate_with(
+    pub(crate) fn crate_with(
         init_with_data_and_callback_func: Cronet_Buffer_InitWithDataAndCallbackFunc,
         init_with_alloc_func: Cronet_Buffer_InitWithAllocFunc,
         get_size_func: Cronet_Buffer_GetSizeFunc,

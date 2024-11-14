@@ -6,12 +6,12 @@ use crate::bindings::{
     Cronet_Executor_SetClientContext,
 };
 
-pub struct Executor {
+pub(crate) struct Executor {
     ptr: Cronet_ExecutorPtr,
 }
 
 impl Executor {
-    pub fn as_ptr(&self) -> Cronet_ExecutorPtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_ExecutorPtr {
         self.ptr
     }
 }
@@ -23,15 +23,15 @@ impl Drop for Executor {
 }
 
 impl Executor {
-    pub fn set_client_conetxt(&mut self, client_conetxt: Cronet_ClientContext) {
+    pub(crate) fn set_client_conetxt(&mut self, client_conetxt: Cronet_ClientContext) {
         unsafe { Cronet_Executor_SetClientContext(self.ptr, client_conetxt) }
     }
 
-    pub fn get_client_context(&self) -> Cronet_ClientContext {
+    pub(crate) fn get_client_context(&self) -> Cronet_ClientContext {
         unsafe { Cronet_Executor_GetClientContext(self.ptr) }
     }
 
-    pub fn create_with(execute_func: Cronet_Executor_ExecuteFunc) -> Self {
+    pub(crate) fn create_with(execute_func: Cronet_Executor_ExecuteFunc) -> Self {
         unsafe {
             let ptr = Cronet_Executor_CreateWith(execute_func);
             Self { ptr }
@@ -39,12 +39,12 @@ impl Executor {
     }
 }
 
-pub struct BorrowedExecutor {
+pub(crate) struct BorrowedExecutor {
     inner: ManuallyDrop<Executor>,
 }
 
 impl BorrowedExecutor {
-    pub fn from_ptr(ptr: Cronet_ExecutorPtr) -> Self {
+    pub(crate) fn from_ptr(ptr: Cronet_ExecutorPtr) -> Self {
         let value = Executor { ptr };
         BorrowedExecutor {
             inner: ManuallyDrop::new(value),

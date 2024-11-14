@@ -10,7 +10,7 @@ use crate::bindings::{
 
 use super::metrics::{BorrowedMetrics, Metrics};
 
-pub struct RequestFinishedInfo {
+pub(crate) struct RequestFinishedInfo {
     ptr: Cronet_RequestFinishedInfoPtr,
 }
 
@@ -21,32 +21,32 @@ impl Drop for RequestFinishedInfo {
 }
 
 impl RequestFinishedInfo {
-    pub fn create() -> Self {
+    pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_RequestFinishedInfo_Create();
             RequestFinishedInfo { ptr }
         }
     }
 
-    pub fn metrics_set(&mut self, metrics: Metrics) {
+    pub(crate) fn metrics_set(&mut self, metrics: Metrics) {
         unsafe {
             Cronet_RequestFinishedInfo_metrics_set(self.ptr, metrics.as_ptr());
         }
     }
 
-    pub fn metrics_move(&self, metrics: Metrics) {
+    pub(crate) fn metrics_move(&self, metrics: Metrics) {
         unsafe {
             Cronet_RequestFinishedInfo_metrics_move(self.ptr, metrics.as_ptr());
         }
     }
 
-    pub fn annotations_add(&self, element: Cronet_RawDataPtr) {
+    pub(crate) fn annotations_add(&self, element: Cronet_RawDataPtr) {
         unsafe {
             Cronet_RequestFinishedInfo_annotations_add(self.ptr, element);
         }
     }
 
-    pub fn finished_reason_set(
+    pub(crate) fn finished_reason_set(
         &mut self,
         finished_reason: Cronet_RequestFinishedInfo_FINISHED_REASON,
     ) {
@@ -55,7 +55,7 @@ impl RequestFinishedInfo {
         }
     }
 
-    pub fn metrics_get(&self) -> BorrowedMetrics {
+    pub(crate) fn metrics_get(&self) -> BorrowedMetrics {
         unsafe {
             let ptr = Cronet_RequestFinishedInfo_metrics_get(self.ptr);
             assert!(!ptr.is_null());
@@ -63,21 +63,21 @@ impl RequestFinishedInfo {
         }
     }
 
-    pub fn annotations_size(&self) -> u32 {
+    pub(crate) fn annotations_size(&self) -> u32 {
         unsafe { Cronet_RequestFinishedInfo_annotations_size(self.ptr) }
     }
 
-    pub fn annotations_at(&self, index: u32) -> Cronet_RawDataPtr {
+    pub(crate) fn annotations_at(&self, index: u32) -> Cronet_RawDataPtr {
         unsafe { Cronet_RequestFinishedInfo_annotations_at(self.ptr, index) }
     }
 
-    pub fn annotations_clear(&self) {
+    pub(crate) fn annotations_clear(&self) {
         unsafe {
             Cronet_RequestFinishedInfo_annotations_clear(self.ptr);
         }
     }
 
-    pub fn finished_reason_get(&self) -> Cronet_RequestFinishedInfo_FINISHED_REASON {
+    pub(crate) fn finished_reason_get(&self) -> Cronet_RequestFinishedInfo_FINISHED_REASON {
         unsafe { Cronet_RequestFinishedInfo_finished_reason_get(self.ptr) }
     }
 }

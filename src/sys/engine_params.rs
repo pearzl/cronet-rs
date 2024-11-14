@@ -31,12 +31,12 @@ use super::{
     quic_hint::QuicHint,
 };
 
-pub struct EngineParams {
+pub(crate) struct EngineParams {
     ptr: Cronet_EngineParamsPtr,
 }
 
 impl EngineParams {
-    pub fn as_ptr(&self) -> Cronet_EngineParamsPtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_EngineParamsPtr {
         self.ptr
     }
 }
@@ -48,80 +48,80 @@ impl Drop for EngineParams {
 }
 
 impl EngineParams {
-    pub fn create() -> Self {
+    pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_EngineParams_Create();
             Self { ptr }
         }
     }
 
-    pub fn enable_check_result_set(&mut self, enable_check_result: bool) {
+    pub(crate) fn enable_check_result_set(&mut self, enable_check_result: bool) {
         unsafe {
             Cronet_EngineParams_enable_check_result_set(self.ptr, enable_check_result);
         }
     }
 
-    pub fn user_agent_set(&mut self, user_agent: &CStr) {
+    pub(crate) fn user_agent_set(&mut self, user_agent: &CStr) {
         unsafe {
             Cronet_EngineParams_user_agent_set(self.ptr, user_agent.as_ptr());
         }
     }
 
-    pub fn accept_language_set(&mut self, accept_language: &CStr) {
+    pub(crate) fn accept_language_set(&mut self, accept_language: &CStr) {
         unsafe {
             Cronet_EngineParams_accept_language_set(self.ptr, accept_language.as_ptr());
         }
     }
 
-    pub fn storage_path_set(&mut self, storage_path: &CStr) {
+    pub(crate) fn storage_path_set(&mut self, storage_path: &CStr) {
         unsafe {
             Cronet_EngineParams_storage_path_set(self.ptr, storage_path.as_ptr());
         }
     }
 
-    pub fn enable_quic_set(&mut self, enable_quic: bool) {
+    pub(crate) fn enable_quic_set(&mut self, enable_quic: bool) {
         unsafe {
             Cronet_EngineParams_enable_quic_set(self.ptr, enable_quic);
         }
     }
 
-    pub fn enable_http2_set(&mut self, enable_http2: bool) {
+    pub(crate) fn enable_http2_set(&mut self, enable_http2: bool) {
         unsafe {
             Cronet_EngineParams_enable_http2_set(self.ptr, enable_http2);
         }
     }
 
-    pub fn enable_brotli_set(&mut self, enable_brotli: bool) {
+    pub(crate) fn enable_brotli_set(&mut self, enable_brotli: bool) {
         unsafe {
             Cronet_EngineParams_enable_brotli_set(self.ptr, enable_brotli);
         }
     }
 
-    pub fn http_cache_mode_set(&mut self, http_cache_mode: Cronet_EngineParams_HTTP_CACHE_MODE) {
+    pub(crate) fn http_cache_mode_set(&mut self, http_cache_mode: Cronet_EngineParams_HTTP_CACHE_MODE) {
         unsafe {
             Cronet_EngineParams_http_cache_mode_set(self.ptr, http_cache_mode);
         }
     }
 
-    pub fn http_cache_max_size_set(&mut self, http_cache_max_size: i64) {
+    pub(crate) fn http_cache_max_size_set(&mut self, http_cache_max_size: i64) {
         unsafe {
             Cronet_EngineParams_http_cache_max_size_set(self.ptr, http_cache_max_size);
         }
     }
 
-    pub fn quic_hint_add(&self, element: &QuicHint) {
+    pub(crate) fn quic_hint_add(&self, element: &QuicHint) {
         unsafe {
             Cronet_EngineParams_quic_hints_add(self.ptr, element.as_ptr());
         }
     }
 
-    pub fn public_key_pins_add(&self, element: &PublicKeyPins) {
+    pub(crate) fn public_key_pins_add(&self, element: &PublicKeyPins) {
         unsafe {
             Cronet_EngineParams_public_key_pins_add(self.ptr, element.as_ptr());
         }
     }
 
-    pub fn enable_public_key_pinning_bypass_for_local_trust_anchors_set(
+    pub(crate) fn enable_public_key_pinning_bypass_for_local_trust_anchors_set(
         &mut self,
         enable_public_key_pinning_bypass_for_local_trust_anchors: bool,
     ) {
@@ -133,68 +133,68 @@ impl EngineParams {
         }
     }
 
-    pub fn network_thread_priority_set(&mut self, network_thread_priority: f64) {
+    pub(crate) fn network_thread_priority_set(&mut self, network_thread_priority: f64) {
         unsafe {
             Cronet_EngineParams_network_thread_priority_set(self.ptr, network_thread_priority);
         }
     }
 
-    pub fn experimental_options_set(&mut self, experimental_options: &CStr) {
+    pub(crate) fn experimental_options_set(&mut self, experimental_options: &CStr) {
         unsafe {
             Cronet_EngineParams_experimental_options_set(self.ptr, experimental_options.as_ptr());
         }
     }
 
-    pub fn enable_check_result_get(&self) -> bool {
+    pub(crate) fn enable_check_result_get(&self) -> bool {
         unsafe { Cronet_EngineParams_enable_check_result_get(self.ptr) }
     }
 
-    pub fn user_agent_get(&self) -> &CStr {
+    pub(crate) fn user_agent_get(&self) -> &CStr {
         unsafe {
             let ptr = Cronet_EngineParams_user_agent_get(self.ptr);
             CStr::from_ptr(ptr)
         }
     }
 
-    pub fn accept_language_get(&self) -> &CStr {
+    pub(crate) fn accept_language_get(&self) -> &CStr {
         unsafe {
             let ptr = Cronet_EngineParams_accept_language_get(self.ptr);
             CStr::from_ptr(ptr)
         }
     }
 
-    pub fn storage_path_get(&self) -> &CStr {
+    pub(crate) fn storage_path_get(&self) -> &CStr {
         unsafe {
             let ptr = Cronet_EngineParams_storage_path_get(self.ptr);
             CStr::from_ptr(ptr)
         }
     }
 
-    pub fn enable_quic_get(&self) -> bool {
+    pub(crate) fn enable_quic_get(&self) -> bool {
         unsafe { Cronet_EngineParams_enable_quic_get(self.ptr) }
     }
 
-    pub fn enable_http2_get(&self) -> bool {
+    pub(crate) fn enable_http2_get(&self) -> bool {
         unsafe { Cronet_EngineParams_enable_http2_get(self.ptr) }
     }
 
-    pub fn enable_brotli_get(&self) -> bool {
+    pub(crate) fn enable_brotli_get(&self) -> bool {
         unsafe { Cronet_EngineParams_enable_brotli_get(self.ptr) }
     }
 
-    pub fn http_cache_mode_get(&self) -> Cronet_EngineParams_HTTP_CACHE_MODE {
+    pub(crate) fn http_cache_mode_get(&self) -> Cronet_EngineParams_HTTP_CACHE_MODE {
         unsafe { Cronet_EngineParams_http_cache_mode_get(self.ptr) }
     }
 
-    pub fn http_cache_max_size_get(&self) -> i64 {
+    pub(crate) fn http_cache_max_size_get(&self) -> i64 {
         unsafe { Cronet_EngineParams_http_cache_max_size_get(self.ptr) }
     }
 
-    pub fn quic_hints_size(&self) -> u32 {
+    pub(crate) fn quic_hints_size(&self) -> u32 {
         unsafe { Cronet_EngineParams_quic_hints_size(self.ptr) }
     }
 
-    pub fn quic_hints_at(&self, index: u32) -> BorrowedQuicHint {
+    pub(crate) fn quic_hints_at(&self, index: u32) -> BorrowedQuicHint {
         unsafe {
             let ptr = Cronet_EngineParams_quic_hints_at(self.ptr, index);
             assert!(!ptr.is_null());
@@ -202,17 +202,17 @@ impl EngineParams {
         }
     }
 
-    pub fn quic_hints_clear(&self) {
+    pub(crate) fn quic_hints_clear(&self) {
         unsafe {
             Cronet_EngineParams_quic_hints_clear(self.ptr);
         }
     }
 
-    pub fn public_key_pins_size(&self) -> u32 {
+    pub(crate) fn public_key_pins_size(&self) -> u32 {
         unsafe { Cronet_EngineParams_public_key_pins_size(self.ptr) }
     }
 
-    pub fn public_key_pins_at(&self, index: u32) -> BorrowedPublicKeyPins {
+    pub(crate) fn public_key_pins_at(&self, index: u32) -> BorrowedPublicKeyPins {
         unsafe {
             let ptr = Cronet_EngineParams_public_key_pins_at(self.ptr, index);
             assert!(!ptr.is_null());
@@ -220,13 +220,13 @@ impl EngineParams {
         }
     }
 
-    pub fn public_key_pins_clear(&self) {
+    pub(crate) fn public_key_pins_clear(&self) {
         unsafe {
             Cronet_EngineParams_public_key_pins_clear(self.ptr);
         }
     }
 
-    pub fn enable_public_key_pinning_bypass_for_local_trust_anchors_get(&self) -> bool {
+    pub(crate) fn enable_public_key_pinning_bypass_for_local_trust_anchors_get(&self) -> bool {
         unsafe {
             Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_get(
                 self.ptr,
@@ -234,11 +234,11 @@ impl EngineParams {
         }
     }
 
-    pub fn network_thread_priority_get(&self) -> f64 {
+    pub(crate) fn network_thread_priority_get(&self) -> f64 {
         unsafe { Cronet_EngineParams_network_thread_priority_get(self.ptr) }
     }
 
-    pub fn experimental_options_get(&self) -> &CStr {
+    pub(crate) fn experimental_options_get(&self) -> &CStr {
         unsafe {
             let ptr = Cronet_EngineParams_experimental_options_get(self.ptr);
             CStr::from_ptr(ptr)

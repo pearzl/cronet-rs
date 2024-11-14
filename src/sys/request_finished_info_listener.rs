@@ -8,12 +8,12 @@ use crate::bindings::{
     Cronet_RequestFinishedInfoListener_SetClientContext,
 };
 
-pub struct RequestFinishedInfoListener {
+pub(crate) struct RequestFinishedInfoListener {
     ptr: Cronet_RequestFinishedInfoListenerPtr,
 }
 
 impl RequestFinishedInfoListener {
-    pub fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {
+    pub(crate) fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {
         self.ptr
     }
 }
@@ -25,15 +25,15 @@ impl Drop for RequestFinishedInfoListener {
 }
 
 impl RequestFinishedInfoListener {
-    pub fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
+    pub(crate) fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
         unsafe { Cronet_RequestFinishedInfoListener_SetClientContext(self.ptr, client_context) }
     }
 
-    pub fn get_client_context(&self) -> Cronet_ClientContext {
+    pub(crate) fn get_client_context(&self) -> Cronet_ClientContext {
         unsafe { Cronet_RequestFinishedInfoListener_GetClientContext(self.ptr) }
     }
 
-    pub fn create_with(
+    pub(crate) fn create_with(
         on_request_finished_func: Cronet_RequestFinishedInfoListener_OnRequestFinishedFunc,
     ) -> Self {
         unsafe {
@@ -43,12 +43,12 @@ impl RequestFinishedInfoListener {
     }
 }
 
-pub struct BorrowedRequestFinishedInfoListener {
+pub(crate) struct BorrowedRequestFinishedInfoListener {
     inner: ManuallyDrop<RequestFinishedInfoListener>,
 }
 
 impl BorrowedRequestFinishedInfoListener {
-    pub fn from_ptr(ptr: Cronet_RequestFinishedInfoListenerPtr) -> Self {
+    pub(crate) fn from_ptr(ptr: Cronet_RequestFinishedInfoListenerPtr) -> Self {
         let value = RequestFinishedInfoListener { ptr };
         BorrowedRequestFinishedInfoListener {
             inner: ManuallyDrop::new(value),
