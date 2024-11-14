@@ -1,3 +1,5 @@
+use std::{mem::ManuallyDrop, ops::Deref};
+
 use crate::bindings::{
     Cronet_DateTimePtr, Cronet_DateTime_Create, Cronet_DateTime_Destroy, Cronet_DateTime_value_get,
     Cronet_DateTime_value_set,
@@ -5,27 +7,17 @@ use crate::bindings::{
 
 pub struct DateTime {
     ptr: Cronet_DateTimePtr,
-    is_owned_ptr: bool,
 }
 
 impl DateTime {
     pub fn as_ptr(&self) -> Cronet_DateTimePtr {
         self.ptr
     }
-
-    pub fn from_borrowed_ptr(ptr: Cronet_DateTimePtr) -> DateTime {
-        DateTime {
-            ptr,
-            is_owned_ptr: false,
-        }
-    }
 }
 
 impl Drop for DateTime {
     fn drop(&mut self) {
-        if self.is_owned_ptr {
-            unsafe { Cronet_DateTime_Destroy(self.ptr) }
-        }
+        unsafe { Cronet_DateTime_Destroy(self.ptr) }
     }
 }
 
@@ -33,10 +25,7 @@ impl DateTime {
     pub fn create() -> Self {
         unsafe {
             let ptr = Cronet_DateTime_Create();
-            DateTime {
-                ptr,
-                is_owned_ptr: true,
-            }
+            DateTime { ptr }
         }
     }
 
@@ -48,5 +37,26 @@ impl DateTime {
 
     pub fn value_get(&self) -> i64 {
         unsafe { Cronet_DateTime_value_get(self.ptr) }
+    }
+}
+
+pub struct BorrowedDateTime {
+    inner: ManuallyDrop<DateTime>,
+}
+
+impl BorrowedDateTime {
+    pub fn from_ptr(ptr: Cronet_DateTimePtr) -> Self {
+        let value = DateTime { ptr };
+        BorrowedDateTime {
+            inner: ManuallyDrop::new(value),
+        }
+    }
+}
+
+impl Deref for BorrowedDateTime {
+    type Target = DateTime;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
     }
 }

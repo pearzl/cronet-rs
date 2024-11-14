@@ -1,18 +1,23 @@
 use std::ffi::CStr;
 
-use crate::bindings::{
-    Cronet_UrlResponseInfoPtr, Cronet_UrlResponseInfo_Create, Cronet_UrlResponseInfo_Destroy,
-    Cronet_UrlResponseInfo_all_headers_list_add, Cronet_UrlResponseInfo_all_headers_list_at,
-    Cronet_UrlResponseInfo_all_headers_list_clear, Cronet_UrlResponseInfo_all_headers_list_size,
-    Cronet_UrlResponseInfo_http_status_code_get, Cronet_UrlResponseInfo_http_status_code_set,
-    Cronet_UrlResponseInfo_http_status_text_get, Cronet_UrlResponseInfo_http_status_text_set,
-    Cronet_UrlResponseInfo_negotiated_protocol_get, Cronet_UrlResponseInfo_negotiated_protocol_set,
-    Cronet_UrlResponseInfo_proxy_server_get, Cronet_UrlResponseInfo_proxy_server_set,
-    Cronet_UrlResponseInfo_received_byte_count_get, Cronet_UrlResponseInfo_received_byte_count_set,
-    Cronet_UrlResponseInfo_url_chain_add, Cronet_UrlResponseInfo_url_chain_at,
-    Cronet_UrlResponseInfo_url_chain_clear, Cronet_UrlResponseInfo_url_chain_size,
-    Cronet_UrlResponseInfo_url_get, Cronet_UrlResponseInfo_url_set,
-    Cronet_UrlResponseInfo_was_cached_get, Cronet_UrlResponseInfo_was_cached_set,
+use crate::{
+    bindings::{
+        Cronet_UrlResponseInfoPtr, Cronet_UrlResponseInfo_Create, Cronet_UrlResponseInfo_Destroy,
+        Cronet_UrlResponseInfo_all_headers_list_add, Cronet_UrlResponseInfo_all_headers_list_at,
+        Cronet_UrlResponseInfo_all_headers_list_clear,
+        Cronet_UrlResponseInfo_all_headers_list_size, Cronet_UrlResponseInfo_http_status_code_get,
+        Cronet_UrlResponseInfo_http_status_code_set, Cronet_UrlResponseInfo_http_status_text_get,
+        Cronet_UrlResponseInfo_http_status_text_set,
+        Cronet_UrlResponseInfo_negotiated_protocol_get,
+        Cronet_UrlResponseInfo_negotiated_protocol_set, Cronet_UrlResponseInfo_proxy_server_get,
+        Cronet_UrlResponseInfo_proxy_server_set, Cronet_UrlResponseInfo_received_byte_count_get,
+        Cronet_UrlResponseInfo_received_byte_count_set, Cronet_UrlResponseInfo_url_chain_add,
+        Cronet_UrlResponseInfo_url_chain_at, Cronet_UrlResponseInfo_url_chain_clear,
+        Cronet_UrlResponseInfo_url_chain_size, Cronet_UrlResponseInfo_url_get,
+        Cronet_UrlResponseInfo_url_set, Cronet_UrlResponseInfo_was_cached_get,
+        Cronet_UrlResponseInfo_was_cached_set,
+    },
+    sys::http_header::BorrowedHttpHeader,
 };
 
 use super::http_header::HttpHeader;
@@ -128,11 +133,11 @@ impl UrlResponseInfo {
         unsafe { Cronet_UrlResponseInfo_all_headers_list_size(self.ptr) }
     }
 
-    pub fn all_headers_list_at(&self, index: u32) -> HttpHeader {
+    pub fn all_headers_list_at(&self, index: u32) -> BorrowedHttpHeader {
         unsafe {
             let ptr = Cronet_UrlResponseInfo_all_headers_list_at(self.ptr, index);
             assert!(!ptr.is_null());
-            HttpHeader::from_borrowed_ptr(ptr)
+            BorrowedHttpHeader::from_ptr(ptr)
         }
     }
 

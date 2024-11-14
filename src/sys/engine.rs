@@ -95,6 +95,7 @@ impl Engine {
         unsafe { Cronet_Engine_RemoveRequestFinishedListener(self.ptr, listener.as_ptr()) }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn create_with(
         start_with_params_func: Cronet_Engine_StartWithParamsFunc,
         start_net_log_to_file_func: Cronet_Engine_StartNetLogToFileFunc,

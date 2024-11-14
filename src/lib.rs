@@ -1,8 +1,9 @@
-#[allow(nonstandard_style, dead_code)]
+#[allow(nonstandard_style, clippy::upper_case_acronyms)]
+#[allow(dead_code)] //todo
 mod bindings {
     include!(concat! {env!("OUT_DIR"), "/bindings.rs"});
 }
-#[allow(clippy::not_unsafe_ptr_arg_deref)]
+#[allow(clippy::not_unsafe_ptr_arg_deref)] // todo
 pub mod sys;
 
 pub mod body;

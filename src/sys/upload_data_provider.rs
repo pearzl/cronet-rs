@@ -1,3 +1,5 @@
+use std::{mem::ManuallyDrop, ops::Deref};
+
 use crate::bindings::{
     Cronet_ClientContext, Cronet_UploadDataProviderPtr, Cronet_UploadDataProvider_CloseFunc,
     Cronet_UploadDataProvider_CreateWith, Cronet_UploadDataProvider_Destroy,
@@ -8,27 +10,17 @@ use crate::bindings::{
 
 pub struct UploadDataProvider {
     ptr: Cronet_UploadDataProviderPtr,
-    is_owned_ptr: bool,
 }
 
 impl UploadDataProvider {
     pub fn as_ptr(&self) -> Cronet_UploadDataProviderPtr {
         self.ptr
     }
-
-    pub fn from_borrowed_ptr(ptr: Cronet_UploadDataProviderPtr) -> Self {
-        UploadDataProvider {
-            ptr,
-            is_owned_ptr: false,
-        }
-    }
 }
 
 impl Drop for UploadDataProvider {
     fn drop(&mut self) {
-        if self.is_owned_ptr {
-            unsafe { Cronet_UploadDataProvider_Destroy(self.ptr) }
-        }
+        unsafe { Cronet_UploadDataProvider_Destroy(self.ptr) }
     }
 }
 
@@ -54,10 +46,28 @@ impl UploadDataProvider {
                 rewind_func,
                 close_func,
             );
-            Self {
-                ptr,
-                is_owned_ptr: true,
-            }
+            Self { ptr }
         }
+    }
+}
+
+pub struct BorrowedUploadDataProvider {
+    inner: ManuallyDrop<UploadDataProvider>,
+}
+
+impl BorrowedUploadDataProvider {
+    pub fn from_ptr(ptr: Cronet_UploadDataProviderPtr) -> Self {
+        let value = UploadDataProvider { ptr };
+        BorrowedUploadDataProvider {
+            inner: ManuallyDrop::new(value),
+        }
+    }
+}
+
+impl Deref for BorrowedUploadDataProvider {
+    type Target = UploadDataProvider;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
     }
 }

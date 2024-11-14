@@ -1,29 +1,35 @@
 use std::ffi::CStr;
 
-use crate::bindings::{
-    Cronet_EngineParamsPtr, Cronet_EngineParams_Create, Cronet_EngineParams_Destroy,
-    Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_EngineParams_accept_language_get,
-    Cronet_EngineParams_accept_language_set, Cronet_EngineParams_enable_brotli_get,
-    Cronet_EngineParams_enable_brotli_set, Cronet_EngineParams_enable_check_result_get,
-    Cronet_EngineParams_enable_check_result_set, Cronet_EngineParams_enable_http2_get,
-    Cronet_EngineParams_enable_http2_set,
-    Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_get,
-    Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_set,
-    Cronet_EngineParams_enable_quic_get, Cronet_EngineParams_enable_quic_set,
-    Cronet_EngineParams_experimental_options_get, Cronet_EngineParams_experimental_options_set,
-    Cronet_EngineParams_http_cache_max_size_get, Cronet_EngineParams_http_cache_max_size_set,
-    Cronet_EngineParams_http_cache_mode_get, Cronet_EngineParams_http_cache_mode_set,
-    Cronet_EngineParams_network_thread_priority_get,
-    Cronet_EngineParams_network_thread_priority_set, Cronet_EngineParams_public_key_pins_add,
-    Cronet_EngineParams_public_key_pins_at, Cronet_EngineParams_public_key_pins_clear,
-    Cronet_EngineParams_public_key_pins_size, Cronet_EngineParams_quic_hints_add,
-    Cronet_EngineParams_quic_hints_at, Cronet_EngineParams_quic_hints_clear,
-    Cronet_EngineParams_quic_hints_size, Cronet_EngineParams_storage_path_get,
-    Cronet_EngineParams_storage_path_set, Cronet_EngineParams_user_agent_get,
-    Cronet_EngineParams_user_agent_set,
+use crate::{
+    bindings::{
+        Cronet_EngineParamsPtr, Cronet_EngineParams_Create, Cronet_EngineParams_Destroy,
+        Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_EngineParams_accept_language_get,
+        Cronet_EngineParams_accept_language_set, Cronet_EngineParams_enable_brotli_get,
+        Cronet_EngineParams_enable_brotli_set, Cronet_EngineParams_enable_check_result_get,
+        Cronet_EngineParams_enable_check_result_set, Cronet_EngineParams_enable_http2_get,
+        Cronet_EngineParams_enable_http2_set,
+        Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_get,
+        Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_set,
+        Cronet_EngineParams_enable_quic_get, Cronet_EngineParams_enable_quic_set,
+        Cronet_EngineParams_experimental_options_get, Cronet_EngineParams_experimental_options_set,
+        Cronet_EngineParams_http_cache_max_size_get, Cronet_EngineParams_http_cache_max_size_set,
+        Cronet_EngineParams_http_cache_mode_get, Cronet_EngineParams_http_cache_mode_set,
+        Cronet_EngineParams_network_thread_priority_get,
+        Cronet_EngineParams_network_thread_priority_set, Cronet_EngineParams_public_key_pins_add,
+        Cronet_EngineParams_public_key_pins_at, Cronet_EngineParams_public_key_pins_clear,
+        Cronet_EngineParams_public_key_pins_size, Cronet_EngineParams_quic_hints_add,
+        Cronet_EngineParams_quic_hints_at, Cronet_EngineParams_quic_hints_clear,
+        Cronet_EngineParams_quic_hints_size, Cronet_EngineParams_storage_path_get,
+        Cronet_EngineParams_storage_path_set, Cronet_EngineParams_user_agent_get,
+        Cronet_EngineParams_user_agent_set,
+    },
+    sys::quic_hint::BorrowedQuicHint,
 };
 
-use super::{public_key_pins::PublicKeyPins, quic_hint::QuicHint};
+use super::{
+    public_key_pins::{BorrowedPublicKeyPins, PublicKeyPins},
+    quic_hint::QuicHint,
+};
 
 pub struct EngineParams {
     ptr: Cronet_EngineParamsPtr,
@@ -188,11 +194,11 @@ impl EngineParams {
         unsafe { Cronet_EngineParams_quic_hints_size(self.ptr) }
     }
 
-    pub fn quic_hints_at(&self, index: u32) -> QuicHint {
+    pub fn quic_hints_at(&self, index: u32) -> BorrowedQuicHint {
         unsafe {
             let ptr = Cronet_EngineParams_quic_hints_at(self.ptr, index);
             assert!(!ptr.is_null());
-            QuicHint::from_borrowed_ptr(ptr)
+            BorrowedQuicHint::from_ptr(ptr)
         }
     }
 
@@ -206,11 +212,11 @@ impl EngineParams {
         unsafe { Cronet_EngineParams_public_key_pins_size(self.ptr) }
     }
 
-    pub fn public_key_pins_at(&self, index: u32) -> PublicKeyPins {
+    pub fn public_key_pins_at(&self, index: u32) -> BorrowedPublicKeyPins {
         unsafe {
             let ptr = Cronet_EngineParams_public_key_pins_at(self.ptr, index);
             assert!(!ptr.is_null());
-            PublicKeyPins::from_borrowed_ptr(ptr)
+            BorrowedPublicKeyPins::from_ptr(ptr)
         }
     }
 

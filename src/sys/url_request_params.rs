@@ -1,29 +1,40 @@
 use std::ffi::CStr;
 
-use crate::bindings::{
-    Cronet_RawDataPtr, Cronet_UrlRequestParamsPtr, Cronet_UrlRequestParams_Create,
-    Cronet_UrlRequestParams_Destroy, Cronet_UrlRequestParams_IDEMPOTENCY,
-    Cronet_UrlRequestParams_REQUEST_PRIORITY, Cronet_UrlRequestParams_allow_direct_executor_get,
-    Cronet_UrlRequestParams_allow_direct_executor_set, Cronet_UrlRequestParams_annotations_add,
-    Cronet_UrlRequestParams_annotations_at, Cronet_UrlRequestParams_annotations_clear,
-    Cronet_UrlRequestParams_annotations_size, Cronet_UrlRequestParams_disable_cache_get,
-    Cronet_UrlRequestParams_disable_cache_set, Cronet_UrlRequestParams_http_method_get,
-    Cronet_UrlRequestParams_http_method_set, Cronet_UrlRequestParams_idempotency_get,
-    Cronet_UrlRequestParams_idempotency_set, Cronet_UrlRequestParams_priority_get,
-    Cronet_UrlRequestParams_priority_set, Cronet_UrlRequestParams_request_finished_executor_get,
-    Cronet_UrlRequestParams_request_finished_executor_set,
-    Cronet_UrlRequestParams_request_finished_listener_get,
-    Cronet_UrlRequestParams_request_finished_listener_set,
-    Cronet_UrlRequestParams_request_headers_add, Cronet_UrlRequestParams_request_headers_at,
-    Cronet_UrlRequestParams_request_headers_clear, Cronet_UrlRequestParams_request_headers_size,
-    Cronet_UrlRequestParams_upload_data_provider_executor_get,
-    Cronet_UrlRequestParams_upload_data_provider_executor_set,
-    Cronet_UrlRequestParams_upload_data_provider_get,
-    Cronet_UrlRequestParams_upload_data_provider_set,
+use crate::{
+    bindings::{
+        Cronet_RawDataPtr, Cronet_UrlRequestParamsPtr, Cronet_UrlRequestParams_Create,
+        Cronet_UrlRequestParams_Destroy, Cronet_UrlRequestParams_IDEMPOTENCY,
+        Cronet_UrlRequestParams_REQUEST_PRIORITY,
+        Cronet_UrlRequestParams_allow_direct_executor_get,
+        Cronet_UrlRequestParams_allow_direct_executor_set, Cronet_UrlRequestParams_annotations_add,
+        Cronet_UrlRequestParams_annotations_at, Cronet_UrlRequestParams_annotations_clear,
+        Cronet_UrlRequestParams_annotations_size, Cronet_UrlRequestParams_disable_cache_get,
+        Cronet_UrlRequestParams_disable_cache_set, Cronet_UrlRequestParams_http_method_get,
+        Cronet_UrlRequestParams_http_method_set, Cronet_UrlRequestParams_idempotency_get,
+        Cronet_UrlRequestParams_idempotency_set, Cronet_UrlRequestParams_priority_get,
+        Cronet_UrlRequestParams_priority_set,
+        Cronet_UrlRequestParams_request_finished_executor_get,
+        Cronet_UrlRequestParams_request_finished_executor_set,
+        Cronet_UrlRequestParams_request_finished_listener_get,
+        Cronet_UrlRequestParams_request_finished_listener_set,
+        Cronet_UrlRequestParams_request_headers_add, Cronet_UrlRequestParams_request_headers_at,
+        Cronet_UrlRequestParams_request_headers_clear,
+        Cronet_UrlRequestParams_request_headers_size,
+        Cronet_UrlRequestParams_upload_data_provider_executor_get,
+        Cronet_UrlRequestParams_upload_data_provider_executor_set,
+        Cronet_UrlRequestParams_upload_data_provider_get,
+        Cronet_UrlRequestParams_upload_data_provider_set,
+    },
+    sys::{
+        executor::BorrowedExecutor,
+        request_finished_info_listener::BorrowedRequestFinishedInfoListener,
+        upload_data_provider::BorrowedUploadDataProvider,
+    },
 };
 
 use super::{
-    executor::Executor, http_header::HttpHeader,
+    executor::Executor,
+    http_header::{BorrowedHttpHeader, HttpHeader},
     request_finished_info_listener::RequestFinishedInfoListener,
     upload_data_provider::UploadDataProvider,
 };
@@ -142,11 +153,11 @@ impl UrlRequestParams {
         unsafe { Cronet_UrlRequestParams_request_headers_size(self.ptr) }
     }
 
-    pub fn request_headers_at(&self, index: u32) -> HttpHeader {
+    pub fn request_headers_at(&self, index: u32) -> BorrowedHttpHeader {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_headers_at(self.ptr, index);
             assert!(!ptr.is_null());
-            HttpHeader::from_borrowed_ptr(ptr)
+            BorrowedHttpHeader::from_ptr(ptr)
         }
     }
 
@@ -164,19 +175,19 @@ impl UrlRequestParams {
         unsafe { Cronet_UrlRequestParams_priority_get(self.ptr) }
     }
 
-    pub fn upload_data_provider_get(&self) -> UploadDataProvider {
+    pub fn upload_data_provider_get(&self) -> BorrowedUploadDataProvider {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_get(self.ptr);
             assert!(!ptr.is_null());
-            UploadDataProvider::from_borrowed_ptr(ptr)
+            BorrowedUploadDataProvider::from_ptr(ptr)
         }
     }
 
-    pub fn upload_data_provider_executor_get(&self) -> Executor {
+    pub fn upload_data_provider_executor_get(&self) -> BorrowedExecutor {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_executor_get(self.ptr);
             assert!(!ptr.is_null());
-            Executor::from_borrowed_ptr(ptr)
+            BorrowedExecutor::from_ptr(ptr)
         }
     }
 
@@ -198,19 +209,19 @@ impl UrlRequestParams {
         }
     }
 
-    pub fn request_finished_listener_get(&self) -> RequestFinishedInfoListener {
+    pub fn request_finished_listener_get(&self) -> BorrowedRequestFinishedInfoListener {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_listener_get(self.ptr);
             assert!(!ptr.is_null());
-            RequestFinishedInfoListener::from_borrowed_ptr(ptr)
+            BorrowedRequestFinishedInfoListener::from_ptr(ptr)
         }
     }
 
-    pub fn request_finished_executor_get(&self) -> Executor {
+    pub fn request_finished_executor_get(&self) -> BorrowedExecutor {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_executor_get(self.ptr);
             assert!(!ptr.is_null());
-            Executor::from_borrowed_ptr(ptr)
+            BorrowedExecutor::from_ptr(ptr)
         }
     }
 
