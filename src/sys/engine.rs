@@ -45,6 +45,7 @@ impl Engine {
         unsafe { Cronet_Engine_GetClientContext(self.ptr) }
     }
 
+    #[must_use]
     pub fn start_with_params(&self, params: &EngineParams) -> Cronet_RESULT {
         unsafe { Cronet_Engine_StartWithParams(self.ptr, params.as_ptr()) }
     }
