@@ -42,9 +42,9 @@ impl UrlRequest {
         unsafe { Cronet_UrlRequest_GetClientContext(self.ptr) }
     }
 
-    pub(crate) fn init_with_params<Ctx>(
+    pub(crate) fn init_with_params<EngineCtx>(
         &self,
-        engine: &Engine<Ctx>,
+        engine: &Engine<EngineCtx>,
         url: &CStr,
         params: UrlRequestParams,
         callback: UrlRequestCallback,

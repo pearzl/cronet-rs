@@ -1,8 +1,9 @@
 use std::ffi::CStr;
 
+use http::{Request, Response};
+
 use crate::{
-    bindings::{Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_RESULT},
-    sys::{Engine, EngineParams},
+    bindings::{Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_RESULT}, body::Body, error::Error, sys::{Engine, EngineParams}
 };
 
 pub struct Client {
@@ -14,6 +15,10 @@ impl Client {
         ClientBuilder {
             engine_params: EngineParams::create(),
         }
+    }
+
+    pub async fn fetch(&self,  req: Request<Body>) -> Result<Response<Body>, Error> {
+        crate::fetch::send(self, req).await
     }
 
     pub fn start_net_log_to_file(&self, file_name: &CStr, log_all: bool) -> bool {
