@@ -44,7 +44,6 @@ mod url_request_params;
 mod url_request_status_listener;
 mod url_response_info;
 
-
 pub struct Borrowed<'a, T> {
     inner: *mut T,
     _phan: PhantomData<&'a ()>,
@@ -52,7 +51,10 @@ pub struct Borrowed<'a, T> {
 
 impl<'a, T> Borrowed<'a, T> {
     pub fn new<X>(inner: *mut T, _life: &'a X) -> Self {
-        Self { inner , _phan: PhantomData}
+        Self {
+            inner,
+            _phan: PhantomData,
+        }
     }
 }
 

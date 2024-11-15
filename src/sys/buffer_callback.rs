@@ -10,15 +10,16 @@ use super::Borrowed;
 
 pub(crate) struct BufferCallback<Ctx> {
     ptr: Cronet_BufferCallbackPtr,
-    _phan: PhantomData<Ctx>
+    _phan: PhantomData<Ctx>,
 }
 
 impl<Ctx> Drop for BufferCallback<Ctx> {
     fn drop(&mut self) {
-        let ctx_ptr= self.get_client_context().inner;
-        let ctx = unsafe{Box::from_raw(ctx_ptr)};
-        drop(ctx);
-        unsafe{Cronet_BufferCallback_Destroy(self.ptr) }
+        let ctx_ptr = self.get_client_context().inner;
+        if !ctx_ptr.is_null() {
+            let _ = unsafe { Box::from_raw(ctx_ptr) };
+        }
+        unsafe { Cronet_BufferCallback_Destroy(self.ptr) }
     }
 }
 
@@ -37,7 +38,10 @@ impl<Ctx> BufferCallback<Ctx> {
     pub(crate) fn create_with(on_destroy_func: Cronet_BufferCallback_OnDestroyFunc) -> Self {
         unsafe {
             let ptr = Cronet_BufferCallback_CreateWith(on_destroy_func);
-            Self { ptr, _phan: PhantomData }
+            Self {
+                ptr,
+                _phan: PhantomData,
+            }
         }
     }
 }

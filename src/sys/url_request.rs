@@ -42,9 +42,9 @@ impl UrlRequest {
         unsafe { Cronet_UrlRequest_GetClientContext(self.ptr) }
     }
 
-    pub(crate) fn init_with_params(
+    pub(crate) fn init_with_params<Ctx>(
         &self,
-        engine: &Engine,
+        engine: &Engine<Ctx>,
         url: &CStr,
         params: UrlRequestParams,
         callback: UrlRequestCallback,
@@ -70,7 +70,7 @@ impl UrlRequest {
         unsafe { Cronet_UrlRequest_FollowRedirect(self.ptr) }
     }
 
-    pub(crate) fn read(&self, buffer: &mut Buffer) -> Cronet_RESULT {
+    pub(crate) fn read<BufferCtx>(&self, buffer: &mut Buffer<BufferCtx>) -> Cronet_RESULT {
         unsafe { Cronet_UrlRequest_Read(self.ptr, buffer.as_ptr()) }
     }
 
@@ -82,7 +82,10 @@ impl UrlRequest {
         unsafe { Cronet_UrlRequest_IsDone(self.ptr) }
     }
 
-    pub(crate) fn get_status(&self, listener: &UrlRequestStatusListener) {
+    pub(crate) fn get_status<UrlRequestStatusListenerCtx>(
+        &self,
+        listener: &UrlRequestStatusListener<UrlRequestStatusListenerCtx>,
+    ) {
         unsafe { Cronet_UrlRequest_GetStatus(self.ptr, listener.as_ptr()) }
     }
 

@@ -6,7 +6,7 @@ use crate::{
 };
 
 pub struct Client {
-    engine: Engine,
+    engine: Engine<EngineContext>,
 }
 
 impl Client {
@@ -121,13 +121,14 @@ impl ClientBuilder {
     }
 }
 
+pub(crate) struct EngineContext {}
+
 #[cfg(test)]
 mod test {
-    use  super::*;
+    use super::*;
 
     #[test]
     fn new_client() {
-        let _client = Client::builder()
-            .construct().unwrap();
+        let _client = Client::builder().construct().unwrap();
     }
 }

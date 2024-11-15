@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use crate::bindings::{
     Cronet_BufferCallbackPtr, Cronet_BufferPtr, Cronet_Buffer_Create, Cronet_Buffer_CreateWith,
     Cronet_Buffer_Destroy, Cronet_Buffer_GetClientContext, Cronet_Buffer_GetData,
@@ -7,42 +9,49 @@ use crate::bindings::{
     Cronet_Buffer_SetClientContext, Cronet_ClientContext, Cronet_RawDataPtr,
 };
 
-pub(crate) struct Buffer {
+use super::Borrowed;
+
+pub(crate) struct Buffer<Ctx> {
     ptr: Cronet_BufferPtr,
+    _phan: PhantomData<Ctx>,
 }
 
-impl Buffer {
+impl<Ctx> Buffer<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_BufferPtr {
         self.ptr
     }
 }
 
-impl Drop for Buffer {
+impl<Ctx> Drop for Buffer<Ctx> {
     fn drop(&mut self) {
-        unsafe {
-            Cronet_Buffer_Destroy(self.ptr);
+        let ctx_ptr = self.get_client_context().inner;
+        if !ctx_ptr.is_null() {
+            let _ = unsafe { Box::from_raw(ctx_ptr) };
         }
+        unsafe { Cronet_Buffer_Destroy(self.ptr) };
     }
 }
 
-impl Buffer {
+impl<Ctx> Buffer<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_Buffer_Create();
-            Buffer { ptr }
+            Buffer {
+                ptr,
+                _phan: PhantomData,
+            }
         }
     }
 
-    pub(crate) fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
-        unsafe {
-            Cronet_Buffer_SetClientContext(self.ptr, client_context);
-        }
+    pub(crate) fn set_client_context(&mut self, client_context: Ctx) {
+        let ptr = Box::into_raw(Box::new(client_context));
+        unsafe { Cronet_Buffer_SetClientContext(self.ptr, ptr as Cronet_ClientContext) };
     }
 
-    pub(crate) fn get_client_context(&self) {
-        unsafe {
-            Cronet_Buffer_GetClientContext(self.ptr);
-        }
+    pub(crate) fn get_client_context(&self) -> Borrowed<Ctx> {
+        let void_ptr = unsafe { Cronet_Buffer_GetClientContext(self.ptr) };
+        let ctx_ptr = void_ptr as *mut Ctx;
+        Borrowed::new(ctx_ptr, self)
     }
 
     pub(crate) fn init_with_data_and_callback(
@@ -89,7 +98,10 @@ impl Buffer {
                 get_size_func,
                 get_data_func,
             );
-            Self { ptr }
+            Self {
+                ptr,
+                _phan: PhantomData,
+            }
         }
     }
 }

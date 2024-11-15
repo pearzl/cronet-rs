@@ -1,4 +1,4 @@
-use std::ffi::CStr;
+use std::{ffi::CStr, marker::PhantomData};
 
 use crate::bindings::{
     Cronet_ClientContext, Cronet_EnginePtr, Cronet_Engine_AddRequestFinishedListener,
@@ -15,34 +15,39 @@ use crate::bindings::{
 
 use super::{
     engine_params::EngineParams, executor::Executor,
-    request_finished_info_listener::RequestFinishedInfoListener,
+    request_finished_info_listener::RequestFinishedInfoListener, Borrowed,
 };
 
-pub(crate) struct Engine {
+pub(crate) struct Engine<Ctx> {
     ptr: Cronet_EnginePtr,
+    _phan: PhantomData<Ctx>,
 }
 
-impl Engine {
+impl<Ctx> Engine<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_EnginePtr {
         self.ptr
     }
 }
 
-impl Engine {
+impl<Ctx> Engine<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             Engine {
                 ptr: Cronet_Engine_Create(),
+                _phan: PhantomData,
             }
         }
     }
 
-    pub(crate) fn set_client_context(&mut self, client_context: Cronet_ClientContext) {
-        unsafe { Cronet_Engine_SetClientContext(self.ptr, client_context) }
+    pub(crate) fn set_client_context(&mut self, client_context: Ctx) {
+        let ptr = Box::into_raw(Box::new(client_context));
+        unsafe { Cronet_Engine_SetClientContext(self.ptr, ptr as Cronet_ClientContext) }
     }
 
-    pub(crate) fn get_client_context(&self) -> Cronet_ClientContext {
-        unsafe { Cronet_Engine_GetClientContext(self.ptr) }
+    pub(crate) fn get_client_context(&self) -> Borrowed<Ctx> {
+        let void_ptr = unsafe { Cronet_Engine_GetClientContext(self.ptr) };
+        let ctx_ptr = void_ptr as *mut Ctx;
+        Borrowed::new(ctx_ptr, self)
     }
 
     #[must_use]
@@ -78,9 +83,9 @@ impl Engine {
         }
     }
 
-    pub(crate) fn add_request_finished_listener(
+    pub(crate) fn add_request_finished_listener<ListenerCtx>(
         &self,
-        listener: RequestFinishedInfoListener,
+        listener: RequestFinishedInfoListener<ListenerCtx>,
         executor: Executor,
     ) {
         unsafe {
@@ -92,7 +97,10 @@ impl Engine {
         }
     }
 
-    pub(crate) fn remove_request_finished_listener(&self, listener: &RequestFinishedInfoListener) {
+    pub(crate) fn remove_request_finished_listener<ListenerCtx>(
+        &self,
+        listener: &RequestFinishedInfoListener<ListenerCtx>,
+    ) {
         unsafe { Cronet_Engine_RemoveRequestFinishedListener(self.ptr, listener.as_ptr()) }
     }
 
@@ -118,13 +126,20 @@ impl Engine {
                 add_request_finished_listener_func,
                 remove_request_finished_listener_func,
             );
-            Engine { ptr }
+            Engine {
+                ptr,
+                _phan: PhantomData,
+            }
         }
     }
 }
 
-impl Drop for Engine {
+impl<Ctx> Drop for Engine<Ctx> {
     fn drop(&mut self) {
+        let ctx_ptr = self.get_client_context().inner;
+        if !ctx_ptr.is_null() {
+            let _ = unsafe { Box::from_raw(ctx_ptr) };
+        }
         unsafe { Cronet_Engine_Destroy(self.ptr) }
     }
 }

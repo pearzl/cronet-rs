@@ -21,7 +21,7 @@ impl<'a> QuicHint {
     pub fn borrow_from<X>(ptr: Cronet_QuicHintPtr, lifetime: &'a X) -> Borrowed<'a, QuicHint> {
         let borrowed = QuicHint { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr , lifetime)
+        Borrowed::new(ptr, lifetime)
     }
 }
 

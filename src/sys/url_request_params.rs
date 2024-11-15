@@ -78,7 +78,10 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn upload_data_provider_set(&mut self, upload_data_provider: UploadDataProvider) {
+    pub(crate) fn upload_data_provider_set<UploadDateProviderCtx>(
+        &mut self,
+        upload_data_provider: UploadDataProvider<UploadDateProviderCtx>,
+    ) {
         unsafe {
             Cronet_UrlRequestParams_upload_data_provider_set(
                 self.ptr,
@@ -111,9 +114,9 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn request_finished_listener_set(
+    pub(crate) fn request_finished_listener_set<Ctx>(
         &self,
-        request_finished_listener: RequestFinishedInfoListener,
+        request_finished_listener: RequestFinishedInfoListener<Ctx>,
     ) {
         unsafe {
             Cronet_UrlRequestParams_request_finished_listener_set(
@@ -171,7 +174,9 @@ impl UrlRequestParams {
         unsafe { Cronet_UrlRequestParams_priority_get(self.ptr) }
     }
 
-    pub(crate) fn upload_data_provider_get(&self) -> Borrowed<UploadDataProvider> {
+    pub(crate) fn upload_data_provider_get<UploadDateProviderCtx>(
+        &self,
+    ) -> Borrowed<UploadDataProvider<UploadDateProviderCtx>> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_get(self.ptr);
             assert!(!ptr.is_null());
@@ -205,7 +210,9 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn request_finished_listener_get(&self) -> Borrowed<RequestFinishedInfoListener> {
+    pub(crate) fn request_finished_listener_get<Ctx>(
+        &self,
+    ) -> Borrowed<RequestFinishedInfoListener<Ctx>> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_listener_get(self.ptr);
             assert!(!ptr.is_null());
