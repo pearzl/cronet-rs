@@ -1,11 +1,14 @@
 use std::marker::PhantomData;
 
-use crate::bindings::{
-    Cronet_ClientContext, Cronet_RequestFinishedInfoListenerPtr,
-    Cronet_RequestFinishedInfoListener_CreateWith, Cronet_RequestFinishedInfoListener_Destroy,
-    Cronet_RequestFinishedInfoListener_GetClientContext,
-    Cronet_RequestFinishedInfoListener_OnRequestFinishedFunc,
-    Cronet_RequestFinishedInfoListener_SetClientContext,
+use crate::{
+    bindings::{
+        Cronet_ClientContext, Cronet_RequestFinishedInfoListenerPtr,
+        Cronet_RequestFinishedInfoListener_CreateWith, Cronet_RequestFinishedInfoListener_Destroy,
+        Cronet_RequestFinishedInfoListener_GetClientContext,
+        Cronet_RequestFinishedInfoListener_OnRequestFinishedFunc,
+        Cronet_RequestFinishedInfoListener_SetClientContext,
+    },
+    util::impl_client_context,
 };
 
 use super::Borrowed;
@@ -44,22 +47,6 @@ impl<Ctx> Drop for RequestFinishedInfoListener<Ctx> {
 }
 
 impl<Ctx> RequestFinishedInfoListener<Ctx> {
-    pub(crate) fn set_client_context(&mut self, client_context: Ctx) {
-        let ptr = Box::into_raw(Box::new(client_context));
-        unsafe {
-            Cronet_RequestFinishedInfoListener_SetClientContext(
-                self.ptr,
-                ptr as Cronet_ClientContext,
-            )
-        }
-    }
-
-    pub(crate) fn get_client_context(&self) -> Borrowed<Ctx> {
-        let void_ptr = unsafe { Cronet_RequestFinishedInfoListener_GetClientContext(self.ptr) };
-        let ctx_ptr = void_ptr as *mut Ctx;
-        Borrowed::new(ctx_ptr, self)
-    }
-
     pub(crate) fn create_with(
         on_request_finished_func: Cronet_RequestFinishedInfoListener_OnRequestFinishedFunc,
     ) -> Self {
@@ -71,4 +58,10 @@ impl<Ctx> RequestFinishedInfoListener<Ctx> {
             }
         }
     }
+}
+
+impl_client_context! {
+    RequestFinishedInfoListener,
+    Cronet_RequestFinishedInfoListener_GetClientContext,
+    Cronet_RequestFinishedInfoListener_SetClientContext,
 }

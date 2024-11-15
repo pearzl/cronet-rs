@@ -1,12 +1,15 @@
 use std::marker::PhantomData;
 
-use crate::bindings::{
-    Cronet_BufferCallbackPtr, Cronet_BufferPtr, Cronet_Buffer_Create, Cronet_Buffer_CreateWith,
-    Cronet_Buffer_Destroy, Cronet_Buffer_GetClientContext, Cronet_Buffer_GetData,
-    Cronet_Buffer_GetDataFunc, Cronet_Buffer_GetSize, Cronet_Buffer_GetSizeFunc,
-    Cronet_Buffer_InitWithAlloc, Cronet_Buffer_InitWithAllocFunc,
-    Cronet_Buffer_InitWithDataAndCallback, Cronet_Buffer_InitWithDataAndCallbackFunc,
-    Cronet_Buffer_SetClientContext, Cronet_ClientContext, Cronet_RawDataPtr,
+use crate::{
+    bindings::{
+        Cronet_BufferCallbackPtr, Cronet_BufferPtr, Cronet_Buffer_Create, Cronet_Buffer_CreateWith,
+        Cronet_Buffer_Destroy, Cronet_Buffer_GetClientContext, Cronet_Buffer_GetData,
+        Cronet_Buffer_GetDataFunc, Cronet_Buffer_GetSize, Cronet_Buffer_GetSizeFunc,
+        Cronet_Buffer_InitWithAlloc, Cronet_Buffer_InitWithAllocFunc,
+        Cronet_Buffer_InitWithDataAndCallback, Cronet_Buffer_InitWithDataAndCallbackFunc,
+        Cronet_Buffer_SetClientContext, Cronet_ClientContext, Cronet_RawDataPtr,
+    },
+    util::impl_client_context,
 };
 
 use super::Borrowed;
@@ -41,17 +44,6 @@ impl<Ctx> Buffer<Ctx> {
                 _phan: PhantomData,
             }
         }
-    }
-
-    pub(crate) fn set_client_context(&mut self, client_context: Ctx) {
-        let ptr = Box::into_raw(Box::new(client_context));
-        unsafe { Cronet_Buffer_SetClientContext(self.ptr, ptr as Cronet_ClientContext) };
-    }
-
-    pub(crate) fn get_client_context(&self) -> Borrowed<Ctx> {
-        let void_ptr = unsafe { Cronet_Buffer_GetClientContext(self.ptr) };
-        let ctx_ptr = void_ptr as *mut Ctx;
-        Borrowed::new(ctx_ptr, self)
     }
 
     pub(crate) fn init_with_data_and_callback(
@@ -104,4 +96,10 @@ impl<Ctx> Buffer<Ctx> {
             }
         }
     }
+}
+
+impl_client_context! {
+    Buffer,
+    Cronet_Buffer_GetClientContext,
+    Cronet_Buffer_SetClientContext,
 }

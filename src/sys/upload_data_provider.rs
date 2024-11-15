@@ -1,11 +1,14 @@
 use std::marker::PhantomData;
 
-use crate::bindings::{
-    Cronet_ClientContext, Cronet_UploadDataProviderPtr, Cronet_UploadDataProvider_CloseFunc,
-    Cronet_UploadDataProvider_CreateWith, Cronet_UploadDataProvider_Destroy,
-    Cronet_UploadDataProvider_GetClientContext, Cronet_UploadDataProvider_GetLengthFunc,
-    Cronet_UploadDataProvider_ReadFunc, Cronet_UploadDataProvider_RewindFunc,
-    Cronet_UploadDataProvider_SetClientContext,
+use crate::{
+    bindings::{
+        Cronet_ClientContext, Cronet_UploadDataProviderPtr, Cronet_UploadDataProvider_CloseFunc,
+        Cronet_UploadDataProvider_CreateWith, Cronet_UploadDataProvider_Destroy,
+        Cronet_UploadDataProvider_GetClientContext, Cronet_UploadDataProvider_GetLengthFunc,
+        Cronet_UploadDataProvider_ReadFunc, Cronet_UploadDataProvider_RewindFunc,
+        Cronet_UploadDataProvider_SetClientContext,
+    },
+    util::impl_client_context,
 };
 
 use super::Borrowed;
@@ -44,17 +47,6 @@ impl<Ctx> Drop for UploadDataProvider<Ctx> {
 }
 
 impl<Ctx> UploadDataProvider<Ctx> {
-    pub(crate) fn set_client_context(&mut self, client_context: Ctx) {
-        let ptr = Box::into_raw(Box::new(client_context));
-        unsafe { Cronet_UploadDataProvider_SetClientContext(self.ptr, ptr as Cronet_ClientContext) }
-    }
-
-    pub(crate) fn get_client_context(&self) -> Borrowed<Ctx> {
-        let void_ptr = unsafe { Cronet_UploadDataProvider_GetClientContext(self.ptr) };
-        let ctx_ptr = void_ptr as *mut Ctx;
-        Borrowed::new(ctx_ptr, self)
-    }
-
     pub(crate) fn create_with(
         get_length_func: Cronet_UploadDataProvider_GetLengthFunc,
         read_func: Cronet_UploadDataProvider_ReadFunc,
@@ -74,4 +66,10 @@ impl<Ctx> UploadDataProvider<Ctx> {
             }
         }
     }
+}
+
+impl_client_context! {
+    UploadDataProvider,
+    Cronet_UploadDataProvider_GetClientContext,
+    Cronet_UploadDataProvider_SetClientContext,
 }

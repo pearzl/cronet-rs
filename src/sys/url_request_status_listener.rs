@@ -1,10 +1,14 @@
 use std::marker::PhantomData;
 
-use crate::bindings::{
-    Cronet_ClientContext, Cronet_UrlRequestStatusListenerPtr,
-    Cronet_UrlRequestStatusListener_CreateWith, Cronet_UrlRequestStatusListener_Destroy,
-    Cronet_UrlRequestStatusListener_GetClientContext, Cronet_UrlRequestStatusListener_OnStatusFunc,
-    Cronet_UrlRequestStatusListener_SetClientContext,
+use crate::{
+    bindings::{
+        Cronet_ClientContext, Cronet_UrlRequestStatusListenerPtr,
+        Cronet_UrlRequestStatusListener_CreateWith, Cronet_UrlRequestStatusListener_Destroy,
+        Cronet_UrlRequestStatusListener_GetClientContext,
+        Cronet_UrlRequestStatusListener_OnStatusFunc,
+        Cronet_UrlRequestStatusListener_SetClientContext,
+    },
+    util::impl_client_context,
 };
 
 use super::Borrowed;
@@ -21,19 +25,6 @@ impl<Ctx> UrlRequestStatusListener<Ctx> {
 }
 
 impl<Ctx> UrlRequestStatusListener<Ctx> {
-    pub(crate) fn set_client_context(&mut self, client_context: Ctx) {
-        let ptr = Box::into_raw(Box::new(client_context));
-        unsafe {
-            Cronet_UrlRequestStatusListener_SetClientContext(self.ptr, ptr as Cronet_ClientContext);
-        }
-    }
-
-    pub(crate) fn get_client_context(&self) -> Borrowed<Ctx> {
-        let void_ptr = unsafe { Cronet_UrlRequestStatusListener_GetClientContext(self.ptr) };
-        let ctx_ptr = void_ptr as *mut Ctx;
-        Borrowed::new(ctx_ptr, self)
-    }
-
     pub(crate) fn create_with(
         &self,
         on_status_func: Cronet_UrlRequestStatusListener_OnStatusFunc,
@@ -56,4 +47,10 @@ impl<Ctx> Drop for UrlRequestStatusListener<Ctx> {
         }
         unsafe { Cronet_UrlRequestStatusListener_Destroy(self.ptr) }
     }
+}
+
+impl_client_context! {
+    UrlRequestStatusListener,
+    Cronet_UrlRequestStatusListener_GetClientContext,
+    Cronet_UrlRequestStatusListener_SetClientContext,
 }

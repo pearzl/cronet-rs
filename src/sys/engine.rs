@@ -1,16 +1,20 @@
 use std::{ffi::CStr, marker::PhantomData};
 
-use crate::bindings::{
-    Cronet_ClientContext, Cronet_EnginePtr, Cronet_Engine_AddRequestFinishedListener,
-    Cronet_Engine_AddRequestFinishedListenerFunc, Cronet_Engine_Create, Cronet_Engine_CreateWith,
-    Cronet_Engine_Destroy, Cronet_Engine_GetClientContext, Cronet_Engine_GetDefaultUserAgent,
-    Cronet_Engine_GetDefaultUserAgentFunc, Cronet_Engine_GetVersionString,
-    Cronet_Engine_GetVersionStringFunc, Cronet_Engine_RemoveRequestFinishedListener,
-    Cronet_Engine_RemoveRequestFinishedListenerFunc, Cronet_Engine_SetClientContext,
-    Cronet_Engine_Shutdown, Cronet_Engine_ShutdownFunc, Cronet_Engine_StartNetLogToFile,
-    Cronet_Engine_StartNetLogToFileFunc, Cronet_Engine_StartWithParams,
-    Cronet_Engine_StartWithParamsFunc, Cronet_Engine_StopNetLog, Cronet_Engine_StopNetLogFunc,
-    Cronet_RESULT,
+use crate::{
+    bindings::{
+        Cronet_ClientContext, Cronet_EnginePtr, Cronet_Engine_AddRequestFinishedListener,
+        Cronet_Engine_AddRequestFinishedListenerFunc, Cronet_Engine_Create,
+        Cronet_Engine_CreateWith, Cronet_Engine_Destroy, Cronet_Engine_GetClientContext,
+        Cronet_Engine_GetDefaultUserAgent, Cronet_Engine_GetDefaultUserAgentFunc,
+        Cronet_Engine_GetVersionString, Cronet_Engine_GetVersionStringFunc,
+        Cronet_Engine_RemoveRequestFinishedListener,
+        Cronet_Engine_RemoveRequestFinishedListenerFunc, Cronet_Engine_SetClientContext,
+        Cronet_Engine_Shutdown, Cronet_Engine_ShutdownFunc, Cronet_Engine_StartNetLogToFile,
+        Cronet_Engine_StartNetLogToFileFunc, Cronet_Engine_StartWithParams,
+        Cronet_Engine_StartWithParamsFunc, Cronet_Engine_StopNetLog, Cronet_Engine_StopNetLogFunc,
+        Cronet_RESULT,
+    },
+    util::impl_client_context,
 };
 
 use super::{
@@ -37,17 +41,6 @@ impl<Ctx> Engine<Ctx> {
                 _phan: PhantomData,
             }
         }
-    }
-
-    pub(crate) fn set_client_context(&mut self, client_context: Ctx) {
-        let ptr = Box::into_raw(Box::new(client_context));
-        unsafe { Cronet_Engine_SetClientContext(self.ptr, ptr as Cronet_ClientContext) }
-    }
-
-    pub(crate) fn get_client_context(&self) -> Borrowed<Ctx> {
-        let void_ptr = unsafe { Cronet_Engine_GetClientContext(self.ptr) };
-        let ctx_ptr = void_ptr as *mut Ctx;
-        Borrowed::new(ctx_ptr, self)
     }
 
     #[must_use]
@@ -142,4 +135,10 @@ impl<Ctx> Drop for Engine<Ctx> {
         }
         unsafe { Cronet_Engine_Destroy(self.ptr) }
     }
+}
+
+impl_client_context! {
+    Engine,
+    Cronet_Engine_GetClientContext,
+    Cronet_Engine_SetClientContext,
 }
