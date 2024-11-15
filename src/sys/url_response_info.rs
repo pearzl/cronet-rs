@@ -132,7 +132,7 @@ impl UrlResponseInfo {
         unsafe {
             let ptr = Cronet_UrlResponseInfo_all_headers_list_at(self.ptr, index);
             assert!(!ptr.is_null());
-            HttpHeader::borrow_from(ptr)
+            HttpHeader::borrow_from(ptr, self)
         }
     }
 

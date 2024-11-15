@@ -15,15 +15,15 @@ pub(crate) struct PublicKeyPins {
     ptr: Cronet_PublicKeyPinsPtr,
 }
 
-impl PublicKeyPins {
+impl<'a> PublicKeyPins {
     pub(crate) fn as_ptr(&self) -> Cronet_PublicKeyPinsPtr {
         self.ptr
     }
 
-    pub fn borrow_from(ptr: Cronet_PublicKeyPinsPtr) -> Borrowed<PublicKeyPins> {
+    pub fn borrow_from<X>(ptr: Cronet_PublicKeyPinsPtr, lifetime: &'a X) -> Borrowed<'a, PublicKeyPins> {
         let borrowed = PublicKeyPins { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed { inner: ptr }
+        Borrowed::new(ptr, lifetime)
     }
 }
 

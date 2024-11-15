@@ -12,15 +12,15 @@ pub(crate) struct UploadDataProvider {
     ptr: Cronet_UploadDataProviderPtr,
 }
 
-impl UploadDataProvider {
+impl<'a> UploadDataProvider {
     pub(crate) fn as_ptr(&self) -> Cronet_UploadDataProviderPtr {
         self.ptr
     }
 
-    pub fn borrow_from(ptr: Cronet_UploadDataProviderPtr) -> Borrowed<UploadDataProvider> {
+    pub fn borrow_from<X>(ptr: Cronet_UploadDataProviderPtr, lifetime: &'a X) -> Borrowed<'a, UploadDataProvider> {
         let borrowed = UploadDataProvider { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed { inner: ptr }
+        Borrowed::new(ptr, lifetime)
     }
 }
 

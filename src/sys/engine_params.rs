@@ -195,7 +195,7 @@ impl EngineParams {
         unsafe {
             let ptr = Cronet_EngineParams_quic_hints_at(self.ptr, index);
             assert!(!ptr.is_null());
-            QuicHint::borrow_from(ptr)
+            QuicHint::borrow_from(ptr, self)
         }
     }
 
@@ -213,7 +213,7 @@ impl EngineParams {
         unsafe {
             let ptr = Cronet_EngineParams_public_key_pins_at(self.ptr, index);
             assert!(!ptr.is_null());
-            PublicKeyPins::borrow_from(ptr)
+            PublicKeyPins::borrow_from(ptr, self)
         }
     }
 

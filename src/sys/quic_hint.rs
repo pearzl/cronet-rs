@@ -13,15 +13,15 @@ pub(crate) struct QuicHint {
     ptr: Cronet_QuicHintPtr,
 }
 
-impl QuicHint {
+impl<'a> QuicHint {
     pub(crate) fn as_ptr(&self) -> Cronet_QuicHintPtr {
         self.ptr
     }
 
-    pub fn borrow_from(ptr: Cronet_QuicHintPtr) -> Borrowed<QuicHint> {
+    pub fn borrow_from<X>(ptr: Cronet_QuicHintPtr, lifetime: &'a X) -> Borrowed<'a, QuicHint> {
         let borrowed = QuicHint { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed { inner: ptr }
+        Borrowed::new(ptr , lifetime)
     }
 }
 

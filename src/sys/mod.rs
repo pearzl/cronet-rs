@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 pub(crate) use buffer::Buffer;
 pub(crate) use buffer_callback::BufferCallback;
 pub(crate) use date_time::DateTime;
@@ -42,11 +44,19 @@ mod url_request_params;
 mod url_request_status_listener;
 mod url_response_info;
 
-pub struct Borrowed<T> {
+
+pub struct Borrowed<'a, T> {
     inner: *mut T,
+    _phan: PhantomData<&'a ()>,
 }
 
-impl<T> std::ops::Deref for Borrowed<T> {
+impl<'a, T> Borrowed<'a, T> {
+    pub fn new<X>(inner: *mut T, _life: &'a X) -> Self {
+        Self { inner , _phan: PhantomData}
+    }
+}
+
+impl<'a, T> std::ops::Deref for Borrowed<'a, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -54,7 +64,7 @@ impl<T> std::ops::Deref for Borrowed<T> {
     }
 }
 
-impl<T> std::ops::DerefMut for Borrowed<T> {
+impl<'a, T> std::ops::DerefMut for Borrowed<'a, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         unsafe { &mut *self.inner }
     }

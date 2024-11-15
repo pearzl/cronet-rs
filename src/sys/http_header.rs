@@ -12,15 +12,15 @@ pub(crate) struct HttpHeader {
     ptr: Cronet_HttpHeaderPtr,
 }
 
-impl HttpHeader {
+impl<'a> HttpHeader {
     pub(crate) fn as_ptr(&self) -> Cronet_HttpHeaderPtr {
         self.ptr
     }
 
-    pub fn borrow_from(ptr: Cronet_HttpHeaderPtr) -> Borrowed<HttpHeader> {
+    pub fn borrow_from<X>(ptr: Cronet_HttpHeaderPtr, lifetime: &'a X) -> Borrowed<'a, HttpHeader> {
         let borrowed = HttpHeader { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed { inner: ptr }
+        Borrowed::new(ptr, lifetime)
     }
 }
 

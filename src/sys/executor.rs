@@ -10,15 +10,15 @@ pub(crate) struct Executor {
     ptr: Cronet_ExecutorPtr,
 }
 
-impl Executor {
+impl<'a> Executor {
     pub(crate) fn as_ptr(&self) -> Cronet_ExecutorPtr {
         self.ptr
     }
 
-    pub fn borrow_from(ptr: Cronet_ExecutorPtr) -> Borrowed<Executor> {
+    pub fn borrow_from<X>(ptr: Cronet_ExecutorPtr, lifetime: &'a X) -> Borrowed<'a, Executor> {
         let borrowed = Executor { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed { inner: ptr }
+        Borrowed::new(ptr, lifetime)
     }
 }
 

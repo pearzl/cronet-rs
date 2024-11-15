@@ -12,17 +12,18 @@ pub(crate) struct RequestFinishedInfoListener {
     ptr: Cronet_RequestFinishedInfoListenerPtr,
 }
 
-impl RequestFinishedInfoListener {
+impl<'a> RequestFinishedInfoListener {
     pub(crate) fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {
         self.ptr
     }
 
-    pub fn borrow_from(
+    pub fn borrow_from<X>(
         ptr: Cronet_RequestFinishedInfoListenerPtr,
-    ) -> Borrowed<RequestFinishedInfoListener> {
+        lifetime: &'a X
+    ) -> Borrowed<'a, RequestFinishedInfoListener> {
         let borrowed = RequestFinishedInfoListener { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed { inner: ptr }
+        Borrowed::new(ptr, lifetime)
     }
 }
 

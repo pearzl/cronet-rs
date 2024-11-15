@@ -153,7 +153,7 @@ impl UrlRequestParams {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_headers_at(self.ptr, index);
             assert!(!ptr.is_null());
-            HttpHeader::borrow_from(ptr)
+            HttpHeader::borrow_from(ptr, self)
         }
     }
 
@@ -175,7 +175,7 @@ impl UrlRequestParams {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_get(self.ptr);
             assert!(!ptr.is_null());
-            UploadDataProvider::borrow_from(ptr)
+            UploadDataProvider::borrow_from(ptr, self)
         }
     }
 
@@ -183,7 +183,7 @@ impl UrlRequestParams {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_executor_get(self.ptr);
             assert!(!ptr.is_null());
-            Executor::borrow_from(ptr)
+            Executor::borrow_from(ptr, self)
         }
     }
 
@@ -209,7 +209,7 @@ impl UrlRequestParams {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_listener_get(self.ptr);
             assert!(!ptr.is_null());
-            RequestFinishedInfoListener::borrow_from(ptr)
+            RequestFinishedInfoListener::borrow_from(ptr, self)
         }
     }
 
@@ -217,7 +217,7 @@ impl UrlRequestParams {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_executor_get(self.ptr);
             assert!(!ptr.is_null());
-            Executor::borrow_from(ptr)
+            Executor::borrow_from(ptr, self)
         }
     }
 

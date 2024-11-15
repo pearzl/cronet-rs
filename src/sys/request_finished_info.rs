@@ -59,7 +59,7 @@ impl RequestFinishedInfo {
         unsafe {
             let ptr = Cronet_RequestFinishedInfo_metrics_get(self.ptr);
             assert!(!ptr.is_null());
-            Metrics::borrow_from(ptr)
+            Metrics::borrow_from(ptr, self)
         }
     }
 

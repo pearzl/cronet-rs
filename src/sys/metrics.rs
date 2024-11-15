@@ -28,15 +28,15 @@ pub(crate) struct Metrics {
     ptr: Cronet_MetricsPtr,
 }
 
-impl Metrics {
+impl<'a> Metrics {
     pub(crate) fn as_ptr(&self) -> Cronet_MetricsPtr {
         self.ptr
     }
 
-    pub fn borrow_from(ptr: Cronet_MetricsPtr) -> Borrowed<Metrics> {
+    pub fn borrow_from<X>(ptr: Cronet_MetricsPtr, lifetime: &'a X) -> Borrowed<'a, Metrics> {
         let borrowed = Metrics { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed { inner: ptr }
+        Borrowed::new(ptr, lifetime)
     }
 }
 
@@ -175,91 +175,91 @@ impl Metrics {
     pub(crate) fn request_start_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_request_start_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn dns_start_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_dns_start_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn dns_end_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_dns_end_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn connect_start_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_connect_start_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn connect_end_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_connect_end_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn ssl_start_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_ssl_start_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn ssl_end_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_ssl_end_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn sending_start_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_sending_start_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn sending_end_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_sending_end_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn push_start_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_push_start_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn push_end_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_push_end_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn response_start_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_response_start_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 
     pub(crate) fn request_end_get(&self) -> Borrowed<DateTime> {
         unsafe {
             let ptr = Cronet_Metrics_request_end_get(self.ptr);
-            DateTime::borrow_from(ptr)
+            DateTime::borrow_from(ptr, self)
         }
     }
 

@@ -9,15 +9,15 @@ pub struct DateTime {
     ptr: Cronet_DateTimePtr,
 }
 
-impl DateTime {
+impl<'a> DateTime {
     pub(crate) fn as_ptr(&self) -> Cronet_DateTimePtr {
         self.ptr
     }
 
-    pub fn borrow_from(ptr: Cronet_DateTimePtr) -> Borrowed<DateTime> {
+    pub fn borrow_from<X>(ptr: Cronet_DateTimePtr, lifetime: &'a X) -> Borrowed<'a, DateTime> {
         let borrowed = DateTime { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed { inner: ptr }
+        Borrowed::new(ptr, lifetime)
     }
 }
 
