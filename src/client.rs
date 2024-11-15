@@ -120,3 +120,14 @@ impl ClientBuilder {
         self
     }
 }
+
+#[cfg(test)]
+mod test {
+    use  super::*;
+
+    #[test]
+    fn new_client() {
+        let _client = Client::builder()
+            .construct().unwrap();
+    }
+}
