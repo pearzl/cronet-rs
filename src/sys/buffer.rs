@@ -45,7 +45,11 @@ impl Buffer {
         }
     }
 
-    pub(crate) fn init_with_data_and_callback(&self, data: Box<[u8]>, callback: Cronet_BufferCallbackPtr) {
+    pub(crate) fn init_with_data_and_callback(
+        &self,
+        data: Box<[u8]>,
+        callback: Cronet_BufferCallbackPtr,
+    ) {
         let len = data.len();
         let ptr = Box::into_raw(data);
         unsafe {

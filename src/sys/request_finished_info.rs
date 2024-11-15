@@ -8,7 +8,7 @@ use crate::bindings::{
     Cronet_RequestFinishedInfo_metrics_set,
 };
 
-use super::metrics::{BorrowedMetrics, Metrics};
+use super::{metrics::Metrics, Borrowed};
 
 pub(crate) struct RequestFinishedInfo {
     ptr: Cronet_RequestFinishedInfoPtr,
@@ -55,11 +55,11 @@ impl RequestFinishedInfo {
         }
     }
 
-    pub(crate) fn metrics_get(&self) -> BorrowedMetrics {
+    pub(crate) fn metrics_get(&self) -> Borrowed<Metrics> {
         unsafe {
             let ptr = Cronet_RequestFinishedInfo_metrics_get(self.ptr);
             assert!(!ptr.is_null());
-            BorrowedMetrics::from_ptr(ptr)
+            Metrics::borrow_from(ptr)
         }
     }
 
@@ -71,7 +71,7 @@ impl RequestFinishedInfo {
         unsafe { Cronet_RequestFinishedInfo_annotations_at(self.ptr, index) }
     }
 
-    pub(crate) fn annotations_clear(&self) {
+    pub(crate) fn annotations_clear(&mut self) {
         unsafe {
             Cronet_RequestFinishedInfo_annotations_clear(self.ptr);
         }

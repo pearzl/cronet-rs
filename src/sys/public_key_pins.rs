@@ -1,4 +1,4 @@
-use std::{ffi::CStr, mem::ManuallyDrop, ops::Deref};
+use std::ffi::CStr;
 
 use crate::bindings::{
     Cronet_PublicKeyPinsPtr, Cronet_PublicKeyPins_Create, Cronet_PublicKeyPins_Destroy,
@@ -9,6 +9,8 @@ use crate::bindings::{
     Cronet_PublicKeyPins_pins_sha256_clear, Cronet_PublicKeyPins_pins_sha256_size,
 };
 
+use super::Borrowed;
+
 pub(crate) struct PublicKeyPins {
     ptr: Cronet_PublicKeyPinsPtr,
 }
@@ -16,6 +18,12 @@ pub(crate) struct PublicKeyPins {
 impl PublicKeyPins {
     pub(crate) fn as_ptr(&self) -> Cronet_PublicKeyPinsPtr {
         self.ptr
+    }
+
+    pub fn borrow_from(ptr: Cronet_PublicKeyPinsPtr) -> Borrowed<PublicKeyPins> {
+        let borrowed = PublicKeyPins { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        Borrowed { inner: ptr }
     }
 }
 
@@ -75,7 +83,7 @@ impl PublicKeyPins {
         }
     }
 
-    pub(crate) fn pins_sha256_clear(&self) {
+    pub(crate) fn pins_sha256_clear(&mut self) {
         unsafe { Cronet_PublicKeyPins_pins_sha256_clear(self.ptr) }
     }
 
@@ -85,26 +93,5 @@ impl PublicKeyPins {
 
     pub(crate) fn expiration_date_get(&self) -> i64 {
         unsafe { Cronet_PublicKeyPins_expiration_date_get(self.ptr) }
-    }
-}
-
-pub(crate) struct BorrowedPublicKeyPins {
-    inner: ManuallyDrop<PublicKeyPins>,
-}
-
-impl BorrowedPublicKeyPins {
-    pub(crate) fn from_ptr(ptr: Cronet_PublicKeyPinsPtr) -> Self {
-        let value = PublicKeyPins { ptr };
-        BorrowedPublicKeyPins {
-            inner: ManuallyDrop::new(value),
-        }
-    }
-}
-
-impl Deref for BorrowedPublicKeyPins {
-    type Target = PublicKeyPins;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
     }
 }

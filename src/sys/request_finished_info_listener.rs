@@ -1,5 +1,3 @@
-use std::{mem::ManuallyDrop, ops::Deref};
-
 use crate::bindings::{
     Cronet_ClientContext, Cronet_RequestFinishedInfoListenerPtr,
     Cronet_RequestFinishedInfoListener_CreateWith, Cronet_RequestFinishedInfoListener_Destroy,
@@ -8,6 +6,8 @@ use crate::bindings::{
     Cronet_RequestFinishedInfoListener_SetClientContext,
 };
 
+use super::Borrowed;
+
 pub(crate) struct RequestFinishedInfoListener {
     ptr: Cronet_RequestFinishedInfoListenerPtr,
 }
@@ -15,6 +15,14 @@ pub(crate) struct RequestFinishedInfoListener {
 impl RequestFinishedInfoListener {
     pub(crate) fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {
         self.ptr
+    }
+
+    pub fn borrow_from(
+        ptr: Cronet_RequestFinishedInfoListenerPtr,
+    ) -> Borrowed<RequestFinishedInfoListener> {
+        let borrowed = RequestFinishedInfoListener { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        Borrowed { inner: ptr }
     }
 }
 
@@ -40,26 +48,5 @@ impl RequestFinishedInfoListener {
             let ptr = Cronet_RequestFinishedInfoListener_CreateWith(on_request_finished_func);
             Self { ptr }
         }
-    }
-}
-
-pub(crate) struct BorrowedRequestFinishedInfoListener {
-    inner: ManuallyDrop<RequestFinishedInfoListener>,
-}
-
-impl BorrowedRequestFinishedInfoListener {
-    pub(crate) fn from_ptr(ptr: Cronet_RequestFinishedInfoListenerPtr) -> Self {
-        let value = RequestFinishedInfoListener { ptr };
-        BorrowedRequestFinishedInfoListener {
-            inner: ManuallyDrop::new(value),
-        }
-    }
-}
-
-impl Deref for BorrowedRequestFinishedInfoListener {
-    type Target = RequestFinishedInfoListener;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
     }
 }

@@ -1,10 +1,12 @@
-use std::{ffi::CStr, mem::ManuallyDrop, ops::Deref};
+use std::ffi::CStr;
 
 use crate::bindings::{
     Cronet_HttpHeaderPtr, Cronet_HttpHeader_Create, Cronet_HttpHeader_Destroy,
     Cronet_HttpHeader_name_get, Cronet_HttpHeader_name_set, Cronet_HttpHeader_value_get,
     Cronet_HttpHeader_value_set,
 };
+
+use super::Borrowed;
 
 pub(crate) struct HttpHeader {
     ptr: Cronet_HttpHeaderPtr,
@@ -13,6 +15,12 @@ pub(crate) struct HttpHeader {
 impl HttpHeader {
     pub(crate) fn as_ptr(&self) -> Cronet_HttpHeaderPtr {
         self.ptr
+    }
+
+    pub fn borrow_from(ptr: Cronet_HttpHeaderPtr) -> Borrowed<HttpHeader> {
+        let borrowed = HttpHeader { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        Borrowed { inner: ptr }
     }
 }
 
@@ -56,26 +64,5 @@ impl HttpHeader {
             let ptr = Cronet_HttpHeader_value_get(self.ptr);
             CStr::from_ptr(ptr)
         }
-    }
-}
-
-pub(crate) struct BorrowedHttpHeader {
-    inner: ManuallyDrop<HttpHeader>,
-}
-
-impl BorrowedHttpHeader {
-    pub(crate) fn from_ptr(ptr: Cronet_HttpHeaderPtr) -> Self {
-        let value = HttpHeader { ptr };
-        BorrowedHttpHeader {
-            inner: ManuallyDrop::new(value),
-        }
-    }
-}
-
-impl Deref for BorrowedHttpHeader {
-    type Target = HttpHeader;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
     }
 }

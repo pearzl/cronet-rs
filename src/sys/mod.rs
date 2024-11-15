@@ -41,3 +41,21 @@ mod url_request_callback;
 mod url_request_params;
 mod url_request_status_listener;
 mod url_response_info;
+
+pub struct Borrowed<T> {
+    inner: *mut T,
+}
+
+impl<T> std::ops::Deref for Borrowed<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        unsafe { &*self.inner }
+    }
+}
+
+impl<T> std::ops::DerefMut for Borrowed<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        unsafe { &mut *self.inner }
+    }
+}

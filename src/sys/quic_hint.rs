@@ -1,4 +1,4 @@
-use std::{ffi::CStr, mem::ManuallyDrop, ops::Deref};
+use std::ffi::CStr;
 
 use crate::bindings::{
     Cronet_QuicHintPtr, Cronet_QuicHint_Create, Cronet_QuicHint_Destroy,
@@ -7,6 +7,8 @@ use crate::bindings::{
     Cronet_QuicHint_port_set,
 };
 
+use super::Borrowed;
+
 pub(crate) struct QuicHint {
     ptr: Cronet_QuicHintPtr,
 }
@@ -14,6 +16,12 @@ pub(crate) struct QuicHint {
 impl QuicHint {
     pub(crate) fn as_ptr(&self) -> Cronet_QuicHintPtr {
         self.ptr
+    }
+
+    pub fn borrow_from(ptr: Cronet_QuicHintPtr) -> Borrowed<QuicHint> {
+        let borrowed = QuicHint { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        Borrowed { inner: ptr }
     }
 }
 
@@ -62,26 +70,5 @@ impl QuicHint {
 
     pub(crate) fn alternate_port_get(&self) -> i32 {
         unsafe { Cronet_QuicHint_alternate_port_get(self.ptr) }
-    }
-}
-
-pub(crate) struct BorrowedQuicHint {
-    inner: ManuallyDrop<QuicHint>,
-}
-
-impl BorrowedQuicHint {
-    pub(crate) fn from_ptr(ptr: Cronet_QuicHintPtr) -> Self {
-        let value = QuicHint { ptr };
-        BorrowedQuicHint {
-            inner: ManuallyDrop::new(value),
-        }
-    }
-}
-
-impl Deref for BorrowedQuicHint {
-    type Target = QuicHint;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
     }
 }

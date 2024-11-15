@@ -25,18 +25,11 @@ use crate::{
         Cronet_UrlRequestParams_upload_data_provider_get,
         Cronet_UrlRequestParams_upload_data_provider_set,
     },
-    sys::{
-        executor::BorrowedExecutor,
-        request_finished_info_listener::BorrowedRequestFinishedInfoListener,
-        upload_data_provider::BorrowedUploadDataProvider,
-    },
+    sys::request_finished_info_listener::RequestFinishedInfoListener,
 };
 
 use super::{
-    executor::Executor,
-    http_header::{BorrowedHttpHeader, HttpHeader},
-    request_finished_info_listener::RequestFinishedInfoListener,
-    upload_data_provider::UploadDataProvider,
+    executor::Executor, http_header::HttpHeader, upload_data_provider::UploadDataProvider, Borrowed,
 };
 
 pub(crate) struct UrlRequestParams {
@@ -94,7 +87,10 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn upload_data_provider_executor_set(&mut self, upload_data_provider_executor: Executor) {
+    pub(crate) fn upload_data_provider_executor_set(
+        &mut self,
+        upload_data_provider_executor: Executor,
+    ) {
         unsafe {
             Cronet_UrlRequestParams_upload_data_provider_executor_set(
                 self.ptr,
@@ -153,15 +149,15 @@ impl UrlRequestParams {
         unsafe { Cronet_UrlRequestParams_request_headers_size(self.ptr) }
     }
 
-    pub(crate) fn request_headers_at(&self, index: u32) -> BorrowedHttpHeader {
+    pub(crate) fn request_headers_at(&self, index: u32) -> Borrowed<HttpHeader> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_headers_at(self.ptr, index);
             assert!(!ptr.is_null());
-            BorrowedHttpHeader::from_ptr(ptr)
+            HttpHeader::borrow_from(ptr)
         }
     }
 
-    pub(crate) fn request_headers_clear(&self) {
+    pub(crate) fn request_headers_clear(&mut self) {
         unsafe {
             Cronet_UrlRequestParams_request_headers_clear(self.ptr);
         }
@@ -175,19 +171,19 @@ impl UrlRequestParams {
         unsafe { Cronet_UrlRequestParams_priority_get(self.ptr) }
     }
 
-    pub(crate) fn upload_data_provider_get(&self) -> BorrowedUploadDataProvider {
+    pub(crate) fn upload_data_provider_get(&self) -> Borrowed<UploadDataProvider> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_get(self.ptr);
             assert!(!ptr.is_null());
-            BorrowedUploadDataProvider::from_ptr(ptr)
+            UploadDataProvider::borrow_from(ptr)
         }
     }
 
-    pub(crate) fn upload_data_provider_executor_get(&self) -> BorrowedExecutor {
+    pub(crate) fn upload_data_provider_executor_get(&self) -> Borrowed<Executor> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_executor_get(self.ptr);
             assert!(!ptr.is_null());
-            BorrowedExecutor::from_ptr(ptr)
+            Executor::borrow_from(ptr)
         }
     }
 
@@ -203,25 +199,25 @@ impl UrlRequestParams {
         unsafe { Cronet_UrlRequestParams_annotations_at(self.ptr, index) }
     }
 
-    pub(crate) fn annotaions_clear(&self) {
+    pub(crate) fn annotaions_clear(&mut self) {
         unsafe {
             Cronet_UrlRequestParams_annotations_clear(self.ptr);
         }
     }
 
-    pub(crate) fn request_finished_listener_get(&self) -> BorrowedRequestFinishedInfoListener {
+    pub(crate) fn request_finished_listener_get(&self) -> Borrowed<RequestFinishedInfoListener> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_listener_get(self.ptr);
             assert!(!ptr.is_null());
-            BorrowedRequestFinishedInfoListener::from_ptr(ptr)
+            RequestFinishedInfoListener::borrow_from(ptr)
         }
     }
 
-    pub(crate) fn request_finished_executor_get(&self) -> BorrowedExecutor {
+    pub(crate) fn request_finished_executor_get(&self) -> Borrowed<Executor> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_executor_get(self.ptr);
             assert!(!ptr.is_null());
-            BorrowedExecutor::from_ptr(ptr)
+            Executor::borrow_from(ptr)
         }
     }
 

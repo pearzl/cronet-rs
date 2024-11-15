@@ -1,10 +1,10 @@
-use std::{mem::ManuallyDrop, ops::Deref};
-
 use crate::bindings::{
     Cronet_ClientContext, Cronet_ExecutorPtr, Cronet_Executor_CreateWith, Cronet_Executor_Destroy,
     Cronet_Executor_ExecuteFunc, Cronet_Executor_GetClientContext,
     Cronet_Executor_SetClientContext,
 };
+
+use super::Borrowed;
 
 pub(crate) struct Executor {
     ptr: Cronet_ExecutorPtr,
@@ -13,6 +13,12 @@ pub(crate) struct Executor {
 impl Executor {
     pub(crate) fn as_ptr(&self) -> Cronet_ExecutorPtr {
         self.ptr
+    }
+
+    pub fn borrow_from(ptr: Cronet_ExecutorPtr) -> Borrowed<Executor> {
+        let borrowed = Executor { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        Borrowed { inner: ptr }
     }
 }
 
@@ -36,26 +42,5 @@ impl Executor {
             let ptr = Cronet_Executor_CreateWith(execute_func);
             Self { ptr }
         }
-    }
-}
-
-pub(crate) struct BorrowedExecutor {
-    inner: ManuallyDrop<Executor>,
-}
-
-impl BorrowedExecutor {
-    pub(crate) fn from_ptr(ptr: Cronet_ExecutorPtr) -> Self {
-        let value = Executor { ptr };
-        BorrowedExecutor {
-            inner: ManuallyDrop::new(value),
-        }
-    }
-}
-
-impl Deref for BorrowedExecutor {
-    type Target = Executor;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
     }
 }
