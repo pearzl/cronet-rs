@@ -17,6 +17,14 @@ use crate::{bindings::{
 
 use super::{http_header::HttpHeader, Borrowed};
 
+impl<'a> UrlResponseInfo {
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_UrlResponseInfoPtr) -> &'a mut UrlResponseInfo {
+        let self_ = UrlResponseInfo {ptr};
+        let self_ = Box::into_raw(Box::new(self_));
+        &mut *self_
+    }
+}
+
 define_impl!{
     UrlResponseInfo, Cronet_UrlResponseInfoPtr, Cronet_UrlResponseInfo_Destroy,
 

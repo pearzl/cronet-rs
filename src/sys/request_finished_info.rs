@@ -13,6 +13,14 @@ use crate::{
 
 use super::{metrics::Metrics, Borrowed};
 
+impl<'a> RequestFinishedInfo {
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_RequestFinishedInfoPtr) -> &'a mut RequestFinishedInfo {
+        let self_ = RequestFinishedInfo {ptr};
+        let self_ = Box::into_raw(Box::new(self_));
+        &mut *self_
+    }
+}
+
 define_impl! {
     RequestFinishedInfo, Cronet_RequestFinishedInfoPtr, Cronet_RequestFinishedInfo_Destroy,
 

@@ -21,6 +21,15 @@ impl Error {
     }
 }
 
+impl<'a> Error {
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_ErrorPtr) -> &'a mut Error {
+        let self_ = Error {ptr};
+        let self_ = Box::into_raw(Box::new(self_));
+        &mut *self_
+    }
+}
+
+
 define_impl! {
     Error, Cronet_ErrorPtr, Cronet_Error_Destroy,
 
