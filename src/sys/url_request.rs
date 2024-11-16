@@ -20,7 +20,6 @@ use super::{
     url_request_params::UrlRequestParams, url_request_status_listener::UrlRequestStatusListener,
 };
 
-
 impl<Ctx> UrlRequest<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {

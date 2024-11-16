@@ -39,7 +39,7 @@ impl<Ctx> RequestFinishedInfoListener<Ctx> {
     }
 }
 
-define_impl! { 
+define_impl! {
     RequestFinishedInfoListener, Cronet_RequestFinishedInfoListenerPtr, Cronet_RequestFinishedInfoListener_Destroy,
     with_ctx: Ctx,
     get: Cronet_RequestFinishedInfoListener_GetClientContext,

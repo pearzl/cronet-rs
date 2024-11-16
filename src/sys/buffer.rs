@@ -20,7 +20,6 @@ impl<Ctx> Buffer<Ctx> {
     }
 }
 
-
 impl<Ctx> Buffer<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {

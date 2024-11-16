@@ -1,2 +1,4 @@
 /target
 libcronet.so
+.vscode/settings.json
+.gitignore

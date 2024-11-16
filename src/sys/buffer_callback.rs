@@ -9,7 +9,6 @@ use crate::{
     util::define_impl,
 };
 
-
 impl<Ctx> BufferCallback<Ctx> {
     pub(crate) fn create_with(on_destroy_func: Cronet_BufferCallback_OnDestroyFunc) -> Self {
         unsafe {

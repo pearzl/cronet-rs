@@ -7,8 +7,8 @@ macro_rules! define_impl {
         $struct_name: tt, $ptr: ty, $drop_fn: ident,
 
         $(
-            fn $func_name: ident ($self_: ty $(,$arg_name: ident : $arg_type: ty)* ) 
-            $(-> $return_type: ty)? ; 
+            fn $func_name: ident ($self_: ty $(,$arg_name: ident : $arg_type: ty)* )
+            $(-> $return_type: ty)? ;
             $cronet_func: ident,
         )*
 
@@ -28,7 +28,7 @@ macro_rules! define_impl {
                 unsafe { $drop_fn(self.ptr) }
             }
         }
-        
+
         impl $(<$ctx>)? $struct_name $(<$ctx>)? {
         $(
             pub(crate) fn $func_name(self: $self_ $(,$arg_name: $arg_type)*) $( -> $return_type)? {

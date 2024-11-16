@@ -31,7 +31,6 @@ impl<Ctx> UrlRequestStatusListener<Ctx> {
     }
 }
 
-
 define_impl! {
     UrlRequestStatusListener, Cronet_UrlRequestStatusListenerPtr, Cronet_UrlRequestStatusListener_Destroy,
     with_ctx: Ctx,

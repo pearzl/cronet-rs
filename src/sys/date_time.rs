@@ -1,13 +1,12 @@
-use crate::bindings::{
-    Cronet_DateTimePtr, Cronet_DateTime_Create, Cronet_DateTime_Destroy, Cronet_DateTime_value_get,
-    Cronet_DateTime_value_set,
+use crate::{
+    bindings::{
+        Cronet_DateTimePtr, Cronet_DateTime_Create, Cronet_DateTime_Destroy,
+        Cronet_DateTime_value_get, Cronet_DateTime_value_set,
+    },
+    util::define_impl,
 };
 
 use super::Borrowed;
-
-pub struct DateTime {
-    ptr: Cronet_DateTimePtr,
-}
 
 impl<'a> DateTime {
     pub(crate) fn as_ptr(&self) -> Cronet_DateTimePtr {
@@ -21,12 +20,6 @@ impl<'a> DateTime {
     }
 }
 
-impl Drop for DateTime {
-    fn drop(&mut self) {
-        unsafe { Cronet_DateTime_Destroy(self.ptr) }
-    }
-}
-
 impl DateTime {
     pub(crate) fn create() -> Self {
         unsafe {
@@ -34,14 +27,11 @@ impl DateTime {
             DateTime { ptr }
         }
     }
+}
 
-    pub(crate) fn value_set(&mut self, value: i64) {
-        unsafe {
-            Cronet_DateTime_value_set(self.ptr, value);
-        }
-    }
+define_impl! {
+    DateTime, Cronet_DateTimePtr, Cronet_DateTime_Destroy,
 
-    pub(crate) fn value_get(&self) -> i64 {
-        unsafe { Cronet_DateTime_value_get(self.ptr) }
-    }
+    fn value_set(&mut Self, value: i64); Cronet_DateTime_value_set,
+    fn value_get(&Self) -> i64; Cronet_DateTime_value_get,
 }

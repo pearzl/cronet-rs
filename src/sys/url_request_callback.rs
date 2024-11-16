@@ -17,7 +17,6 @@ impl<Ctx> UrlRequestCallback<Ctx> {
     }
 }
 
-
 impl<Ctx> UrlRequestCallback<Ctx> {
     pub(crate) fn create_with(
         on_redirect_received_func: Cronet_UrlRequestCallback_OnRedirectReceivedFunc,

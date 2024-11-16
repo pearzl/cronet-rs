@@ -47,7 +47,7 @@ impl<Ctx> UploadDataProvider<Ctx> {
     }
 }
 
-define_impl! { 
+define_impl! {
     UploadDataProvider, Cronet_UploadDataProviderPtr,Cronet_UploadDataProvider_Destroy,
     with_ctx: Ctx,
     get: Cronet_UploadDataProvider_GetClientContext,
