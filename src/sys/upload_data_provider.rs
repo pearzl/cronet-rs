@@ -28,16 +28,6 @@ impl<'a, Ctx> UploadDataProvider<Ctx> {
     }
 }
 
-impl<Ctx> Drop for UploadDataProvider<Ctx> {
-    fn drop(&mut self) {
-        let ctx_ptr = self.get_client_context().inner;
-        if !ctx_ptr.is_null() {
-            let _ = unsafe { Box::from_raw(ctx_ptr) };
-        }
-        unsafe { Cronet_UploadDataProvider_Destroy(self.ptr) }
-    }
-}
-
 impl<Ctx> UploadDataProvider<Ctx> {
     pub(crate) fn create_with(
         get_length_func: Cronet_UploadDataProvider_GetLengthFunc,
@@ -57,8 +47,8 @@ impl<Ctx> UploadDataProvider<Ctx> {
     }
 }
 
-define_impl! {
-    UploadDataProvider, Cronet_UploadDataProviderPtr,
+define_impl! { 
+    UploadDataProvider, Cronet_UploadDataProviderPtr,Cronet_UploadDataProvider_Destroy,
     with_ctx: Ctx,
     get: Cronet_UploadDataProvider_GetClientContext,
     set: Cronet_UploadDataProvider_SetClientContext,

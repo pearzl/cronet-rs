@@ -11,16 +11,6 @@ use crate::{
 
 use super::Borrowed;
 
-impl<Ctx> Drop for BufferCallback<Ctx> {
-    fn drop(&mut self) {
-        let ctx_ptr = self.get_client_context().inner;
-        if !ctx_ptr.is_null() {
-            let _ = unsafe { Box::from_raw(ctx_ptr) };
-        }
-        unsafe { Cronet_BufferCallback_Destroy(self.ptr) }
-    }
-}
-
 impl<Ctx> BufferCallback<Ctx> {
     pub(crate) fn create_with(on_destroy_func: Cronet_BufferCallback_OnDestroyFunc) -> Self {
         unsafe {
@@ -31,7 +21,7 @@ impl<Ctx> BufferCallback<Ctx> {
 }
 
 define_impl! {
-    BufferCallback, Cronet_BufferCallbackPtr,
+    BufferCallback, Cronet_BufferCallbackPtr,Cronet_BufferCallback_Destroy,
     with_ctx: Ctx,
     get:  Cronet_BufferCallback_GetClientContext,
     set:  Cronet_BufferCallback_SetClientContext,

@@ -31,18 +31,9 @@ impl<Ctx> UrlRequestStatusListener<Ctx> {
     }
 }
 
-impl<Ctx> Drop for UrlRequestStatusListener<Ctx> {
-    fn drop(&mut self) {
-        let ctx_ptr = self.get_client_context().inner;
-        if !ctx_ptr.is_null() {
-            let _ = unsafe { Box::from_raw(ctx_ptr) };
-        }
-        unsafe { Cronet_UrlRequestStatusListener_Destroy(self.ptr) }
-    }
-}
 
 define_impl! {
-    UrlRequestStatusListener, Cronet_UrlRequestStatusListenerPtr,
+    UrlRequestStatusListener, Cronet_UrlRequestStatusListenerPtr, Cronet_UrlRequestStatusListener_Destroy,
     with_ctx: Ctx,
     get: Cronet_UrlRequestStatusListener_GetClientContext,
     set: Cronet_UrlRequestStatusListener_SetClientContext,

@@ -20,15 +20,6 @@ use super::{
     url_request_params::UrlRequestParams, url_request_status_listener::UrlRequestStatusListener,
 };
 
-// pub(crate) struct UrlRequest {
-//     ptr: Cronet_UrlRequestPtr,
-// }
-
-impl<Ctx> Drop for UrlRequest<Ctx> {
-    fn drop(&mut self) {
-        unsafe { Cronet_UrlRequest_Destroy(self.ptr) }
-    }
-}
 
 impl<Ctx> UrlRequest<Ctx> {
     pub(crate) fn create() -> Self {
@@ -110,7 +101,7 @@ impl<Ctx> UrlRequest<Ctx> {
 }
 
 define_impl! {
-    UrlRequest, Cronet_UrlRequestPtr,
+    UrlRequest, Cronet_UrlRequestPtr, Cronet_UrlRequest_Destroy,
     with_ctx: Ctx,
     get: Cronet_UrlRequest_GetClientContext,
     set: Cronet_UrlRequest_SetClientContext,

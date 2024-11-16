@@ -17,11 +17,6 @@ impl<Ctx> UrlRequestCallback<Ctx> {
     }
 }
 
-impl<Ctx> Drop for UrlRequestCallback<Ctx> {
-    fn drop(&mut self) {
-        unsafe { Cronet_UrlRequestCallback_Destroy(self.ptr) }
-    }
-}
 
 impl<Ctx> UrlRequestCallback<Ctx> {
     pub(crate) fn create_with(
@@ -47,7 +42,7 @@ impl<Ctx> UrlRequestCallback<Ctx> {
 }
 
 define_impl! {
-    UrlRequestCallback, Cronet_UrlRequestCallbackPtr,
+    UrlRequestCallback, Cronet_UrlRequestCallbackPtr, Cronet_UrlRequestCallback_Destroy,
     with_ctx: Ctx,
     get: Cronet_UrlRequestCallback_GetClientContext,
     set: Cronet_UrlRequestCallback_SetClientContext,

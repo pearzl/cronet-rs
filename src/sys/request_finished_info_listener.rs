@@ -28,16 +28,6 @@ impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
     }
 }
 
-impl<Ctx> Drop for RequestFinishedInfoListener<Ctx> {
-    fn drop(&mut self) {
-        let ctx_ptr = self.get_client_context().inner;
-        if !ctx_ptr.is_null() {
-            let _ = unsafe { Box::from_raw(ctx_ptr) };
-        }
-        unsafe { Cronet_RequestFinishedInfoListener_Destroy(self.ptr) }
-    }
-}
-
 impl<Ctx> RequestFinishedInfoListener<Ctx> {
     pub(crate) fn create_with(
         on_request_finished_func: Cronet_RequestFinishedInfoListener_OnRequestFinishedFunc,
@@ -49,8 +39,8 @@ impl<Ctx> RequestFinishedInfoListener<Ctx> {
     }
 }
 
-define_impl! {
-    RequestFinishedInfoListener, Cronet_RequestFinishedInfoListenerPtr,
+define_impl! { 
+    RequestFinishedInfoListener, Cronet_RequestFinishedInfoListenerPtr, Cronet_RequestFinishedInfoListener_Destroy,
     with_ctx: Ctx,
     get: Cronet_RequestFinishedInfoListener_GetClientContext,
     set: Cronet_RequestFinishedInfoListener_SetClientContext,

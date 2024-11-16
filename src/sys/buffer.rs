@@ -20,15 +20,6 @@ impl<Ctx> Buffer<Ctx> {
     }
 }
 
-impl<Ctx> Drop for Buffer<Ctx> {
-    fn drop(&mut self) {
-        let ctx_ptr = self.get_client_context().inner;
-        if !ctx_ptr.is_null() {
-            let _ = unsafe { Box::from_raw(ctx_ptr) };
-        }
-        unsafe { Cronet_Buffer_Destroy(self.ptr) };
-    }
-}
 
 impl<Ctx> Buffer<Ctx> {
     pub(crate) fn create() -> Self {
@@ -88,7 +79,7 @@ impl<Ctx> Buffer<Ctx> {
 }
 
 define_impl! {
-    Buffer, Cronet_BufferPtr,
+    Buffer, Cronet_BufferPtr, Cronet_Buffer_Destroy,
     with_ctx: Ctx,
     get: Cronet_Buffer_GetClientContext,
     set: Cronet_Buffer_SetClientContext,

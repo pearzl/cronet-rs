@@ -11,12 +11,6 @@ use crate::{
 
 use super::Borrowed;
 
-impl<Ctx> Drop for Runnable<Ctx> {
-    fn drop(&mut self) {
-        unsafe { Cronet_Runnable_Destroy(self.ptr) }
-    }
-}
-
 impl<Ctx> Runnable<Ctx> {
     pub(crate) fn create_with(run_func: Cronet_Runnable_RunFunc) -> Self {
         unsafe {
@@ -27,7 +21,7 @@ impl<Ctx> Runnable<Ctx> {
 }
 
 define_impl! {
-    Runnable, Cronet_RunnablePtr,
+    Runnable, Cronet_RunnablePtr, Cronet_Runnable_Destroy,
     with_ctx: Ctx,
     get: Cronet_Runnable_GetClientContext,
     set: Cronet_Runnable_SetClientContext,

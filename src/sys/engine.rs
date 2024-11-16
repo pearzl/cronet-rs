@@ -119,18 +119,8 @@ impl<Ctx> Engine<Ctx> {
     }
 }
 
-impl<Ctx> Drop for Engine<Ctx> {
-    fn drop(&mut self) {
-        let ctx_ptr = self.get_client_context().inner;
-        if !ctx_ptr.is_null() {
-            let _ = unsafe { Box::from_raw(ctx_ptr) };
-        }
-        unsafe { Cronet_Engine_Destroy(self.ptr) }
-    }
-}
-
 define_impl! {
-    Engine, Cronet_EnginePtr,
+    Engine, Cronet_EnginePtr, Cronet_Engine_Destroy,
     with_ctx: Ctx,
     get: Cronet_Engine_GetClientContext,
     set: Cronet_Engine_SetClientContext,

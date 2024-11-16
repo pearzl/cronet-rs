@@ -18,23 +18,18 @@ impl<'a, Ctx> Executor<Ctx> {
     }
 }
 
-impl<Ctx> Drop for Executor<Ctx> {
-    fn drop(&mut self) {
-        unsafe { Cronet_Executor_Destroy(self.ptr) }
-    }
-}
 
 impl<Ctx> Executor<Ctx> {
     pub(crate) fn create_with(execute_func: Cronet_Executor_ExecuteFunc) -> Self {
         unsafe {
             let ptr = Cronet_Executor_CreateWith(execute_func);
-            Self { ptr ,ctx: None}
+            Self { ptr , ctx: None}
         }
     }
 }
 
 define_impl! {
-    Executor, Cronet_ExecutorPtr,
+    Executor, Cronet_ExecutorPtr, Cronet_Executor_Destroy,
     with_ctx: Ctx,
     get: Cronet_Executor_GetClientContext,
     set: Cronet_Executor_SetClientContext,

@@ -24,16 +24,6 @@ impl<'a, Ctx> UploadDataSink<Ctx> {
     }
 }
 
-impl<Ctx> Drop for UploadDataSink<Ctx> {
-    fn drop(&mut self) {
-        let ctx_ptr = self.get_client_context().inner;
-        if !ctx_ptr.is_null() {
-            let _ = unsafe { Box::from_raw(ctx_ptr) };
-        }
-        unsafe { Cronet_UploadDataSink_Destroy(self.ptr) }
-    }
-}
-
 impl<Ctx> UploadDataSink<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
@@ -64,7 +54,7 @@ unsafe impl<Ctx> Send for UploadDataSink<Ctx> {}
 unsafe impl<Ctx> Sync for UploadDataSink<Ctx> {}
 
 define_impl! {
-    UploadDataSink, Cronet_UploadDataSinkPtr,
+    UploadDataSink, Cronet_UploadDataSinkPtr, Cronet_UploadDataSink_Destroy,
     with_ctx: Ctx,
     get: Cronet_UploadDataSink_GetClientContext,
     set: Cronet_UploadDataSink_SetClientContext,
