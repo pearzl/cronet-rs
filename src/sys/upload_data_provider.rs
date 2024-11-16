@@ -8,15 +8,10 @@ use crate::{
         Cronet_UploadDataProvider_ReadFunc, Cronet_UploadDataProvider_RewindFunc,
         Cronet_UploadDataProvider_SetClientContext,
     },
-    util::impl_client_context,
+    util::define_impl,
 };
 
 use super::Borrowed;
-
-pub(crate) struct UploadDataProvider<Ctx> {
-    ptr: Cronet_UploadDataProviderPtr,
-    _phan: PhantomData<Ctx>,
-}
 
 impl<'a, Ctx> UploadDataProvider<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_UploadDataProviderPtr {
@@ -27,10 +22,7 @@ impl<'a, Ctx> UploadDataProvider<Ctx> {
         ptr: Cronet_UploadDataProviderPtr,
         lifetime: &'a X,
     ) -> Borrowed<'a, UploadDataProvider<Ctx>> {
-        let borrowed = UploadDataProvider {
-            ptr,
-            _phan: PhantomData,
-        };
+        let borrowed = UploadDataProvider { ptr, ctx: None };
         let ptr = Box::into_raw(Box::new(borrowed));
         Borrowed::new(ptr, lifetime)
     }
@@ -60,18 +52,16 @@ impl<Ctx> UploadDataProvider<Ctx> {
                 rewind_func,
                 close_func,
             );
-            Self {
-                ptr,
-                _phan: PhantomData,
-            }
+            Self { ptr, ctx: None }
         }
     }
 }
 
-impl_client_context! {
-    UploadDataProvider,
-    Cronet_UploadDataProvider_GetClientContext,
-    Cronet_UploadDataProvider_SetClientContext,
+define_impl! {
+    UploadDataProvider, Cronet_UploadDataProviderPtr,
+    with_ctx: Ctx,
+    get: Cronet_UploadDataProvider_GetClientContext,
+    set: Cronet_UploadDataProvider_SetClientContext,
 }
 
 unsafe impl<T> Send for UploadDataProvider<T> where T: Send {}

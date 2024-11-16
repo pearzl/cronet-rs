@@ -1,38 +1,29 @@
-use crate::bindings::{
-    Cronet_ClientContext, Cronet_UrlRequestCallbackPtr, Cronet_UrlRequestCallback_CreateWith,
-    Cronet_UrlRequestCallback_Destroy, Cronet_UrlRequestCallback_GetClientContext,
-    Cronet_UrlRequestCallback_OnCanceledFunc, Cronet_UrlRequestCallback_OnFailedFunc,
-    Cronet_UrlRequestCallback_OnReadCompletedFunc,
-    Cronet_UrlRequestCallback_OnRedirectReceivedFunc,
-    Cronet_UrlRequestCallback_OnResponseStartedFunc, Cronet_UrlRequestCallback_OnSucceededFunc,
-    Cronet_UrlRequestCallback_SetClientContext,
+use crate::{
+    bindings::{
+        Cronet_ClientContext, Cronet_UrlRequestCallbackPtr, Cronet_UrlRequestCallback_CreateWith,
+        Cronet_UrlRequestCallback_Destroy, Cronet_UrlRequestCallback_GetClientContext,
+        Cronet_UrlRequestCallback_OnCanceledFunc, Cronet_UrlRequestCallback_OnFailedFunc,
+        Cronet_UrlRequestCallback_OnReadCompletedFunc,
+        Cronet_UrlRequestCallback_OnRedirectReceivedFunc,
+        Cronet_UrlRequestCallback_OnResponseStartedFunc, Cronet_UrlRequestCallback_OnSucceededFunc,
+        Cronet_UrlRequestCallback_SetClientContext,
+    },
+    util::define_impl,
 };
 
-pub(crate) struct UrlRequestCallback {
-    ptr: Cronet_UrlRequestCallbackPtr,
-}
-
-impl UrlRequestCallback {
+impl<Ctx> UrlRequestCallback<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestCallbackPtr {
         self.ptr
     }
 }
 
-impl Drop for UrlRequestCallback {
+impl<Ctx> Drop for UrlRequestCallback<Ctx> {
     fn drop(&mut self) {
         unsafe { Cronet_UrlRequestCallback_Destroy(self.ptr) }
     }
 }
 
-impl UrlRequestCallback {
-    pub(crate) fn set_client_conetxt(&mut self, client_context: Cronet_ClientContext) {
-        unsafe { Cronet_UrlRequestCallback_SetClientContext(self.ptr, client_context) }
-    }
-
-    pub(crate) fn get_client_conetxt(&self) -> Cronet_ClientContext {
-        unsafe { Cronet_UrlRequestCallback_GetClientContext(self.ptr) }
-    }
-
+impl<Ctx> UrlRequestCallback<Ctx> {
     pub(crate) fn create_with(
         on_redirect_received_func: Cronet_UrlRequestCallback_OnRedirectReceivedFunc,
         on_response_started_func: Cronet_UrlRequestCallback_OnResponseStartedFunc,
@@ -50,7 +41,14 @@ impl UrlRequestCallback {
                 on_failed_func,
                 on_canceled_func,
             );
-            Self { ptr }
+            Self { ptr, ctx: None }
         }
     }
+}
+
+define_impl! {
+    UrlRequestCallback, Cronet_UrlRequestCallbackPtr,
+    with_ctx: Ctx,
+    get: Cronet_UrlRequestCallback_GetClientContext,
+    set: Cronet_UrlRequestCallback_SetClientContext,
 }

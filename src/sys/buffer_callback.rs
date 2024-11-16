@@ -6,15 +6,10 @@ use crate::{
         Cronet_BufferCallback_GetClientContext, Cronet_BufferCallback_OnDestroyFunc,
         Cronet_BufferCallback_SetClientContext, Cronet_ClientContext,
     },
-    util::impl_client_context,
+    util::define_impl,
 };
 
 use super::Borrowed;
-
-pub(crate) struct BufferCallback<Ctx> {
-    ptr: Cronet_BufferCallbackPtr,
-    _phan: PhantomData<Ctx>,
-}
 
 impl<Ctx> Drop for BufferCallback<Ctx> {
     fn drop(&mut self) {
@@ -30,16 +25,14 @@ impl<Ctx> BufferCallback<Ctx> {
     pub(crate) fn create_with(on_destroy_func: Cronet_BufferCallback_OnDestroyFunc) -> Self {
         unsafe {
             let ptr = Cronet_BufferCallback_CreateWith(on_destroy_func);
-            Self {
-                ptr,
-                _phan: PhantomData,
-            }
+            Self { ptr, ctx: None }
         }
     }
 }
 
-impl_client_context! {
-    BufferCallback,
-    Cronet_BufferCallback_GetClientContext,
-    Cronet_BufferCallback_SetClientContext,
+define_impl! {
+    BufferCallback, Cronet_BufferCallbackPtr,
+    with_ctx: Ctx,
+    get:  Cronet_BufferCallback_GetClientContext,
+    set:  Cronet_BufferCallback_SetClientContext,
 }

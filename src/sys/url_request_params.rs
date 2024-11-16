@@ -24,8 +24,7 @@ use crate::{
         Cronet_UrlRequestParams_upload_data_provider_executor_set,
         Cronet_UrlRequestParams_upload_data_provider_get,
         Cronet_UrlRequestParams_upload_data_provider_set,
-    },
-    sys::request_finished_info_listener::RequestFinishedInfoListener,
+    }, client::EngineContext, sys::request_finished_info_listener::RequestFinishedInfoListener
 };
 
 use super::{
@@ -90,9 +89,9 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn upload_data_provider_executor_set(
+    pub(crate) fn upload_data_provider_executor_set<ExecutorCtx>(
         &mut self,
-        upload_data_provider_executor: Executor,
+        upload_data_provider_executor: Executor<ExecutorCtx>,
     ) {
         unsafe {
             Cronet_UrlRequestParams_upload_data_provider_executor_set(
@@ -126,7 +125,7 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn request_finished_executor_set(&mut self, request_finished_executor: Executor) {
+    pub(crate) fn request_finished_executor_set<ExecutorCtx>(&mut self, request_finished_executor: Executor<ExecutorCtx>) {
         unsafe {
             Cronet_UrlRequestParams_request_finished_executor_set(
                 self.ptr,
@@ -184,7 +183,7 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn upload_data_provider_executor_get(&self) -> Borrowed<Executor> {
+    pub(crate) fn upload_data_provider_executor_get<ExecutorCtx>(&self) -> Borrowed<Executor<ExecutorCtx>> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_executor_get(self.ptr);
             assert!(!ptr.is_null());
@@ -220,7 +219,7 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn request_finished_executor_get(&self) -> Borrowed<Executor> {
+    pub(crate) fn request_finished_executor_get<EngineContext>(&self) -> Borrowed<Executor<EngineContext>> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_request_finished_executor_get(self.ptr);
             assert!(!ptr.is_null());

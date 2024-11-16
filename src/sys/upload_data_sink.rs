@@ -8,25 +8,17 @@ use crate::{
         Cronet_UploadDataSink_OnReadSucceededFunc, Cronet_UploadDataSink_OnRewindErrorFunc,
         Cronet_UploadDataSink_OnRewindSucceededFunc, Cronet_UploadDataSink_SetClientContext,
     },
-    util::impl_client_context,
+    util::define_impl,
 };
 
 use super::Borrowed;
-
-pub(crate) struct UploadDataSink<Ctx> {
-    ptr: Cronet_UploadDataSinkPtr,
-    _phan: PhantomData<Ctx>,
-}
 
 impl<'a, Ctx> UploadDataSink<Ctx> {
     pub fn borrow_from<X>(
         ptr: Cronet_UploadDataSinkPtr,
         lifetime: &'a X,
     ) -> Borrowed<'a, UploadDataSink<Ctx>> {
-        let borrowed = UploadDataSink {
-            ptr,
-            _phan: PhantomData,
-        };
+        let borrowed = UploadDataSink { ptr, ctx: None };
         let ptr = Box::into_raw(Box::new(borrowed));
         Borrowed::new(ptr, lifetime)
     }
@@ -46,10 +38,7 @@ impl<Ctx> UploadDataSink<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_UploadDataSink_Create();
-            Self {
-                ptr,
-                _phan: PhantomData,
-            }
+            Self { ptr, ctx: None }
         }
     }
 
@@ -66,10 +55,7 @@ impl<Ctx> UploadDataSink<Ctx> {
                 on_rewind_succeeded_func,
                 on_rewind_error_func,
             );
-            Self {
-                ptr,
-                _phan: PhantomData,
-            }
+            Self { ptr, ctx: None }
         }
     }
 }
@@ -77,6 +63,9 @@ impl<Ctx> UploadDataSink<Ctx> {
 unsafe impl<Ctx> Send for UploadDataSink<Ctx> {}
 unsafe impl<Ctx> Sync for UploadDataSink<Ctx> {}
 
-impl_client_context! {
-    UploadDataSink, Cronet_UploadDataSink_GetClientContext, Cronet_UploadDataSink_SetClientContext,
+define_impl! {
+    UploadDataSink, Cronet_UploadDataSinkPtr,
+    with_ctx: Ctx,
+    get: Cronet_UploadDataSink_GetClientContext,
+    set: Cronet_UploadDataSink_SetClientContext,
 }

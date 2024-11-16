@@ -38,13 +38,13 @@ impl<Ctx> UrlRequest<Ctx> {
         }
     }
 
-    pub(crate) fn init_with_params<EngineCtx>(
+    pub(crate) fn init_with_params<EngineCtx, UrlRequestCallbackCtx, ExecutorCtx>(
         &self,
         engine: &Engine<EngineCtx>,
         url: &CStr,
         params: UrlRequestParams,
-        callback: UrlRequestCallback,
-        executor: Executor,
+        callback: UrlRequestCallback<UrlRequestCallbackCtx>,
+        executor: Executor<ExecutorCtx>,
     ) -> Cronet_RESULT {
         unsafe {
             Cronet_UrlRequest_InitWithParams(
@@ -112,6 +112,6 @@ impl<Ctx> UrlRequest<Ctx> {
 define_impl! {
     UrlRequest, Cronet_UrlRequestPtr,
     with_ctx: Ctx,
-    get: get_client_conetxt, Cronet_UrlRequest_GetClientContext,
-    set: set_client_conetxt, Cronet_UrlRequest_SetClientContext,
+    get: Cronet_UrlRequest_GetClientContext,
+    set: Cronet_UrlRequest_SetClientContext,
 }

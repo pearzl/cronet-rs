@@ -9,15 +9,10 @@ use crate::{
         Cronet_Buffer_InitWithDataAndCallback, Cronet_Buffer_InitWithDataAndCallbackFunc,
         Cronet_Buffer_SetClientContext, Cronet_ClientContext, Cronet_RawDataPtr,
     },
-    util::impl_client_context,
+    util::define_impl,
 };
 
 use super::Borrowed;
-
-pub(crate) struct Buffer<Ctx> {
-    ptr: Cronet_BufferPtr,
-    _phan: PhantomData<Ctx>,
-}
 
 impl<Ctx> Buffer<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_BufferPtr {
@@ -39,10 +34,7 @@ impl<Ctx> Buffer<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_Buffer_Create();
-            Buffer {
-                ptr,
-                _phan: PhantomData,
-            }
+            Buffer { ptr, ctx: None }
         }
     }
 
@@ -90,16 +82,14 @@ impl<Ctx> Buffer<Ctx> {
                 get_size_func,
                 get_data_func,
             );
-            Self {
-                ptr,
-                _phan: PhantomData,
-            }
+            Self { ptr, ctx: None }
         }
     }
 }
 
-impl_client_context! {
-    Buffer,
-    Cronet_Buffer_GetClientContext,
-    Cronet_Buffer_SetClientContext,
+define_impl! {
+    Buffer, Cronet_BufferPtr,
+    with_ctx: Ctx,
+    get: Cronet_Buffer_GetClientContext,
+    set: Cronet_Buffer_SetClientContext,
 }

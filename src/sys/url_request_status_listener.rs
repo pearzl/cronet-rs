@@ -8,15 +8,10 @@ use crate::{
         Cronet_UrlRequestStatusListener_OnStatusFunc,
         Cronet_UrlRequestStatusListener_SetClientContext,
     },
-    util::impl_client_context,
+    util::define_impl,
 };
 
 use super::Borrowed;
-
-pub(crate) struct UrlRequestStatusListener<Ctx> {
-    ptr: Cronet_UrlRequestStatusListenerPtr,
-    _phan: PhantomData<Ctx>,
-}
 
 impl<Ctx> UrlRequestStatusListener<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestStatusListenerPtr {
@@ -31,10 +26,7 @@ impl<Ctx> UrlRequestStatusListener<Ctx> {
     ) -> Self {
         unsafe {
             let ptr = Cronet_UrlRequestStatusListener_CreateWith(on_status_func);
-            Self {
-                ptr,
-                _phan: PhantomData,
-            }
+            Self { ptr, ctx: None }
         }
     }
 }
@@ -49,8 +41,9 @@ impl<Ctx> Drop for UrlRequestStatusListener<Ctx> {
     }
 }
 
-impl_client_context! {
-    UrlRequestStatusListener,
-    Cronet_UrlRequestStatusListener_GetClientContext,
-    Cronet_UrlRequestStatusListener_SetClientContext,
+define_impl! {
+    UrlRequestStatusListener, Cronet_UrlRequestStatusListenerPtr,
+    with_ctx: Ctx,
+    get: Cronet_UrlRequestStatusListener_GetClientContext,
+    set: Cronet_UrlRequestStatusListener_SetClientContext,
 }

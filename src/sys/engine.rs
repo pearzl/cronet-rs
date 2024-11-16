@@ -14,18 +14,13 @@ use crate::{
         Cronet_Engine_StartWithParamsFunc, Cronet_Engine_StopNetLog, Cronet_Engine_StopNetLogFunc,
         Cronet_RESULT,
     },
-    util::impl_client_context,
+    util::define_impl,
 };
 
 use super::{
     engine_params::EngineParams, executor::Executor,
     request_finished_info_listener::RequestFinishedInfoListener, Borrowed,
 };
-
-pub(crate) struct Engine<Ctx> {
-    ptr: Cronet_EnginePtr,
-    _phan: PhantomData<Ctx>,
-}
 
 impl<Ctx> Engine<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_EnginePtr {
@@ -38,7 +33,7 @@ impl<Ctx> Engine<Ctx> {
         unsafe {
             Engine {
                 ptr: Cronet_Engine_Create(),
-                _phan: PhantomData,
+                ctx: None,
             }
         }
     }
@@ -76,10 +71,10 @@ impl<Ctx> Engine<Ctx> {
         }
     }
 
-    pub(crate) fn add_request_finished_listener<ListenerCtx>(
+    pub(crate) fn add_request_finished_listener<ListenerCtx, ExecutorCtx>(
         &self,
         listener: RequestFinishedInfoListener<ListenerCtx>,
-        executor: Executor,
+        executor: Executor<ExecutorCtx>,
     ) {
         unsafe {
             Cronet_Engine_AddRequestFinishedListener(
@@ -119,10 +114,7 @@ impl<Ctx> Engine<Ctx> {
                 add_request_finished_listener_func,
                 remove_request_finished_listener_func,
             );
-            Engine {
-                ptr,
-                _phan: PhantomData,
-            }
+            Engine { ptr, ctx: None }
         }
     }
 }
@@ -137,8 +129,9 @@ impl<Ctx> Drop for Engine<Ctx> {
     }
 }
 
-impl_client_context! {
-    Engine,
-    Cronet_Engine_GetClientContext,
-    Cronet_Engine_SetClientContext,
+define_impl! {
+    Engine, Cronet_EnginePtr,
+    with_ctx: Ctx,
+    get: Cronet_Engine_GetClientContext,
+    set: Cronet_Engine_SetClientContext,
 }
