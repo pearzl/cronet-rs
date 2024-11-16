@@ -71,3 +71,6 @@ impl<'a, T> std::ops::DerefMut for Borrowed<'a, T> {
         unsafe { &mut *self.inner }
     }
 }
+
+unsafe impl<'a, T> Send for Borrowed<'a, T> where T: Send {}
+unsafe impl<'a, T> Sync for Borrowed<'a, T> where T: Send {}

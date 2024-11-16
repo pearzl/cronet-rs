@@ -73,3 +73,6 @@ impl_client_context! {
     Cronet_UploadDataProvider_GetClientContext,
     Cronet_UploadDataProvider_SetClientContext,
 }
+
+unsafe impl<T> Send for UploadDataProvider<T> where T: Send {}
+unsafe impl<T> Sync for UploadDataProvider<T> where T: Sync {}
