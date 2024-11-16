@@ -46,16 +46,6 @@ impl<Ctx> Buffer<Ctx> {
         }
     }
 
-    pub(crate) fn init_with_alloc(&self, size: u64) {
-        unsafe {
-            Cronet_Buffer_InitWithAlloc(self.ptr, size);
-        }
-    }
-
-    pub(crate) fn get_size(&self) -> u64 {
-        unsafe { Cronet_Buffer_GetSize(self.ptr) }
-    }
-
     pub(crate) fn get_data(&self) -> Cronet_RawDataPtr {
         unsafe { Cronet_Buffer_GetData(self.ptr) }
     }
@@ -80,6 +70,10 @@ impl<Ctx> Buffer<Ctx> {
 
 define_impl! {
     Buffer, Cronet_BufferPtr, Cronet_Buffer_Destroy,
+
+    fn get_size(&Self) -> u64; Cronet_Buffer_GetSize,
+    fn init_with_alloc(&mut Self, size: u64); Cronet_Buffer_InitWithAlloc,
+
     with_ctx: Ctx,
     get: Cronet_Buffer_GetClientContext,
     set: Cronet_Buffer_SetClientContext,

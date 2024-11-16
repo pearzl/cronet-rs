@@ -24,7 +24,7 @@ use crate::{
         Cronet_UrlRequestParams_upload_data_provider_executor_set,
         Cronet_UrlRequestParams_upload_data_provider_get,
         Cronet_UrlRequestParams_upload_data_provider_set,
-    }, client::EngineContext, sys::request_finished_info_listener::RequestFinishedInfoListener
+    }, sys::request_finished_info_listener::RequestFinishedInfoListener
 };
 
 use super::{

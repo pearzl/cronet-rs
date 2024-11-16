@@ -5,6 +5,13 @@ pub(crate) type BoxedFuture<T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 
 macro_rules! define_impl {
     (
         $struct_name: tt, $ptr: ty, $drop_fn: ident,
+
+        $(
+            fn $func_name: ident ($self_: ty $(,$arg_name: ident : $arg_type: ty)* ) 
+            $(-> $return_type: ty)? ; 
+            $cronet_func: ident,
+        )*
+
         $(
             with_ctx: $ctx: tt,
             get:  $cronet_get: ident,
@@ -22,6 +29,13 @@ macro_rules! define_impl {
             }
         }
         
+        impl $(<$ctx>)? $struct_name $(<$ctx>)? {
+        $(
+            pub(crate) fn $func_name(self: $self_ $(,$arg_name: $arg_type)*) $( -> $return_type)? {
+                unsafe { $cronet_func( self.ptr $(,$arg_name)*) }
+            }
+        )*
+        }
 
         // impl ctx
         $(

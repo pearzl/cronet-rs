@@ -9,7 +9,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
 
 impl<Ctx> BufferCallback<Ctx> {
     pub(crate) fn create_with(on_destroy_func: Cronet_BufferCallback_OnDestroyFunc) -> Self {
@@ -21,7 +20,7 @@ impl<Ctx> BufferCallback<Ctx> {
 }
 
 define_impl! {
-    BufferCallback, Cronet_BufferCallbackPtr,Cronet_BufferCallback_Destroy,
+    BufferCallback, Cronet_BufferCallbackPtr, Cronet_BufferCallback_Destroy,
     with_ctx: Ctx,
     get:  Cronet_BufferCallback_GetClientContext,
     set:  Cronet_BufferCallback_SetClientContext,
