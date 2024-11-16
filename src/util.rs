@@ -7,7 +7,7 @@ macro_rules! define_impl {
         $struct_name: tt, $ptr: ty, $drop_fn: ident,
 
         $(
-            fn $func_name: ident ($self_: ty $(,$arg_name: ident : $arg_type: ty $(>> $arg_trans_func: path)?)* )
+            fn $func_name: ident $(<$($gen_param:tt),*>)? ($self_: ty $(,$arg_name: ident : $arg_type: ty $(>> $arg_trans_func: path)?)* )
             $(-> $return_type: ty $(>> $return_trans_func: path)? )? ;
             $cronet_func: ident,
         )*
@@ -34,9 +34,9 @@ macro_rules! define_impl {
         // impl simple method
         impl $(<$ctx>)? $struct_name $(<$ctx>)? {
         $(
-            pub(crate) fn $func_name(self: $self_ $(,$arg_name: $arg_type )*) $( -> $return_type)? {
+            pub(crate) fn $func_name $(<$($gen_param),*>)?(self: $self_ $(,$arg_name: $arg_type )*) $( -> $return_type)? {
                 unsafe {
-                    let ret =  $cronet_func( 
+                    let ret =  $cronet_func(
                         self.ptr $(,{
                             $(let $arg_name = $arg_trans_func($arg_name);)?
                             $arg_name

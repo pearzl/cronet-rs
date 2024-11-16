@@ -1,20 +1,28 @@
 use std::ffi::CStr;
 
-use crate::bindings::{
-    Cronet_HttpHeaderPtr, Cronet_HttpHeader_Create, Cronet_HttpHeader_Destroy,
-    Cronet_HttpHeader_name_get, Cronet_HttpHeader_name_set, Cronet_HttpHeader_value_get,
-    Cronet_HttpHeader_value_set,
+use crate::{
+    bindings::{
+        Cronet_HttpHeaderPtr, Cronet_HttpHeader_Create, Cronet_HttpHeader_Destroy,
+        Cronet_HttpHeader_name_get, Cronet_HttpHeader_name_set, Cronet_HttpHeader_value_get,
+        Cronet_HttpHeader_value_set,
+    },
+    util::define_impl,
 };
 
 use super::Borrowed;
 
-pub(crate) struct HttpHeader {
-    ptr: Cronet_HttpHeaderPtr,
-}
-
 impl<'a> HttpHeader {
     pub(crate) fn as_ptr(&self) -> Cronet_HttpHeaderPtr {
         self.ptr
+    }
+
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_HttpHeaderPtr) -> Option<&'a mut HttpHeader> {
+        if ptr.is_null() {
+            return None;
+        }
+        let borrowed = HttpHeader { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        Some(&mut *ptr)
     }
 
     pub fn borrow_from<X>(ptr: Cronet_HttpHeaderPtr, lifetime: &'a X) -> Borrowed<'a, HttpHeader> {
@@ -24,12 +32,19 @@ impl<'a> HttpHeader {
     }
 }
 
-impl Drop for HttpHeader {
-    fn drop(&mut self) {
-        unsafe {
-            Cronet_HttpHeader_Destroy(self.ptr);
-        }
-    }
+define_impl! {
+    HttpHeader, Cronet_HttpHeaderPtr, Cronet_HttpHeader_Destroy,
+
+    fn name_set(&mut Self, name: &CStr >> CStr::as_ptr);
+        Cronet_HttpHeader_name_set,
+    fn name_get(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_HttpHeader_name_get,
+
+    fn value_set(&mut Self, value: &CStr >> CStr::as_ptr);
+        Cronet_HttpHeader_value_set,
+    fn value_get(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_HttpHeader_value_get,
+
 }
 
 impl HttpHeader {
@@ -37,32 +52,6 @@ impl HttpHeader {
         unsafe {
             let ptr = Cronet_HttpHeader_Create();
             Self { ptr }
-        }
-    }
-
-    pub(crate) fn name_set(&mut self, name: &CStr) {
-        unsafe {
-            Cronet_HttpHeader_name_set(self.ptr, name.as_ptr());
-        }
-    }
-
-    pub(crate) fn value_set(&mut self, value: &CStr) {
-        unsafe {
-            Cronet_HttpHeader_value_set(self.ptr, value.as_ptr());
-        }
-    }
-
-    pub(crate) fn name_get(&self) -> &CStr {
-        unsafe {
-            let ptr = Cronet_HttpHeader_name_get(self.ptr);
-            CStr::from_ptr(ptr)
-        }
-    }
-
-    pub(crate) fn value_get(&self) -> &CStr {
-        unsafe {
-            let ptr = Cronet_HttpHeader_value_get(self.ptr);
-            CStr::from_ptr(ptr)
         }
     }
 }

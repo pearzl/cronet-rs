@@ -1,17 +1,16 @@
 use std::ffi::CStr;
 
-use crate::bindings::{
-    Cronet_QuicHintPtr, Cronet_QuicHint_Create, Cronet_QuicHint_Destroy,
-    Cronet_QuicHint_alternate_port_get, Cronet_QuicHint_alternate_port_set,
-    Cronet_QuicHint_host_get, Cronet_QuicHint_host_set, Cronet_QuicHint_port_get,
-    Cronet_QuicHint_port_set,
+use crate::{
+    bindings::{
+        Cronet_QuicHintPtr, Cronet_QuicHint_Create, Cronet_QuicHint_Destroy,
+        Cronet_QuicHint_alternate_port_get, Cronet_QuicHint_alternate_port_set,
+        Cronet_QuicHint_host_get, Cronet_QuicHint_host_set, Cronet_QuicHint_port_get,
+        Cronet_QuicHint_port_set,
+    },
+    util::define_impl,
 };
 
 use super::Borrowed;
-
-pub(crate) struct QuicHint {
-    ptr: Cronet_QuicHintPtr,
-}
 
 impl<'a> QuicHint {
     pub(crate) fn as_ptr(&self) -> Cronet_QuicHintPtr {
@@ -25,10 +24,23 @@ impl<'a> QuicHint {
     }
 }
 
-impl Drop for QuicHint {
-    fn drop(&mut self) {
-        unsafe { Cronet_QuicHint_Destroy(self.ptr) }
-    }
+define_impl! {
+    QuicHint, Cronet_QuicHintPtr, Cronet_QuicHint_Destroy,
+
+    fn host_set(&mut Self, host: &CStr >> CStr::as_ptr);
+        Cronet_QuicHint_host_set,
+    fn host_get(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_QuicHint_host_get,
+
+    fn port_set(&mut Self, port: i32);
+        Cronet_QuicHint_port_set,
+    fn port_get(&Self) -> i32;
+        Cronet_QuicHint_port_get,
+
+    fn alternate_port_set(&mut Self, alternate_port: i32);
+        Cronet_QuicHint_alternate_port_set,
+    fn alternate_port_get(&Self) -> i32;
+        Cronet_QuicHint_alternate_port_get,
 }
 
 impl QuicHint {
@@ -37,38 +49,5 @@ impl QuicHint {
             let ptr = Cronet_QuicHint_Create();
             Self { ptr }
         }
-    }
-
-    pub(crate) fn host_set(&mut self, host: &CStr) {
-        unsafe {
-            Cronet_QuicHint_host_set(self.ptr, host.as_ptr());
-        }
-    }
-
-    pub(crate) fn port_set(&mut self, port: i32) {
-        unsafe {
-            Cronet_QuicHint_port_set(self.ptr, port);
-        }
-    }
-
-    pub(crate) fn alternate_port_set(&mut self, alternate_port: i32) {
-        unsafe {
-            Cronet_QuicHint_alternate_port_set(self.ptr, alternate_port);
-        }
-    }
-
-    pub(crate) fn host_get(&self) -> &CStr {
-        unsafe {
-            let ptr = Cronet_QuicHint_host_get(self.ptr);
-            CStr::from_ptr(ptr)
-        }
-    }
-
-    pub(crate) fn port_get(&self) -> i32 {
-        unsafe { Cronet_QuicHint_port_get(self.ptr) }
-    }
-
-    pub(crate) fn alternate_port_get(&self) -> i32 {
-        unsafe { Cronet_QuicHint_alternate_port_get(self.ptr) }
     }
 }

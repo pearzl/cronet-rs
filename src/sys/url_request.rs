@@ -48,26 +48,6 @@ impl<Ctx> UrlRequest<Ctx> {
         }
     }
 
-    pub(crate) fn start(&self) -> Cronet_RESULT {
-        unsafe { Cronet_UrlRequest_Start(self.ptr) }
-    }
-
-    pub(crate) fn follow_redirect(&self) -> Cronet_RESULT {
-        unsafe { Cronet_UrlRequest_FollowRedirect(self.ptr) }
-    }
-
-    pub(crate) fn read<BufferCtx>(&self, buffer: &mut Buffer<BufferCtx>) -> Cronet_RESULT {
-        unsafe { Cronet_UrlRequest_Read(self.ptr, buffer.as_ptr()) }
-    }
-
-    pub(crate) fn cancel(&self) {
-        unsafe { Cronet_UrlRequest_Cancel(self.ptr) }
-    }
-
-    pub(crate) fn is_done(&self) -> bool {
-        unsafe { Cronet_UrlRequest_IsDone(self.ptr) }
-    }
-
     pub(crate) fn get_status<UrlRequestStatusListenerCtx>(
         &self,
         listener: &UrlRequestStatusListener<UrlRequestStatusListenerCtx>,
@@ -101,6 +81,23 @@ impl<Ctx> UrlRequest<Ctx> {
 
 define_impl! {
     UrlRequest, Cronet_UrlRequestPtr, Cronet_UrlRequest_Destroy,
+
+    fn start(&Self) -> Cronet_RESULT;
+    Cronet_UrlRequest_Start,
+    
+    fn follow_redirect(&Self) -> Cronet_RESULT;
+    Cronet_UrlRequest_FollowRedirect,
+    
+    fn read<BufferCtx>(&Self, buffer: &mut Buffer<BufferCtx> >> Buffer::as_ptr) -> Cronet_RESULT;
+    Cronet_UrlRequest_Read,
+    
+    fn cancel(&Self);
+    Cronet_UrlRequest_Cancel,
+    
+    fn is_done(&Self) -> bool;
+    Cronet_UrlRequest_IsDone,
+    
+
     with_ctx: Ctx,
     get: Cronet_UrlRequest_GetClientContext,
     set: Cronet_UrlRequest_SetClientContext,

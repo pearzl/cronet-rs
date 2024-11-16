@@ -1,36 +1,48 @@
-use crate::bindings::{
-    Cronet_MetricsPtr, Cronet_Metrics_Create, Cronet_Metrics_Destroy,
-    Cronet_Metrics_connect_end_get, Cronet_Metrics_connect_end_move,
-    Cronet_Metrics_connect_end_set, Cronet_Metrics_connect_start_get,
-    Cronet_Metrics_connect_start_move, Cronet_Metrics_connect_start_set,
-    Cronet_Metrics_dns_end_get, Cronet_Metrics_dns_end_move, Cronet_Metrics_dns_end_set,
-    Cronet_Metrics_dns_start_get, Cronet_Metrics_dns_start_move, Cronet_Metrics_dns_start_set,
-    Cronet_Metrics_push_end_get, Cronet_Metrics_push_end_move, Cronet_Metrics_push_end_set,
-    Cronet_Metrics_push_start_get, Cronet_Metrics_push_start_move, Cronet_Metrics_push_start_set,
-    Cronet_Metrics_received_byte_count_get, Cronet_Metrics_received_byte_count_set,
-    Cronet_Metrics_request_end_get, Cronet_Metrics_request_end_move,
-    Cronet_Metrics_request_end_set, Cronet_Metrics_request_start_get,
-    Cronet_Metrics_request_start_move, Cronet_Metrics_request_start_set,
-    Cronet_Metrics_response_start_get, Cronet_Metrics_response_start_move,
-    Cronet_Metrics_response_start_set, Cronet_Metrics_sending_end_get,
-    Cronet_Metrics_sending_end_move, Cronet_Metrics_sending_end_set,
-    Cronet_Metrics_sending_start_get, Cronet_Metrics_sending_start_move,
-    Cronet_Metrics_sending_start_set, Cronet_Metrics_sent_byte_count_get,
-    Cronet_Metrics_sent_byte_count_set, Cronet_Metrics_socket_reused_get,
-    Cronet_Metrics_socket_reused_set, Cronet_Metrics_ssl_end_get, Cronet_Metrics_ssl_end_move,
-    Cronet_Metrics_ssl_end_set, Cronet_Metrics_ssl_start_get, Cronet_Metrics_ssl_start_move,
-    Cronet_Metrics_ssl_start_set,
+use crate::{
+    bindings::{
+        Cronet_MetricsPtr, Cronet_Metrics_Create, Cronet_Metrics_Destroy,
+        Cronet_Metrics_connect_end_get, Cronet_Metrics_connect_end_move,
+        Cronet_Metrics_connect_end_set, Cronet_Metrics_connect_start_get,
+        Cronet_Metrics_connect_start_move, Cronet_Metrics_connect_start_set,
+        Cronet_Metrics_dns_end_get, Cronet_Metrics_dns_end_move, Cronet_Metrics_dns_end_set,
+        Cronet_Metrics_dns_start_get, Cronet_Metrics_dns_start_move, Cronet_Metrics_dns_start_set,
+        Cronet_Metrics_push_end_get, Cronet_Metrics_push_end_move, Cronet_Metrics_push_end_set,
+        Cronet_Metrics_push_start_get, Cronet_Metrics_push_start_move,
+        Cronet_Metrics_push_start_set, Cronet_Metrics_received_byte_count_get,
+        Cronet_Metrics_received_byte_count_set, Cronet_Metrics_request_end_get,
+        Cronet_Metrics_request_end_move, Cronet_Metrics_request_end_set,
+        Cronet_Metrics_request_start_get, Cronet_Metrics_request_start_move,
+        Cronet_Metrics_request_start_set, Cronet_Metrics_response_start_get,
+        Cronet_Metrics_response_start_move, Cronet_Metrics_response_start_set,
+        Cronet_Metrics_sending_end_get, Cronet_Metrics_sending_end_move,
+        Cronet_Metrics_sending_end_set, Cronet_Metrics_sending_start_get,
+        Cronet_Metrics_sending_start_move, Cronet_Metrics_sending_start_set,
+        Cronet_Metrics_sent_byte_count_get, Cronet_Metrics_sent_byte_count_set,
+        Cronet_Metrics_socket_reused_get, Cronet_Metrics_socket_reused_set,
+        Cronet_Metrics_ssl_end_get, Cronet_Metrics_ssl_end_move, Cronet_Metrics_ssl_end_set,
+        Cronet_Metrics_ssl_start_get, Cronet_Metrics_ssl_start_move, Cronet_Metrics_ssl_start_set,
+    },
+    util::define_impl,
 };
 
 use super::{date_time::DateTime, Borrowed};
 
-pub(crate) struct Metrics {
-    ptr: Cronet_MetricsPtr,
-}
-
 impl<'a> Metrics {
     pub(crate) fn as_ptr(&self) -> Cronet_MetricsPtr {
         self.ptr
+    }
+
+    pub(crate) fn into_raw(self) -> Cronet_MetricsPtr {
+        self.ptr
+    }
+
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_MetricsPtr) -> Option<&'a mut Metrics> {
+        if ptr.is_null() {
+            return None;
+        }
+        let borrowed = Metrics { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        Some(&mut *ptr)
     }
 
     pub fn borrow_from<X>(ptr: Cronet_MetricsPtr, lifetime: &'a X) -> Borrowed<'a, Metrics> {
@@ -40,10 +52,115 @@ impl<'a> Metrics {
     }
 }
 
-impl Drop for Metrics {
-    fn drop(&mut self) {
-        unsafe { Cronet_Metrics_Destroy(self.ptr) }
-    }
+define_impl! {
+    Metrics, Cronet_MetricsPtr, Cronet_Metrics_Destroy,
+
+    fn request_start_set(&mut Self, request_start: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_request_start_set,
+    fn request_start_move(&Self, request_start: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_request_start_move,
+    fn request_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_request_start_get,
+
+    fn dns_start_set(&mut Self, dns_start: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_dns_start_set,
+    fn dns_start_move(&Self, dns_start: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_dns_start_move,
+    fn dns_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_dns_start_get,
+
+    fn dns_end_set(&mut Self, dns_end: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_dns_end_set,
+    fn dns_end_move(&Self, dns_end: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_dns_end_move,
+    fn dns_end_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_dns_end_get,
+
+    fn connect_start_set(&mut Self, connect_start: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_connect_start_set,
+    fn connect_start_move(&Self, connect_start: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_connect_start_move,
+    fn connect_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_connect_start_get,
+
+    fn connect_end_set(&mut Self, connect_end: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_connect_end_set,
+    fn connect_end_move(&Self, connect_end: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_connect_end_move,
+    fn connect_end_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_connect_end_get,
+
+    fn ssl_start_set(&mut Self, ssl_start: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_ssl_start_set,
+    fn ssl_start_move(&Self, ssl_start: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_ssl_start_move,
+    fn ssl_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_ssl_start_get,
+
+    fn ssl_end_set(&mut Self, ssl_end: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_ssl_end_set,
+    fn ssl_end_move(&Self, ssl_end: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_ssl_end_move,
+    fn ssl_end_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_ssl_end_get,
+
+
+    fn sending_start_set(&mut Self, sending_start: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_sending_start_set,
+    fn sending_start_move(&Self, sending_start: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_sending_start_move,
+    fn sending_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_sending_start_get,
+
+    fn sending_end_set(&mut Self, sending_start: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_sending_end_set,
+    fn sending_end_move(&Self, sending_start: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_sending_end_move,
+    fn sending_end_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_sending_end_get,
+
+    fn push_start_set(&mut Self, push_start: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_push_start_set,
+    fn push_start_move(&Self, push_start: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_push_start_move,
+    fn push_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_push_start_get,
+
+    fn push_end_set(&mut Self, push_end: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_push_end_set,
+    fn push_end_move(&Self, push_end: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_push_end_move,
+    fn push_end_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_push_end_get,
+
+    fn response_start_set(&mut Self, response_start: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_response_start_set,
+    fn response_start_move(&Self, response_start: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_response_start_move,
+    fn response_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_response_start_get,
+
+    fn request_end_set(&mut Self, request_end: &DateTime >> DateTime::as_ptr);
+        Cronet_Metrics_request_end_set,
+    fn request_end_move(&Self, request_end: DateTime >> DateTime::into_raw);
+        Cronet_Metrics_request_end_move,
+    fn request_end_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+        Cronet_Metrics_request_end_get,
+
+    fn socket_reused_set(&mut Self, socket_reused: bool);
+        Cronet_Metrics_socket_reused_set,
+    fn socket_reused_get(&Self) -> bool;
+        Cronet_Metrics_socket_reused_get,
+
+    fn sent_byte_count_set(&mut Self, sent_byte_count: i64);
+        Cronet_Metrics_sent_byte_count_set,
+    fn sent_bytes_count_get(&Self) -> i64;
+        Cronet_Metrics_sent_byte_count_get,
+
+    fn received_byte_count_set(&mut Self, received_byte_count: i64);
+        Cronet_Metrics_received_byte_count_set,
+    fn received_byte_count_get(&Self) -> i64;
+        Cronet_Metrics_received_byte_count_get,
 }
 
 impl Metrics {
@@ -52,226 +169,5 @@ impl Metrics {
             let ptr = Cronet_Metrics_Create();
             Self { ptr }
         }
-    }
-
-    pub(crate) fn request_start_set(&mut self, request_start: DateTime) {
-        unsafe {
-            Cronet_Metrics_request_start_set(self.ptr, request_start.as_ptr());
-        }
-    }
-
-    pub(crate) fn request_start_move(&self, request_start: DateTime) {
-        unsafe { Cronet_Metrics_request_start_move(self.ptr, request_start.as_ptr()) }
-    }
-
-    pub(crate) fn dns_start_set(&mut self, dns_start: DateTime) {
-        unsafe { Cronet_Metrics_dns_start_set(self.ptr, dns_start.as_ptr()) }
-    }
-
-    pub(crate) fn dns_start_move(&self, dns_start: DateTime) {
-        unsafe { Cronet_Metrics_dns_start_move(self.ptr, dns_start.as_ptr()) }
-    }
-
-    pub(crate) fn dns_end_set(&mut self, dns_end: DateTime) {
-        unsafe { Cronet_Metrics_dns_end_set(self.ptr, dns_end.as_ptr()) }
-    }
-
-    pub(crate) fn dns_end_move(&self, dns_end: DateTime) {
-        unsafe { Cronet_Metrics_dns_end_move(self.ptr, dns_end.as_ptr()) }
-    }
-
-    pub(crate) fn connect_start_set(&mut self, connect_start: DateTime) {
-        unsafe { Cronet_Metrics_connect_start_set(self.ptr, connect_start.as_ptr()) }
-    }
-
-    pub(crate) fn connect_start_move(&self, connect_start: DateTime) {
-        unsafe { Cronet_Metrics_connect_start_move(self.ptr, connect_start.as_ptr()) }
-    }
-
-    pub(crate) fn connect_end_set(&mut self, connect_end: DateTime) {
-        unsafe { Cronet_Metrics_connect_end_set(self.ptr, connect_end.as_ptr()) }
-    }
-
-    pub(crate) fn connect_end_move(&self, connect_end: DateTime) {
-        unsafe { Cronet_Metrics_connect_end_move(self.ptr, connect_end.as_ptr()) }
-    }
-
-    pub(crate) fn ssl_start_set(&mut self, ssl_start: DateTime) {
-        unsafe { Cronet_Metrics_ssl_start_set(self.ptr, ssl_start.as_ptr()) }
-    }
-
-    pub(crate) fn ssl_start_move(&self, ssl_start: DateTime) {
-        unsafe { Cronet_Metrics_ssl_start_move(self.ptr, ssl_start.as_ptr()) }
-    }
-
-    pub(crate) fn ssl_end_set(&mut self, ssl_end: DateTime) {
-        unsafe { Cronet_Metrics_ssl_end_set(self.ptr, ssl_end.as_ptr()) }
-    }
-
-    pub(crate) fn ssl_end_move(&self, ssl_end: DateTime) {
-        unsafe { Cronet_Metrics_ssl_end_move(self.ptr, ssl_end.as_ptr()) }
-    }
-
-    pub(crate) fn sending_start_set(&mut self, sending_start: DateTime) {
-        unsafe { Cronet_Metrics_sending_start_set(self.ptr, sending_start.as_ptr()) }
-    }
-
-    pub(crate) fn sending_start_move(&self, sending_start: DateTime) {
-        unsafe { Cronet_Metrics_sending_start_move(self.ptr, sending_start.as_ptr()) }
-    }
-
-    pub(crate) fn sending_end_set(&mut self, sending_start: DateTime) {
-        unsafe { Cronet_Metrics_sending_end_set(self.ptr, sending_start.as_ptr()) }
-    }
-
-    pub(crate) fn sending_end_move(&self, sending_start: DateTime) {
-        unsafe { Cronet_Metrics_sending_end_move(self.ptr, sending_start.as_ptr()) }
-    }
-
-    pub(crate) fn push_start_set(&mut self, push_start: DateTime) {
-        unsafe { Cronet_Metrics_push_start_set(self.ptr, push_start.as_ptr()) }
-    }
-
-    pub(crate) fn push_start_moe(&self, push_start: DateTime) {
-        unsafe { Cronet_Metrics_push_start_move(self.ptr, push_start.as_ptr()) }
-    }
-
-    pub(crate) fn push_end_set(&mut self, push_end: DateTime) {
-        unsafe { Cronet_Metrics_push_end_set(self.ptr, push_end.as_ptr()) }
-    }
-
-    pub(crate) fn push_end_move(&self, push_end: DateTime) {
-        unsafe { Cronet_Metrics_push_end_move(self.ptr, push_end.as_ptr()) }
-    }
-
-    pub(crate) fn response_start_set(&mut self, response_start: DateTime) {
-        unsafe { Cronet_Metrics_response_start_set(self.ptr, response_start.as_ptr()) }
-    }
-
-    pub(crate) fn response_start_move(&self, response_start: DateTime) {
-        unsafe { Cronet_Metrics_response_start_move(self.ptr, response_start.as_ptr()) }
-    }
-
-    pub(crate) fn request_end_set(&mut self, request_end: DateTime) {
-        unsafe { Cronet_Metrics_request_end_set(self.ptr, request_end.as_ptr()) }
-    }
-
-    pub(crate) fn request_end_move(&self, request_end: DateTime) {
-        unsafe { Cronet_Metrics_request_end_move(self.ptr, request_end.as_ptr()) }
-    }
-
-    pub(crate) fn socket_reused_set(&mut self, socket_reused: bool) {
-        unsafe { Cronet_Metrics_socket_reused_set(self.ptr, socket_reused) }
-    }
-
-    pub(crate) fn sent_byte_count_set(&mut self, sent_byte_count: i64) {
-        unsafe { Cronet_Metrics_sent_byte_count_set(self.ptr, sent_byte_count) }
-    }
-
-    pub(crate) fn received_byte_count_set(&mut self, received_byte_count: i64) {
-        unsafe { Cronet_Metrics_received_byte_count_set(self.ptr, received_byte_count) }
-    }
-
-    pub(crate) fn request_start_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_request_start_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn dns_start_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_dns_start_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn dns_end_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_dns_end_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn connect_start_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_connect_start_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn connect_end_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_connect_end_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn ssl_start_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_ssl_start_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn ssl_end_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_ssl_end_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn sending_start_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_sending_start_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn sending_end_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_sending_end_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn push_start_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_push_start_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn push_end_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_push_end_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn response_start_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_response_start_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn request_end_get(&self) -> Borrowed<DateTime> {
-        unsafe {
-            let ptr = Cronet_Metrics_request_end_get(self.ptr);
-            DateTime::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn socket_reused_get(&self) -> bool {
-        unsafe { Cronet_Metrics_socket_reused_get(self.ptr) }
-    }
-
-    pub(crate) fn sent_bytes_count_get(&self) -> i64 {
-        unsafe { Cronet_Metrics_sent_byte_count_get(self.ptr) }
-    }
-
-    pub(crate) fn received_byte_count_get(&self) -> i64 {
-        unsafe { Cronet_Metrics_received_byte_count_get(self.ptr) }
     }
 }

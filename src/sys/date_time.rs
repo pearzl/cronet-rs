@@ -13,6 +13,19 @@ impl<'a> DateTime {
         self.ptr
     }
 
+    pub(crate) fn into_raw(self) -> Cronet_DateTimePtr {
+        self.ptr
+    }
+
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_DateTimePtr) -> Option<&'a mut DateTime> {
+        if ptr.is_null() {
+            return None;
+        }
+        let borrowed = DateTime { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        Some(&mut *ptr)
+    }
+
     pub fn borrow_from<X>(ptr: Cronet_DateTimePtr, lifetime: &'a X) -> Borrowed<'a, DateTime> {
         let borrowed = DateTime { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));

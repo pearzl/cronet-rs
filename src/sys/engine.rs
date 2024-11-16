@@ -38,39 +38,6 @@ impl<Ctx> Engine<Ctx> {
         }
     }
 
-    #[must_use]
-    pub(crate) fn start_with_params(&self, params: &EngineParams) -> Cronet_RESULT {
-        unsafe { Cronet_Engine_StartWithParams(self.ptr, params.as_ptr()) }
-    }
-
-    pub(crate) fn start_net_log_to_file(&self, file_name: &CStr, log_all: bool) -> bool {
-        unsafe { Cronet_Engine_StartNetLogToFile(self.ptr, file_name.as_ptr(), log_all) }
-    }
-
-    pub(crate) fn stop_net_log(&self) {
-        unsafe {
-            Cronet_Engine_StopNetLog(self.ptr);
-        }
-    }
-
-    pub(crate) fn shutdown(&self) -> Cronet_RESULT {
-        unsafe { Cronet_Engine_Shutdown(self.ptr) }
-    }
-
-    pub(crate) fn get_version_string(&self) -> &CStr {
-        unsafe {
-            let v = Cronet_Engine_GetVersionString(self.ptr);
-            CStr::from_ptr(v)
-        }
-    }
-
-    pub(crate) fn get_default_user_agent(&self) -> &CStr {
-        unsafe {
-            let v = Cronet_Engine_GetDefaultUserAgent(self.ptr);
-            CStr::from_ptr(v)
-        }
-    }
-
     pub(crate) fn add_request_finished_listener<ListenerCtx, ExecutorCtx>(
         &self,
         listener: RequestFinishedInfoListener<ListenerCtx>,
@@ -121,6 +88,26 @@ impl<Ctx> Engine<Ctx> {
 
 define_impl! {
     Engine, Cronet_EnginePtr, Cronet_Engine_Destroy,
+
+    fn start_with_params(&Self, params: &EngineParams >> EngineParams::as_ptr) -> Cronet_RESULT;
+        Cronet_Engine_StartWithParams,
+
+    fn start_net_log_to_file(&Self, file_name: &CStr >> CStr::as_ptr, log_all: bool) -> bool;
+        Cronet_Engine_StartNetLogToFile,
+
+    fn stop_net_log(&Self);
+        Cronet_Engine_StopNetLog,
+
+    fn shutdown(&Self) -> Cronet_RESULT;
+        Cronet_Engine_Shutdown,
+
+    fn get_version_string(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_Engine_GetVersionString,
+
+    fn get_default_user_agent(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_Engine_GetDefaultUserAgent,
+
+
     with_ctx: Ctx,
     get: Cronet_Engine_GetClientContext,
     set: Cronet_Engine_SetClientContext,

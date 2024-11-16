@@ -42,52 +42,6 @@ impl EngineParams {
         }
     }
 
-    pub(crate) fn accept_language_set(&mut self, accept_language: &CStr) {
-        unsafe {
-            Cronet_EngineParams_accept_language_set(self.ptr, accept_language.as_ptr());
-        }
-    }
-
-    pub(crate) fn storage_path_set(&mut self, storage_path: &CStr) {
-        unsafe {
-            Cronet_EngineParams_storage_path_set(self.ptr, storage_path.as_ptr());
-        }
-    }
-
-    pub(crate) fn quic_hint_add(&self, element: &QuicHint) {
-        unsafe {
-            Cronet_EngineParams_quic_hints_add(self.ptr, element.as_ptr());
-        }
-    }
-
-    pub(crate) fn public_key_pins_add(&self, element: &PublicKeyPins) {
-        unsafe {
-            Cronet_EngineParams_public_key_pins_add(self.ptr, element.as_ptr());
-        }
-    }
-
-    pub(crate) fn experimental_options_set(&mut self, experimental_options: &CStr) {
-        unsafe {
-            Cronet_EngineParams_experimental_options_set(self.ptr, experimental_options.as_ptr());
-        }
-    }
-
-
-
-    pub(crate) fn accept_language_get(&self) -> &CStr {
-        unsafe {
-            let ptr = Cronet_EngineParams_accept_language_get(self.ptr);
-            CStr::from_ptr(ptr)
-        }
-    }
-
-    pub(crate) fn storage_path_get(&self) -> &CStr {
-        unsafe {
-            let ptr = Cronet_EngineParams_storage_path_get(self.ptr);
-            CStr::from_ptr(ptr)
-        }
-    }
-
     pub(crate) fn quic_hints_at(&self, index: u32) -> Borrowed<QuicHint> {
         unsafe {
             let ptr = Cronet_EngineParams_quic_hints_at(self.ptr, index);
@@ -103,25 +57,59 @@ impl EngineParams {
             PublicKeyPins::borrow_from(ptr, self)
         }
     }
-
-    pub(crate) fn experimental_options_get(&self) -> &CStr {
-        unsafe {
-            let ptr = Cronet_EngineParams_experimental_options_get(self.ptr);
-            CStr::from_ptr(ptr)
-        }
-    }
 }
 
 define_impl! {
     EngineParams, Cronet_EngineParamsPtr, Cronet_EngineParams_Destroy,
 
-    fn enable_check_result_set(&mut Self, enable_check_result: bool);   
-        Cronet_EngineParams_enable_check_result_set,
-    fn enable_check_result_get(&Self) -> bool ; 
-        Cronet_EngineParams_enable_check_result_get,
-
     fn enable_quic_set(&mut Self, enable_quic: bool);
         Cronet_EngineParams_enable_quic_set,
+    fn quic_hint_add(&mut Self, element: &QuicHint >> QuicHint::as_ptr);
+        Cronet_EngineParams_quic_hints_add,
+    fn quic_hints_clear(&mut Self);
+        Cronet_EngineParams_quic_hints_clear,
+
+    fn public_key_pins_add(&mut Self, element: &PublicKeyPins >> PublicKeyPins::as_ptr);
+        Cronet_EngineParams_public_key_pins_add,
+    fn public_key_pins_size(&Self) -> u32;
+        Cronet_EngineParams_public_key_pins_size,
+    fn public_key_pins_clear(&mut Self);
+        Cronet_EngineParams_public_key_pins_clear,
+
+    fn experimental_options_set(&mut Self, experimental_options: &CStr >> CStr::as_ptr);
+        Cronet_EngineParams_experimental_options_set,
+    fn experimental_options_get(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_EngineParams_experimental_options_get,
+
+    fn enable_check_result_set(&mut Self, enable_check_result: bool);
+        Cronet_EngineParams_enable_check_result_set,
+    fn enable_check_result_get(&Self) -> bool ;
+        Cronet_EngineParams_enable_check_result_get,
+
+    fn user_agent_set(&mut Self, user_agent: &CStr >> CStr::as_ptr);
+        Cronet_EngineParams_user_agent_set,
+    fn user_agent_get(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_EngineParams_user_agent_get,
+
+    fn accept_language_set(&mut Self, accept_language: &CStr >> CStr::as_ptr);
+        Cronet_EngineParams_accept_language_set,
+    fn accept_language_get(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_EngineParams_accept_language_get,
+
+    fn storage_path_set(&mut Self, storage_path: &CStr >> CStr::as_ptr);
+        Cronet_EngineParams_storage_path_set,
+    fn storage_path_get(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_EngineParams_storage_path_get,
+
+    fn enable_public_key_pinning_bypass_for_local_trust_anchors_set(&mut Self, enable_public_key_pinning_bypass_for_local_trust_anchors: bool);
+        Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_set,
+    fn enable_public_key_pinning_bypass_for_local_trust_anchors_get(&Self) -> bool ;
+        Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_get,
+
+    fn network_thread_priority_set(&mut Self, network_thread_priority: f64);
+        Cronet_EngineParams_network_thread_priority_set,
+    fn network_thread_priority_get(&Self) -> f64;
+        Cronet_EngineParams_network_thread_priority_get,
 
     fn enable_http2_set(&mut Self, enable_http2: bool);
         Cronet_EngineParams_enable_http2_set,
@@ -134,28 +122,4 @@ define_impl! {
 
     fn http_cache_max_size_set(&mut Self, http_cache_max_size: i64);
         Cronet_EngineParams_http_cache_max_size_set,
-
-    fn enable_public_key_pinning_bypass_for_local_trust_anchors_set(&mut Self, enable_public_key_pinning_bypass_for_local_trust_anchors: bool);
-        Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_set,
-
-    fn network_thread_priority_set(&mut Self, network_thread_priority: f64);
-        Cronet_EngineParams_network_thread_priority_set,
-    fn network_thread_priority_get(&Self) -> f64;
-        Cronet_EngineParams_network_thread_priority_get,
-
-    fn quic_hints_clear(&mut Self);
-        Cronet_EngineParams_quic_hints_clear,
-
-    fn public_key_pins_size(&Self) -> u32;
-        Cronet_EngineParams_public_key_pins_size,
-    fn public_key_pins_clear(&Self);
-        Cronet_EngineParams_public_key_pins_clear,
-
-    fn enable_public_key_pinning_bypass_for_local_trust_anchors_get(&Self) -> bool ;
-        Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_get,
-
-    fn user_agent_set(&mut Self, user_agent: &CStr >> CStr::as_ptr);
-        Cronet_EngineParams_user_agent_set,
-    fn user_agent_get(&Self) -> &CStr >> CStr::from_ptr;
-        Cronet_EngineParams_user_agent_get,
 }
