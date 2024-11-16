@@ -7,8 +7,8 @@ macro_rules! define_impl {
         $struct_name: tt, $ptr: ty, $drop_fn: ident,
 
         $(
-            fn $func_name: ident ($self_: ty $(,$arg_name: ident : $arg_type: ty)* )
-            $(-> $return_type: ty)? ;
+            fn $func_name: ident ($self_: ty $(,$arg_name: ident : $arg_type: ty $(>> $arg_trans_func: path)?)* )
+            $(-> $return_type: ty $(>> $return_trans_func: path)? )? ;
             $cronet_func: ident,
         )*
 
@@ -18,21 +18,33 @@ macro_rules! define_impl {
             set:  $cronet_set: ident,
         )?
     ) => {
+        // define
         pub struct $struct_name $(<$ctx>)? {
             ptr: $ptr,
             $(ctx: Option<$ctx>)?
         }
 
+        // impl drop
         impl $(<$ctx>)? Drop for $struct_name $(<$ctx>)? {
             fn drop(&mut self) {
                 unsafe { $drop_fn(self.ptr) }
             }
         }
 
+        // impl simple method
         impl $(<$ctx>)? $struct_name $(<$ctx>)? {
         $(
-            pub(crate) fn $func_name(self: $self_ $(,$arg_name: $arg_type)*) $( -> $return_type)? {
-                unsafe { $cronet_func( self.ptr $(,$arg_name)*) }
+            pub(crate) fn $func_name(self: $self_ $(,$arg_name: $arg_type )*) $( -> $return_type)? {
+                unsafe {
+                    let ret =  $cronet_func( 
+                        self.ptr $(,{
+                            $(let $arg_name = $arg_trans_func($arg_name);)?
+                            $arg_name
+                        })*
+                    );
+                    $($(let ret = $return_trans_func(ret);)?)?
+                    ret
+                }
             }
         )*
         }

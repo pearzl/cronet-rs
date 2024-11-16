@@ -42,12 +42,6 @@ impl EngineParams {
         }
     }
 
-    pub(crate) fn user_agent_set(&mut self, user_agent: &CStr) {
-        unsafe {
-            Cronet_EngineParams_user_agent_set(self.ptr, user_agent.as_ptr());
-        }
-    }
-
     pub(crate) fn accept_language_set(&mut self, accept_language: &CStr) {
         unsafe {
             Cronet_EngineParams_accept_language_set(self.ptr, accept_language.as_ptr());
@@ -78,12 +72,7 @@ impl EngineParams {
         }
     }
 
-    pub(crate) fn user_agent_get(&self) -> &CStr {
-        unsafe {
-            let ptr = Cronet_EngineParams_user_agent_get(self.ptr);
-            CStr::from_ptr(ptr)
-        }
-    }
+
 
     pub(crate) fn accept_language_get(&self) -> &CStr {
         unsafe {
@@ -151,19 +140,22 @@ define_impl! {
 
     fn network_thread_priority_set(&mut Self, network_thread_priority: f64);
         Cronet_EngineParams_network_thread_priority_set,
+    fn network_thread_priority_get(&Self) -> f64;
+        Cronet_EngineParams_network_thread_priority_get,
 
     fn quic_hints_clear(&mut Self);
         Cronet_EngineParams_quic_hints_clear,
 
     fn public_key_pins_size(&Self) -> u32;
         Cronet_EngineParams_public_key_pins_size,
-
     fn public_key_pins_clear(&Self);
         Cronet_EngineParams_public_key_pins_clear,
 
     fn enable_public_key_pinning_bypass_for_local_trust_anchors_get(&Self) -> bool ;
         Cronet_EngineParams_enable_public_key_pinning_bypass_for_local_trust_anchors_get,
 
-    fn network_thread_priority_get(&Self) -> f64;
-        Cronet_EngineParams_network_thread_priority_get,
+    fn user_agent_set(&mut Self, user_agent: &CStr >> CStr::as_ptr);
+        Cronet_EngineParams_user_agent_set,
+    fn user_agent_get(&Self) -> &CStr >> CStr::from_ptr;
+        Cronet_EngineParams_user_agent_get,
 }
