@@ -28,33 +28,6 @@ impl<Ctx> UrlRequest<Ctx> {
         }
     }
 
-    pub(crate) fn init_with_params<EngineCtx, UrlRequestCallbackCtx, ExecutorCtx>(
-        &self,
-        engine: &Engine<EngineCtx>,
-        url: &CStr,
-        params: UrlRequestParams,
-        callback: UrlRequestCallback<UrlRequestCallbackCtx>,
-        executor: Executor<ExecutorCtx>,
-    ) -> Cronet_RESULT {
-        unsafe {
-            Cronet_UrlRequest_InitWithParams(
-                self.ptr,
-                engine.as_ptr(),
-                url.as_ptr(),
-                params.as_ptr(),
-                callback.as_ptr(),
-                executor.as_ptr(),
-            )
-        }
-    }
-
-    pub(crate) fn get_status<UrlRequestStatusListenerCtx>(
-        &self,
-        listener: &UrlRequestStatusListener<UrlRequestStatusListenerCtx>,
-    ) {
-        unsafe { Cronet_UrlRequest_GetStatus(self.ptr, listener.as_ptr()) }
-    }
-
     pub(crate) fn create_with(
         init_with_params_func: Cronet_UrlRequest_InitWithParamsFunc,
         start_func: Cronet_UrlRequest_StartFunc,
@@ -82,21 +55,35 @@ impl<Ctx> UrlRequest<Ctx> {
 define_impl! {
     UrlRequest, Cronet_UrlRequestPtr, Cronet_UrlRequest_Destroy,
 
+    fn init_with_params<EngineCtx, UrlRequestCallbackCtx, ExecutorCtx>(
+        &Self,
+        engine: &Engine<EngineCtx> >> Engine::as_ptr,
+        url: &CStr >> CStr::as_ptr,
+        params: &UrlRequestParams >> UrlRequestParams::as_ptr,  // safety: pass ref?
+        callback: &UrlRequestCallback<UrlRequestCallbackCtx> >> UrlRequestCallback::as_ptr,   // safety: pass ref?
+        executor: &Executor<ExecutorCtx> >> Executor::as_ptr      // safety: pass ref?
+    ) -> Cronet_RESULT; Cronet_UrlRequest_InitWithParams,
+
+    fn get_status<UrlRequestStatusListenerCtx>(
+        &Self,
+        listener: &UrlRequestStatusListener<UrlRequestStatusListenerCtx> >> UrlRequestStatusListener::as_ptr // safety: pass ref?
+    ); Cronet_UrlRequest_GetStatus,
+
     fn start(&Self) -> Cronet_RESULT;
     Cronet_UrlRequest_Start,
-    
+
     fn follow_redirect(&Self) -> Cronet_RESULT;
     Cronet_UrlRequest_FollowRedirect,
-    
+
     fn read<BufferCtx>(&Self, buffer: &mut Buffer<BufferCtx> >> Buffer::as_ptr) -> Cronet_RESULT;
     Cronet_UrlRequest_Read,
-    
+
     fn cancel(&Self);
     Cronet_UrlRequest_Cancel,
-    
+
     fn is_done(&Self) -> bool;
     Cronet_UrlRequest_IsDone,
-    
+
 
     with_ctx: Ctx,
     get: Cronet_UrlRequest_GetClientContext,

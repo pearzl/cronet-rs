@@ -48,11 +48,11 @@ define_impl! {
     fn http_method_get(&Self) -> &CStr >> CStr::from_ptr;
         Cronet_UrlRequestParams_http_method_get,
 
-    fn request_headers_add(&mut Self, element: &HttpHeader >> HttpHeader::as_ptr);
+    fn request_headers_add(&mut Self, element: &HttpHeader >> HttpHeader::as_ptr); // safety: cloned
         Cronet_UrlRequestParams_request_headers_add,
     fn request_headers_size(&Self) -> u32;
         Cronet_UrlRequestParams_request_headers_size,
-    fn request_headers_at(&Self, index: u32) -> Option<&mut HttpHeader> >> HttpHeader::borrow_from_ptr;
+    fn request_headers_at(&Self, index: u32) -> &HttpHeader >> HttpHeader::borrow_from_ptr; // safety: null -> None
         Cronet_UrlRequestParams_request_headers_at,
     fn request_headers_clear(&mut Self);
         Cronet_UrlRequestParams_request_headers_clear,
@@ -72,11 +72,11 @@ define_impl! {
     fn allow_direct_executor_get(&Self) -> bool;
         Cronet_UrlRequestParams_allow_direct_executor_get,
 
-    fn annotations_add(&mut Self, element: Cronet_RawDataPtr);
+    fn annotations_add(&mut Self, element: Cronet_RawDataPtr);  // todo: no ptr
         Cronet_UrlRequestParams_annotations_add,
     fn annotations_size(&Self) -> u32;
         Cronet_UrlRequestParams_annotations_size,
-    fn annotations_at(&Self, index: u32) -> Cronet_RawDataPtr;
+    fn annotations_at(&Self, index: u32) -> Cronet_RawDataPtr;  // todo: no ptr
         Cronet_UrlRequestParams_annotations_at,
     fn annotaions_clear(&mut Self);
         Cronet_UrlRequestParams_annotations_clear,

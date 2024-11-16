@@ -38,27 +38,6 @@ impl<Ctx> Engine<Ctx> {
         }
     }
 
-    pub(crate) fn add_request_finished_listener<ListenerCtx, ExecutorCtx>(
-        &self,
-        listener: RequestFinishedInfoListener<ListenerCtx>,
-        executor: Executor<ExecutorCtx>,
-    ) {
-        unsafe {
-            Cronet_Engine_AddRequestFinishedListener(
-                self.ptr,
-                listener.as_ptr(),
-                executor.as_ptr(),
-            );
-        }
-    }
-
-    pub(crate) fn remove_request_finished_listener<ListenerCtx>(
-        &self,
-        listener: &RequestFinishedInfoListener<ListenerCtx>,
-    ) {
-        unsafe { Cronet_Engine_RemoveRequestFinishedListener(self.ptr, listener.as_ptr()) }
-    }
-
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn create_with(
         start_with_params_func: Cronet_Engine_StartWithParamsFunc,
@@ -89,7 +68,18 @@ impl<Ctx> Engine<Ctx> {
 define_impl! {
     Engine, Cronet_EnginePtr, Cronet_Engine_Destroy,
 
-    fn start_with_params(&Self, params: &EngineParams >> EngineParams::as_ptr) -> Cronet_RESULT;
+    fn add_request_finished_listener<ListenerCtx, ExecutorCtx>(
+        &Self,
+        listener: &RequestFinishedInfoListener<ListenerCtx> >> RequestFinishedInfoListener::as_ptr, // safety: pass ref?
+        executor: &Executor<ExecutorCtx> >> Executor::as_ptr   // safety:: pass ref?
+    );Cronet_Engine_AddRequestFinishedListener,
+
+    fn remove_request_finished_listener<ListenerCtx>(
+        &Self,
+        listener: &RequestFinishedInfoListener<ListenerCtx> >> RequestFinishedInfoListener::as_ptr // safety:: pass ref?
+    ); Cronet_Engine_RemoveRequestFinishedListener,
+
+    fn start_with_params(&Self, params: &EngineParams >> EngineParams::as_ptr) -> Cronet_RESULT; // safety:: pass ref?
         Cronet_Engine_StartWithParams,
 
     fn start_net_log_to_file(&Self, file_name: &CStr >> CStr::as_ptr, log_all: bool) -> bool;

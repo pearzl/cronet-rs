@@ -41,22 +41,6 @@ impl EngineParams {
             Self { ptr }
         }
     }
-
-    pub(crate) fn quic_hints_at(&self, index: u32) -> Borrowed<QuicHint> {
-        unsafe {
-            let ptr = Cronet_EngineParams_quic_hints_at(self.ptr, index);
-            assert!(!ptr.is_null());
-            QuicHint::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn public_key_pins_at(&self, index: u32) -> Borrowed<PublicKeyPins> {
-        unsafe {
-            let ptr = Cronet_EngineParams_public_key_pins_at(self.ptr, index);
-            assert!(!ptr.is_null());
-            PublicKeyPins::borrow_from(ptr, self)
-        }
-    }
 }
 
 define_impl! {
@@ -64,15 +48,19 @@ define_impl! {
 
     fn enable_quic_set(&mut Self, enable_quic: bool);
         Cronet_EngineParams_enable_quic_set,
-    fn quic_hint_add(&mut Self, element: &QuicHint >> QuicHint::as_ptr);
+    fn quic_hint_add(&mut Self, element: &QuicHint >> QuicHint::as_ptr); // safety: cloned
         Cronet_EngineParams_quic_hints_add,
+    fn quic_hints_at(&Self, index: u32) -> &QuicHint >> QuicHint::borrow_from_ptr; // safety: out of bounds
+        Cronet_EngineParams_quic_hints_at,
     fn quic_hints_clear(&mut Self);
         Cronet_EngineParams_quic_hints_clear,
 
-    fn public_key_pins_add(&mut Self, element: &PublicKeyPins >> PublicKeyPins::as_ptr);
+    fn public_key_pins_add(&mut Self, element: &PublicKeyPins >> PublicKeyPins::as_ptr); // safety: cloned
         Cronet_EngineParams_public_key_pins_add,
     fn public_key_pins_size(&Self) -> u32;
         Cronet_EngineParams_public_key_pins_size,
+    fn public_key_pins_at(&Self, index: u32) -> &PublicKeyPins >> PublicKeyPins::borrow_from_ptr; // safety: out of bounds
+        Cronet_EngineParams_public_key_pins_at,
     fn public_key_pins_clear(&mut Self);
         Cronet_EngineParams_public_key_pins_clear,
 

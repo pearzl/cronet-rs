@@ -19,6 +19,12 @@ impl<'a> PublicKeyPins {
         self.ptr
     }
 
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_PublicKeyPinsPtr) -> &'a mut PublicKeyPins {
+        let borrowed = PublicKeyPins { ptr };
+        let ptr = Box::into_raw(Box::new(borrowed));
+        &mut *ptr
+    }
+
     pub fn borrow_from<X>(
         ptr: Cronet_PublicKeyPinsPtr,
         lifetime: &'a X,
@@ -37,11 +43,11 @@ define_impl! {
     fn host_get(&Self) -> &CStr >> CStr::from_ptr;
         Cronet_PublicKeyPins_host_get,
 
-    fn pins_sha256_add(&mut Self, element: &CStr >> CStr::as_ptr);
+    fn pins_sha256_add(&mut Self, element: &CStr >> CStr::as_ptr);// safety: cloned
         Cronet_PublicKeyPins_pins_sha256_add,
     fn pins_sha256_size(&Self) -> u32;
         Cronet_PublicKeyPins_pins_sha256_size,
-    fn pins_sha256_at(&Self, index: u32) -> &CStr >> CStr::from_ptr;
+    fn pins_sha256_at(&Self, index: u32) -> &CStr >> CStr::from_ptr; // safety: out of bounds
         Cronet_PublicKeyPins_pins_sha256_at,
     fn pins_sha256_clear(&mut Self);
         Cronet_PublicKeyPins_pins_sha256_clear,

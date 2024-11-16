@@ -16,13 +16,10 @@ impl<'a> HttpHeader {
         self.ptr
     }
 
-    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_HttpHeaderPtr) -> Option<&'a mut HttpHeader> {
-        if ptr.is_null() {
-            return None;
-        }
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_HttpHeaderPtr) -> &'a mut HttpHeader {
         let borrowed = HttpHeader { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
-        Some(&mut *ptr)
+        &mut *ptr
     }
 
     pub fn borrow_from<X>(ptr: Cronet_HttpHeaderPtr, lifetime: &'a X) -> Borrowed<'a, HttpHeader> {

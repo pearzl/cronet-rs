@@ -17,18 +17,18 @@ define_impl! {
     RequestFinishedInfo, Cronet_RequestFinishedInfoPtr, Cronet_RequestFinishedInfo_Destroy,
 
 
-    fn metrics_set(&mut Self, metrics: &Metrics >> Metrics::as_ptr);
+    fn metrics_set(&mut Self, metrics: &Metrics >> Metrics::as_ptr); // safety: cloned
         Cronet_RequestFinishedInfo_metrics_set,
-    fn metrics_move(&Self, metrics: Metrics >> Metrics::into_raw);
+    fn metrics_move(&Self, metrics: Metrics >> Metrics::into_raw);  // safety: moved
         Cronet_RequestFinishedInfo_metrics_move,
-    fn metrics_get(&Self) -> Option<&mut Metrics> >> Metrics::borrow_from_ptr;
+    fn metrics_get(&Self) -> Option<&mut Metrics> >> Metrics::borrow_from_ptr; // safety: null -> None
         Cronet_RequestFinishedInfo_metrics_get,
 
     fn annotations_add(&mut Self, element: Cronet_RawDataPtr);
         Cronet_RequestFinishedInfo_annotations_add,
     fn annotations_size(&Self) -> u32;
         Cronet_RequestFinishedInfo_annotations_size,
-    fn annotations_at(&Self, index: u32) -> Cronet_RawDataPtr;
+    fn annotations_at(&Self, index: u32) -> Cronet_RawDataPtr;  // todo: not return ptr
         Cronet_RequestFinishedInfo_annotations_at,
     fn annotations_clear(&mut Self);
         Cronet_RequestFinishedInfo_annotations_clear,

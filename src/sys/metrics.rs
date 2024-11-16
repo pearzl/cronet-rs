@@ -55,11 +55,11 @@ impl<'a> Metrics {
 define_impl! {
     Metrics, Cronet_MetricsPtr, Cronet_Metrics_Destroy,
 
-    fn request_start_set(&mut Self, request_start: &DateTime >> DateTime::as_ptr);
+    fn request_start_set(&mut Self, request_start: &DateTime >> DateTime::as_ptr); // safety: cloned
         Cronet_Metrics_request_start_set,
-    fn request_start_move(&Self, request_start: DateTime >> DateTime::into_raw);
+    fn request_start_move(&Self, request_start: DateTime >> DateTime::into_raw);  // safety: moved
         Cronet_Metrics_request_start_move,
-    fn request_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr;
+    fn request_start_get(&Self) -> Option<&mut DateTime> >> DateTime::borrow_from_ptr; // safety: null point => None
         Cronet_Metrics_request_start_get,
 
     fn dns_start_set(&mut Self, dns_start: &DateTime >> DateTime::as_ptr);
