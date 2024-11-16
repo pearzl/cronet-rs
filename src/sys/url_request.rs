@@ -1,14 +1,18 @@
 use std::ffi::CStr;
 
-use crate::bindings::{
-    Cronet_ClientContext, Cronet_RESULT, Cronet_UrlRequestPtr, Cronet_UrlRequest_Cancel,
-    Cronet_UrlRequest_CancelFunc, Cronet_UrlRequest_Create, Cronet_UrlRequest_CreateWith,
-    Cronet_UrlRequest_Destroy, Cronet_UrlRequest_FollowRedirect,
-    Cronet_UrlRequest_FollowRedirectFunc, Cronet_UrlRequest_GetClientContext,
-    Cronet_UrlRequest_GetStatus, Cronet_UrlRequest_GetStatusFunc, Cronet_UrlRequest_InitWithParams,
-    Cronet_UrlRequest_InitWithParamsFunc, Cronet_UrlRequest_IsDone, Cronet_UrlRequest_IsDoneFunc,
-    Cronet_UrlRequest_Read, Cronet_UrlRequest_ReadFunc, Cronet_UrlRequest_SetClientContext,
-    Cronet_UrlRequest_Start, Cronet_UrlRequest_StartFunc,
+use crate::{
+    bindings::{
+        Cronet_ClientContext, Cronet_RESULT, Cronet_UrlRequestPtr, Cronet_UrlRequest_Cancel,
+        Cronet_UrlRequest_CancelFunc, Cronet_UrlRequest_Create, Cronet_UrlRequest_CreateWith,
+        Cronet_UrlRequest_Destroy, Cronet_UrlRequest_FollowRedirect,
+        Cronet_UrlRequest_FollowRedirectFunc, Cronet_UrlRequest_GetClientContext,
+        Cronet_UrlRequest_GetStatus, Cronet_UrlRequest_GetStatusFunc,
+        Cronet_UrlRequest_InitWithParams, Cronet_UrlRequest_InitWithParamsFunc,
+        Cronet_UrlRequest_IsDone, Cronet_UrlRequest_IsDoneFunc, Cronet_UrlRequest_Read,
+        Cronet_UrlRequest_ReadFunc, Cronet_UrlRequest_SetClientContext, Cronet_UrlRequest_Start,
+        Cronet_UrlRequest_StartFunc,
+    },
+    util::define_impl,
 };
 
 use super::{
@@ -16,30 +20,22 @@ use super::{
     url_request_params::UrlRequestParams, url_request_status_listener::UrlRequestStatusListener,
 };
 
-pub(crate) struct UrlRequest {
-    ptr: Cronet_UrlRequestPtr,
-}
+// pub(crate) struct UrlRequest {
+//     ptr: Cronet_UrlRequestPtr,
+// }
 
-impl Drop for UrlRequest {
+impl<Ctx> Drop for UrlRequest<Ctx> {
     fn drop(&mut self) {
         unsafe { Cronet_UrlRequest_Destroy(self.ptr) }
     }
 }
 
-impl UrlRequest {
+impl<Ctx> UrlRequest<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_UrlRequest_Create();
-            Self { ptr }
+            Self { ptr, ctx: None }
         }
-    }
-
-    pub(crate) fn set_client_conetxt(&mut self, client_conetxt: Cronet_ClientContext) {
-        unsafe { Cronet_UrlRequest_SetClientContext(self.ptr, client_conetxt) }
-    }
-
-    pub(crate) fn get_client_conetxt(&self) -> Cronet_ClientContext {
-        unsafe { Cronet_UrlRequest_GetClientContext(self.ptr) }
     }
 
     pub(crate) fn init_with_params<EngineCtx>(
@@ -108,7 +104,14 @@ impl UrlRequest {
                 is_done_func,
                 get_status_func,
             );
-            Self { ptr }
+            Self { ptr, ctx: None }
         }
     }
+}
+
+define_impl! {
+    UrlRequest, Cronet_UrlRequestPtr,
+    with_ctx: Ctx,
+    get: get_client_conetxt, Cronet_UrlRequest_GetClientContext,
+    set: set_client_conetxt, Cronet_UrlRequest_SetClientContext,
 }

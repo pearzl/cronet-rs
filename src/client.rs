@@ -3,7 +3,10 @@ use std::ffi::CStr;
 use http::{Request, Response};
 
 use crate::{
-    bindings::{Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_RESULT}, body::Body, error::Error, sys::{Engine, EngineParams}
+    bindings::{Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_RESULT},
+    body::Body,
+    error::Error,
+    sys::{Engine, EngineParams},
 };
 
 pub struct Client {
@@ -17,7 +20,7 @@ impl Client {
         }
     }
 
-    pub async fn fetch(&self,  req: Request<Body>) -> Result<Response<Body>, Error> {
+    pub async fn fetch(&self, req: Request<Body>) -> Result<Response<Body>, Error> {
         crate::fetch::send(self, req).await
     }
 
