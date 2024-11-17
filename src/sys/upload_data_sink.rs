@@ -2,12 +2,22 @@ use std::{ffi::CStr, marker::PhantomData};
 
 use crate::{
     bindings::{
-        Cronet_ClientContext, Cronet_UploadDataSinkPtr, Cronet_UploadDataSink_Create, Cronet_UploadDataSink_CreateWith, Cronet_UploadDataSink_Destroy, Cronet_UploadDataSink_GetClientContext, Cronet_UploadDataSink_OnReadError, Cronet_UploadDataSink_OnReadErrorFunc, Cronet_UploadDataSink_OnReadSucceeded, Cronet_UploadDataSink_OnReadSucceededFunc, Cronet_UploadDataSink_OnRewindError, Cronet_UploadDataSink_OnRewindErrorFunc, Cronet_UploadDataSink_OnRewindSucceeded, Cronet_UploadDataSink_OnRewindSucceededFunc, Cronet_UploadDataSink_SetClientContext
+        Cronet_ClientContext, Cronet_UploadDataSinkPtr, Cronet_UploadDataSink_Create,
+        Cronet_UploadDataSink_CreateWith, Cronet_UploadDataSink_Destroy,
+        Cronet_UploadDataSink_GetClientContext, Cronet_UploadDataSink_OnReadError,
+        Cronet_UploadDataSink_OnReadErrorFunc, Cronet_UploadDataSink_OnReadSucceeded,
+        Cronet_UploadDataSink_OnReadSucceededFunc, Cronet_UploadDataSink_OnRewindError,
+        Cronet_UploadDataSink_OnRewindErrorFunc, Cronet_UploadDataSink_OnRewindSucceeded,
+        Cronet_UploadDataSink_OnRewindSucceededFunc, Cronet_UploadDataSink_SetClientContext,
     },
     util::define_impl,
 };
 
 impl<'a, Ctx> UploadDataSink<Ctx> {
+    pub(crate) fn as_ptr(&self) -> Cronet_UploadDataSinkPtr {
+        self.ptr
+    }
+
     pub(crate) unsafe fn borrow_from_ptr(
         ptr: Cronet_UploadDataSinkPtr,
     ) -> &'a mut UploadDataSink<Ctx> {

@@ -23,6 +23,10 @@ use crate::{
 use super::http_header::HttpHeader;
 
 impl<'a> UrlResponseInfo {
+    pub(crate) fn as_ptr(&self) -> Cronet_UrlResponseInfoPtr {
+        self.ptr
+    }
+
     pub(crate) unsafe fn borrow_from_ptr(
         ptr: Cronet_UrlResponseInfoPtr,
     ) -> &'a mut UrlResponseInfo {

@@ -12,7 +12,7 @@ use crate::{
     util::define_impl,
 };
 
-use super::{ Error, RequestFinishedInfo, UrlResponseInfo};
+use super::{Error, RequestFinishedInfo, UrlResponseInfo};
 
 impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {

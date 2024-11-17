@@ -25,7 +25,7 @@ use crate::{
     util::define_impl,
 };
 
-use super::{date_time::DateTime};
+use super::date_time::DateTime;
 
 impl<'a> Metrics {
     pub(crate) fn as_ptr(&self) -> Cronet_MetricsPtr {

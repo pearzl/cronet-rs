@@ -7,6 +7,7 @@ macro_rules! define_impl {
         $struct_name: tt, $ptr: ty, $drop_fn: ident,
 
         $(
+            $(#[$attr: meta])*
             fn $func_name: ident $(<$($gen_param:tt),*>)? ($self_: ty $(,$arg_name: ident : $arg_type: ty $(>> $arg_trans_func: path)?)* )
             $(-> $return_type: ty $(>> $return_trans_func: path)? )? ;
             $cronet_func: ident,

@@ -3,9 +3,11 @@ use std::marker::PhantomData;
 use crate::{
     bindings::{
         Cronet_BufferPtr, Cronet_ClientContext, Cronet_UploadDataProviderPtr,
-        Cronet_UploadDataProvider_CloseFunc, Cronet_UploadDataProvider_CreateWith,
-        Cronet_UploadDataProvider_Destroy, Cronet_UploadDataProvider_GetClientContext,
-        Cronet_UploadDataProvider_GetLengthFunc, Cronet_UploadDataProvider_ReadFunc,
+        Cronet_UploadDataProvider_Close, Cronet_UploadDataProvider_CloseFunc,
+        Cronet_UploadDataProvider_CreateWith, Cronet_UploadDataProvider_Destroy,
+        Cronet_UploadDataProvider_GetClientContext, Cronet_UploadDataProvider_GetLength,
+        Cronet_UploadDataProvider_GetLengthFunc, Cronet_UploadDataProvider_Read,
+        Cronet_UploadDataProvider_ReadFunc, Cronet_UploadDataProvider_Rewind,
         Cronet_UploadDataProvider_RewindFunc, Cronet_UploadDataProvider_SetClientContext,
         Cronet_UploadDataSinkPtr,
     },
@@ -132,6 +134,23 @@ pub(crate) type CloseFunc<Ctx, UploadDataSinkCtx, BufferCtx> =
 
 define_impl! {
     UploadDataProvider, Cronet_UploadDataProviderPtr,Cronet_UploadDataProvider_Destroy,
+
+    #[cfg(test)]
+    fn get_length(&Self) -> i64; Cronet_UploadDataProvider_GetLength,
+
+    #[cfg(test)]
+    fn read<T1, T2>(&Self,
+        upload_data_sink: &UploadDataSink<T1> >> UploadDataSink::as_ptr,
+        buffer: &Buffer<T2> >> Buffer::as_ptr
+    ); Cronet_UploadDataProvider_Read, // safety: pass ref?
+
+    #[cfg(test)]
+    fn rewind<T>(&Self, upload_data_sink: &UploadDataSink<T> >> UploadDataSink::as_ptr);
+        Cronet_UploadDataProvider_Rewind, // safety: pass ref?
+
+    #[cfg(test)]
+    fn close(&Self); Cronet_UploadDataProvider_Close,
+
     with_ctx: <Ctx, UploadDataSinkCtx, BufferCtx>,
     get: Cronet_UploadDataProvider_GetClientContext,
     set: Cronet_UploadDataProvider_SetClientContext,
