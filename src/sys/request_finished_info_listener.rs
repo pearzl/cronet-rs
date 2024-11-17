@@ -14,7 +14,6 @@ use crate::{
 
 use super::{Error, RequestFinishedInfo, UrlResponseInfo};
 
-
 impl<Ctx> RequestFinishedInfoListener<Ctx>
 where
     Ctx: RequestFinishedInfoListenerExt<Ctx>,
@@ -42,24 +41,20 @@ where
         let response_info = UrlResponseInfo::from_ptr(response_info);
         let error = Error::from_ptr(error);
 
-        let ctx = self_.get_client_context();
-        let on_request_finished = ctx.on_request_finished_func();
+        let on_request_finished = <Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func();
         on_request_finished(self_, request_info, response_info, error);
     }
 
-    pub(crate) fn new(ctx: Ctx) -> Self {
-        let mut self_ = Self::create_with(ctx.on_request_finished_func());
-        self_.set_client_context(ctx);
-        self_
+    pub(crate) fn new() -> Self {
+        Self::create_with(<Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func())
     }
-
 }
 
 pub(crate) type OnRequestFinishedFunc<Ctx> =
     fn(&RequestFinishedInfoListener<Ctx>, &RequestFinishedInfo, &UrlResponseInfo, &Error); // safety: pass ref?
 
 pub(crate) trait RequestFinishedInfoListenerExt<Ctx> {
-    fn on_request_finished_func(&self) -> OnRequestFinishedFunc<Ctx>;
+    fn on_request_finished_func() -> OnRequestFinishedFunc<Ctx>;
 }
 
 define_impl! {

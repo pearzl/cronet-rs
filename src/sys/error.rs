@@ -21,7 +21,6 @@ impl Error {
     }
 }
 
-
 define_impl! {
     Error, Cronet_ErrorPtr, Cronet_Error_Destroy,
 

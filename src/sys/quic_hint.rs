@@ -10,7 +10,6 @@ use crate::{
     util::define_impl,
 };
 
-
 define_impl! {
     QuicHint, Cronet_QuicHintPtr, Cronet_QuicHint_Destroy,
 

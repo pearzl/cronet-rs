@@ -82,11 +82,11 @@ define_impl! {
 
     fn upload_data_provider_set<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(
         &mut Self,
-        upload_data_provider: &UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>
+        upload_data_provider: &UploadDataProvider<UploadDateProviderCtx>
             >> UploadDataProvider::as_ptr // safey: pass ref?
     ); Cronet_UrlRequestParams_upload_data_provider_set,
     fn upload_data_provider_get<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(&Self)
-    -> &UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx> >> UploadDataProvider::from_ptr;
+    -> &UploadDataProvider<UploadDateProviderCtx> >> UploadDataProvider::from_ptr;
         Cronet_UrlRequestParams_upload_data_provider_get,
 
     fn upload_data_provider_executor_set<ExecutorCtx, RunnableCtx>(

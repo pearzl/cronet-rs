@@ -11,10 +11,9 @@ use crate::{
 
 use super::Runnable;
 
-
-impl<Ctx, RunnableCtx> Executor<Ctx, RunnableCtx> 
+impl<Ctx, RunnableCtx> Executor<Ctx, RunnableCtx>
 where
-    Ctx: ExecuteExt<Ctx, RunnableCtx>
+    Ctx: ExecuteExt<Ctx, RunnableCtx>,
 {
     pub(crate) fn create_with(_execute_func: ExecuteFunc<Ctx, RunnableCtx>) -> Self {
         unsafe {
@@ -31,16 +30,16 @@ where
         let self_ = Executor::<Ctx, RunnableCtx>::from_ptr(self_);
         let command = Runnable::<RunnableCtx>::from_ptr(command);
 
-        let ctx = self_.get_client_context();
-        let execute = ctx.execute_func();
+        let execute = <Ctx as ExecuteExt<Ctx, RunnableCtx>>::execute_func();
         execute(self_, command)
     }
 }
 
-pub(crate) type ExecuteFunc<Ctx, RunnableCtx> = fn(self_: &Executor<Ctx, RunnableCtx>, command: &Runnable<RunnableCtx>);
+pub(crate) type ExecuteFunc<Ctx, RunnableCtx> =
+    fn(self_: &Executor<Ctx, RunnableCtx>, command: &Runnable<RunnableCtx>);
 
 pub(crate) trait ExecuteExt<Ctx, RunnableCtx> {
-    fn execute_func(&self) -> ExecuteFunc<Ctx, RunnableCtx>;
+    fn execute_func() -> ExecuteFunc<Ctx, RunnableCtx>;
 }
 
 define_impl! {

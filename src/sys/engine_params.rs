@@ -28,7 +28,6 @@ use crate::{
 
 use super::{public_key_pins::PublicKeyPins, quic_hint::QuicHint};
 
-
 impl EngineParams {
     pub(crate) fn create() -> Self {
         unsafe {

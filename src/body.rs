@@ -1,19 +1,18 @@
-use std::future::Future;
 use std::ops::{Deref, DerefMut};
 use std::pin::Pin;
-use std::sync::Arc;
 
 use bytes::Bytes;
-use futures::{Stream, StreamExt};
+use futures::Stream;
 
-use crate::bindings::{Cronet_BufferPtr, Cronet_UploadDataProviderPtr, Cronet_UploadDataSinkPtr};
 use crate::error::Result;
-use crate::sys::{Borrowed, UploadDataProvider, UploadDataSink};
+use crate::sys::{
+    CloseFunc, GetLengthFunc, ReadFunc, RewindFunc, UploadDataProvider, UploadDataProviderExt,
+};
 use crate::util::BoxedFuture;
 
 pub struct Body {
     data: BoxedStream,
-    len: Option<u64>,
+    len: Option<u32>,
 }
 
 pub(crate) type BoxedStream = Pin<Box<dyn Stream<Item = Result<Bytes>> + Send + Sync + 'static>>;
@@ -26,11 +25,11 @@ impl Body {
         }
     }
 
-    pub fn stream(stream: BoxedStream, len: Option<u64>) -> Self {
+    pub fn stream(stream: BoxedStream, len: Option<u32>) -> Self {
         Body { data: stream, len }
     }
 
-    pub fn length(&self) -> Option<u64> {
+    pub fn length(&self) -> Option<u32> {
         self.len
     }
 }
@@ -50,70 +49,17 @@ impl DerefMut for Body {
 }
 
 impl Body {
-    pub(crate) fn to_upload_data_provider(self) -> UploadDataProvider<ReqBodyContext> {
-        unsafe extern "C" fn get_length_func(
-            ptr: crate::bindings::Cronet_UploadDataProviderPtr,
-        ) -> i64 {
-            let data_provider = UploadDataProvider::<ReqBodyContext>::borrow_from(ptr, &ptr);
-            let ctx = data_provider.get_client_context();
-            ctx.body
-                .len
-                .and_then(|i| i64::try_from(i).ok())
-                .unwrap_or(-1)
-        }
-
-        unsafe extern "C" fn read_func(
-            data_provider: Cronet_UploadDataProviderPtr,
-            upload_data_sink: Cronet_UploadDataSinkPtr,
-            buffer: Cronet_BufferPtr,
-        ) {
-            let data_provider1 =
-                UploadDataProvider::<ReqBodyContext>::borrow_from(data_provider, &"");
-            let data_provider2 =
-                UploadDataProvider::<ReqBodyContext>::borrow_from(data_provider, &"");
-            let upload_data_sink = UploadDataSink::<()>::borrow_from(upload_data_sink, &"");
-            // let buffer = Borrowed::new(buffer, &buffer);
-            let mut ctx = data_provider1.get_client_context();
-            (ctx.run_async)(Box::pin(async move {
-                let mut ctx = data_provider2.get_client_context();
-                match ctx.body.next().await {
-                    Some(Ok(data)) => {
-                        todo!()
-                    }
-                    Some(Err(err)) => {
-                        todo!()
-                    }
-                    None => {
-                        todo!()
-                    }
-                }
-            }))
-        }
-
-        unsafe extern "C" fn rewind_func(
-            self_: Cronet_UploadDataProviderPtr,
-            upload_data_sink: Cronet_UploadDataSinkPtr,
-        ) {
-            // todo
-        }
-
-        unsafe extern "C" fn close_func(self_: Cronet_UploadDataProviderPtr) {
-            // todo
-        }
-
-        let mut data_provider = UploadDataProvider::create_with(
-            Some(get_length_func),
-            Some(read_func),
-            Some(rewind_func),
-            Some(close_func),
-        );
-
-        let ctx = ReqBodyContext {
+    pub(crate) fn to_upload_data_provider(
+        self,
+        run_async: Box<dyn Fn(BoxedFuture<()>) + Send + Sync + 'static>,
+    ) -> UploadDataProvider<ReqBodyContext> {
+        let _ctx = ReqBodyContext {
             body: self,
-            run_async: todo!(),
+            run_async,
         };
-        data_provider.set_client_context(ctx);
-        data_provider
+        let upload_data_provider = UploadDataProvider::new();
+
+        upload_data_provider
     }
 }
 
@@ -124,6 +70,34 @@ pub(crate) struct ReqBodyContext {
 
 unsafe impl Send for ReqBodyContext {}
 unsafe impl Sync for ReqBodyContext {}
+
+impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
+    type BufferCtx = BufferContext;
+    type UploadDataSinkCtx = UploadDataSinkContext;
+
+    fn get_length_func() -> GetLengthFunc<ReqBodyContext> {
+        |upload_data_provider| {
+            let ctx = upload_data_provider.get_client_context();
+            ctx.body.len.map(Into::into).unwrap_or(-1)
+        }
+    }
+
+    fn read_func() -> ReadFunc<ReqBodyContext, UploadDataSinkContext, BufferContext> {
+        todo!()
+    }
+
+    fn rewind_func() -> RewindFunc<ReqBodyContext, UploadDataSinkContext> {
+        todo!()
+    }
+
+    fn close_func() -> CloseFunc<ReqBodyContext> {
+        todo!()
+    }
+}
+
+pub(crate) struct UploadDataSinkContext {}
+
+pub(crate) struct BufferContext {}
 
 #[cfg(test)]
 mod test {

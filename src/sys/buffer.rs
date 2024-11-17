@@ -12,7 +12,6 @@ use crate::{
     util::define_impl,
 };
 
-
 impl<Ctx> Buffer<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {

@@ -14,7 +14,9 @@ pub(crate) use quic_hint::QuicHint;
 pub(crate) use request_finished_info::RequestFinishedInfo;
 pub(crate) use request_finished_info_listener::RequestFinishedInfoListener;
 pub(crate) use runnable::Runnable;
-pub(crate) use upload_data_provider::UploadDataProvider;
+pub(crate) use upload_data_provider::{
+    CloseFunc, GetLengthFunc, ReadFunc, RewindFunc, UploadDataProvider, UploadDataProviderExt,
+};
 pub(crate) use upload_data_sink::UploadDataSink;
 pub(crate) use url_request::UrlRequest;
 pub(crate) use url_request_callback::UrlRequestCallback;

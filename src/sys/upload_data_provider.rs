@@ -16,16 +16,19 @@ use crate::{
 
 use super::{Buffer, UploadDataSink};
 
-
-impl<Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>
+impl<Ctx> UploadDataProvider<Ctx>
 where
-    Ctx: UploadDataProviderExt<Ctx, UploadDataSinkCtx, BufferCtx>,
+    Ctx: UploadDataProviderExt<Ctx>,
 {
     pub(crate) fn create_with(
-        _get_length_func: GetLengthFunc<Ctx, UploadDataSinkCtx, BufferCtx>,
-        _read_func: ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx>,
-        _rewind_func: RewindFunc<Ctx, UploadDataSinkCtx, BufferCtx>,
-        _close_func: CloseFunc<Ctx, UploadDataSinkCtx, BufferCtx>,
+        _get_length_func: GetLengthFunc<Ctx>,
+        _read_func: ReadFunc<
+            Ctx,
+            <Ctx as UploadDataProviderExt<Ctx>>::UploadDataSinkCtx,
+            <Ctx as UploadDataProviderExt<Ctx>>::BufferCtx,
+        >,
+        _rewind_func: RewindFunc<Ctx, <Ctx as UploadDataProviderExt<Ctx>>::UploadDataSinkCtx>,
+        _close_func: CloseFunc<Ctx>,
     ) -> Self {
         unsafe {
             let ptr = Cronet_UploadDataProvider_CreateWith(
@@ -43,10 +46,9 @@ where
     }
 
     unsafe extern "C" fn raw_get_length(self_: Cronet_UploadDataProviderPtr) -> i64 {
-        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::from_ptr(self_);
+        let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
 
-        let ctx = self_.get_client_context();
-        let get_length = ctx.get_length_func();
+        let get_length = <Ctx as UploadDataProviderExt<Ctx>>::get_length_func();
         get_length(&self_)
     }
 
@@ -55,12 +57,11 @@ where
         upload_data_sink: Cronet_UploadDataSinkPtr,
         buffer: Cronet_BufferPtr,
     ) {
-        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::from_ptr(self_);
+        let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
         let upload_data_sink = UploadDataSink::from_ptr(upload_data_sink);
         let buffer = Buffer::from_ptr(buffer);
 
-        let ctx = self_.get_client_context();
-        let read = ctx.read_func();
+        let read = <Ctx as UploadDataProviderExt<Ctx>>::read_func();
         read(&self_, upload_data_sink, buffer)
     }
 
@@ -68,52 +69,45 @@ where
         self_: Cronet_UploadDataProviderPtr,
         upload_data_sink: Cronet_UploadDataSinkPtr,
     ) {
-        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::from_ptr(self_);
+        let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
         let upload_data_sink = UploadDataSink::from_ptr(upload_data_sink);
 
-        let ctx = self_.get_client_context();
-        let rewind = ctx.rewind_func();
+        let rewind = <Ctx as UploadDataProviderExt<Ctx>>::rewind_func();
         rewind(&self_, upload_data_sink)
     }
 
     unsafe extern "C" fn raw_close(self_: Cronet_UploadDataProviderPtr) {
-        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::from_ptr(self_);
+        let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
 
-        let ctx = self_.get_client_context();
-        let close = ctx.close_func();
+        let close = <Ctx as UploadDataProviderExt<Ctx>>::close_func();
         close(&self_)
     }
 
-    pub(crate) fn new(ctx: Ctx) -> Self {
-        let mut self_ = Self::create_with(
-            ctx.get_length_func(),
-            ctx.read_func(),
-            ctx.rewind_func(),
-            ctx.close_func(),
-        );
-        self_.set_client_context(ctx);
-        self_
+    pub(crate) fn new() -> Self {
+        Self::create_with(
+            <Ctx as UploadDataProviderExt<Ctx>>::get_length_func(),
+            <Ctx as UploadDataProviderExt<Ctx>>::read_func(),
+            <Ctx as UploadDataProviderExt<Ctx>>::rewind_func(),
+            <Ctx as UploadDataProviderExt<Ctx>>::close_func(),
+        )
     }
 }
 
-pub(crate) trait UploadDataProviderExt<Ctx, UploadDataSinkCtx, BufferCtx> {
-    fn get_length_func(&self) -> GetLengthFunc<Ctx, UploadDataSinkCtx, BufferCtx>;
-    fn read_func(&self) -> ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx>;
-    fn rewind_func(&self) -> RewindFunc<Ctx, UploadDataSinkCtx, BufferCtx>;
-    fn close_func(&self) -> CloseFunc<Ctx, UploadDataSinkCtx, BufferCtx>;
+pub(crate) trait UploadDataProviderExt<Ctx> {
+    type BufferCtx;
+    type UploadDataSinkCtx;
+    fn get_length_func() -> GetLengthFunc<Ctx>;
+    fn read_func() -> ReadFunc<Ctx, Self::UploadDataSinkCtx, Self::BufferCtx>;
+    fn rewind_func() -> RewindFunc<Ctx, Self::UploadDataSinkCtx>;
+    fn close_func() -> CloseFunc<Ctx>;
 }
 
-pub(crate) type GetLengthFunc<Ctx, UploadDataSinkCtx, BufferCtx> =
-    fn(&UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>) -> i64;
-pub(crate) type ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx> = fn(
-    &UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>,
-    &UploadDataSink<UploadDataSinkCtx>,
-    &Buffer<BufferCtx>,
-);
-pub(crate) type RewindFunc<Ctx, UploadDataSinkCtx, BufferCtx> =
-    fn(&UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>, &UploadDataSink<UploadDataSinkCtx>);
-pub(crate) type CloseFunc<Ctx, UploadDataSinkCtx, BufferCtx> =
-    fn(&UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>);
+pub(crate) type GetLengthFunc<Ctx> = fn(&UploadDataProvider<Ctx>) -> i64;
+pub(crate) type ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx> =
+    fn(&UploadDataProvider<Ctx>, &UploadDataSink<UploadDataSinkCtx>, &Buffer<BufferCtx>);
+pub(crate) type RewindFunc<Ctx, UploadDataSinkCtx> =
+    fn(&UploadDataProvider<Ctx>, &UploadDataSink<UploadDataSinkCtx>);
+pub(crate) type CloseFunc<Ctx> = fn(&UploadDataProvider<Ctx>);
 
 define_impl! {
     UploadDataProvider, Cronet_UploadDataProviderPtr,Cronet_UploadDataProvider_Destroy,
@@ -134,20 +128,10 @@ define_impl! {
     #[cfg(test)]
     fn close(&Self); Cronet_UploadDataProvider_Close,
 
-    with_ctx: <Ctx, UploadDataSinkCtx, BufferCtx>,
+    with_ctx: <Ctx>,
     get: Cronet_UploadDataProvider_GetClientContext,
     set: Cronet_UploadDataProvider_SetClientContext,
 }
 
-unsafe impl<Ctx, UploadDataSinkCtx, BufferCtx> Send
-    for UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>
-where
-    Ctx: Send,
-{
-}
-unsafe impl<Ctx, UploadDataSinkCtx, BufferCtx> Sync
-    for UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>
-where
-    Ctx: Sync,
-{
-}
+unsafe impl<Ctx> Send for UploadDataProvider<Ctx> where Ctx: Send {}
+unsafe impl<Ctx> Sync for UploadDataProvider<Ctx> where Ctx: Sync {}

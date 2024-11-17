@@ -11,13 +11,11 @@ use crate::{
     util::define_impl,
 };
 
-impl<Ctx> UrlRequestStatusListener<Ctx> 
-where 
-    Ctx: UrlRequestStatusListenerExt<Ctx>
+impl<Ctx> UrlRequestStatusListener<Ctx>
+where
+    Ctx: UrlRequestStatusListenerExt<Ctx>,
 {
-    pub(crate) fn create_with(
-        _on_status_func: OnStatusFunc<Ctx>,
-    ) -> Self {
+    pub(crate) fn create_with(_on_status_func: OnStatusFunc<Ctx>) -> Self {
         unsafe {
             let ptr = Cronet_UrlRequestStatusListener_CreateWith(Some(Self::raw_on_status_func));
             Self {
@@ -33,22 +31,20 @@ where
         status: Cronet_UrlRequestStatusListener_Status,
     ) {
         let self_ = UrlRequestStatusListener::<Ctx>::from_ptr(self_);
-        let ctx = self_.get_client_context();
-        let on_status = ctx.on_status_func();
+        let on_status = <Ctx as UrlRequestStatusListenerExt<Ctx>>::on_status_func();
         on_status(&self_, status)
     }
 
-    pub(crate) fn new(ctx: Ctx) -> Self {
-        let mut self_ = Self::create_with(ctx.on_status_func());
-        self_.set_client_context(ctx);
-        self_
+    pub(crate) fn new() -> Self {
+        Self::create_with(<Ctx as UrlRequestStatusListenerExt<Ctx>>::on_status_func())
     }
 }
 
-pub(crate) type OnStatusFunc<Ctx> = fn(self_: &UrlRequestStatusListener<Ctx>, status: Cronet_UrlRequestStatusListener_Status);
+pub(crate) type OnStatusFunc<Ctx> =
+    fn(self_: &UrlRequestStatusListener<Ctx>, status: Cronet_UrlRequestStatusListener_Status);
 
 pub(crate) trait UrlRequestStatusListenerExt<Ctx> {
-    fn on_status_func(&self) -> OnStatusFunc<Ctx>;
+    fn on_status_func() -> OnStatusFunc<Ctx>;
 }
 
 define_impl! {

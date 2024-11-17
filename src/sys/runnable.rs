@@ -9,10 +9,9 @@ use crate::{
     util::define_impl,
 };
 
-
-impl<Ctx> Runnable<Ctx> 
-where 
-    Ctx: RunnableExt<Ctx>
+impl<Ctx> Runnable<Ctx>
+where
+    Ctx: RunnableExt<Ctx>,
 {
     pub(crate) fn create_with(_run_func: RunFunc<Ctx>) -> Self {
         unsafe {
@@ -28,22 +27,19 @@ where
     unsafe extern "C" fn raw_run_func(self_: Cronet_RunnablePtr) {
         let self_ = Self::from_ptr(self_);
 
-        let ctx = self_.get_client_context();
-        let run = ctx.run_func();
+        let run = <Ctx as RunnableExt<Ctx>>::run_func();
         run(self_)
     }
 
-    pub(crate) fn new(ctx: Ctx) -> Self {
-        let mut self_ = Self::create_with(ctx.run_func());
-        self_.set_client_context(ctx);
-        self_
+    pub(crate) fn new() -> Self {
+        Self::create_with(<Ctx as RunnableExt<Ctx>>::run_func())
     }
 }
 
 pub(crate) type RunFunc<Ctx> = fn(self_: &Runnable<Ctx>);
 
 pub(crate) trait RunnableExt<Ctx> {
-    fn run_func(&self) -> RunFunc<Ctx>;
+    fn run_func() -> RunFunc<Ctx>;
 }
 
 define_impl! {

@@ -69,7 +69,7 @@ define_impl! {
         engine: &Engine<EngineCtx> >> Engine::as_ptr,
         url: &CStr >> CStr::as_ptr,
         params: &UrlRequestParams >> UrlRequestParams::as_ptr,  // safety: pass ref?
-        callback: &UrlRequestCallback<UrlRequestCallbackCtx, UrlRequestCtx, BufferCtx> >> UrlRequestCallback::as_ptr,   // safety: pass ref?
+        callback: &UrlRequestCallback<UrlRequestCallbackCtx> >> UrlRequestCallback::as_ptr,   // safety: pass ref?
         executor: &Executor<ExecutorCtx, RunnableCtx> >> Executor::as_ptr      // safety: pass ref?
     ) -> Cronet_RESULT; Cronet_UrlRequest_InitWithParams,
 
