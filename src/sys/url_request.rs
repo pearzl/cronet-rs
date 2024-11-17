@@ -68,12 +68,12 @@ impl<Ctx> UrlRequest<Ctx> {
 define_impl! {
     UrlRequest, Cronet_UrlRequestPtr, Cronet_UrlRequest_Destroy,
 
-    fn init_with_params<EngineCtx, UrlRequestCallbackCtx, ExecutorCtx>(
+    fn init_with_params<EngineCtx, UrlRequestCallbackCtx, ExecutorCtx, UrlRequestCtx, BufferCtx>(
         &Self,
         engine: &Engine<EngineCtx> >> Engine::as_ptr,
         url: &CStr >> CStr::as_ptr,
         params: &UrlRequestParams >> UrlRequestParams::as_ptr,  // safety: pass ref?
-        callback: &UrlRequestCallback<UrlRequestCallbackCtx> >> UrlRequestCallback::as_ptr,   // safety: pass ref?
+        callback: &UrlRequestCallback<UrlRequestCallbackCtx, UrlRequestCtx, BufferCtx> >> UrlRequestCallback::as_ptr,   // safety: pass ref?
         executor: &Executor<ExecutorCtx> >> Executor::as_ptr      // safety: pass ref?
     ) -> Cronet_RESULT; Cronet_UrlRequest_InitWithParams,
 

@@ -22,7 +22,7 @@ impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
 
 impl<Ctx> RequestFinishedInfoListener<Ctx>
 where
-    Ctx: RequestFinishedInfoListenerCallback<Ctx>,
+    Ctx: RequestFinishedInfoListenerExt<Ctx>,
 {
     pub(crate) fn create_with(_on_request_finished_func: OnRequestFinishedFunc<Ctx>) -> Self {
         unsafe {
@@ -56,7 +56,7 @@ where
 pub(crate) type OnRequestFinishedFunc<Ctx> =
     fn(&RequestFinishedInfoListener<Ctx>, &RequestFinishedInfo, &UrlResponseInfo, &Error); // safety: pass ref?
 
-pub(crate) trait RequestFinishedInfoListenerCallback<Ctx> {
+pub(crate) trait RequestFinishedInfoListenerExt<Ctx> {
     fn on_request_finished_func(&self) -> OnRequestFinishedFunc<Ctx>;
 }
 

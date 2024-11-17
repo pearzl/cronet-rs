@@ -24,7 +24,7 @@ impl<'a, Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSi
 
 impl<Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>
 where
-    Ctx: UploadDataProviderCallback<Ctx, UploadDataSinkCtx, BufferCtx>,
+    Ctx: UploadDataProviderExt<Ctx, UploadDataSinkCtx, BufferCtx>,
 {
     pub(crate) fn create_with(
         _get_length_func: GetLengthFunc<Ctx, UploadDataSinkCtx, BufferCtx>,
@@ -101,7 +101,7 @@ where
     }
 }
 
-pub(crate) trait UploadDataProviderCallback<Ctx, UploadDataSinkCtx, BufferCtx> {
+pub(crate) trait UploadDataProviderExt<Ctx, UploadDataSinkCtx, BufferCtx> {
     fn get_length_func(&self) -> GetLengthFunc<Ctx, UploadDataSinkCtx, BufferCtx>;
     fn read_func(&self) -> ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx>;
     fn rewind_func(&self) -> RewindFunc<Ctx, UploadDataSinkCtx, BufferCtx>;

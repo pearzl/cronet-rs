@@ -2,45 +2,39 @@ use std::{ffi::CStr, marker::PhantomData};
 
 use crate::{
     bindings::{
-        Cronet_ClientContext, Cronet_UrlRequestCallbackPtr, Cronet_UrlRequestCallback_CreateWith,
-        Cronet_UrlRequestCallback_Destroy, Cronet_UrlRequestCallback_GetClientContext,
-        Cronet_UrlRequestCallback_OnCanceled, Cronet_UrlRequestCallback_OnCanceledFunc,
-        Cronet_UrlRequestCallback_OnFailed, Cronet_UrlRequestCallback_OnFailedFunc,
-        Cronet_UrlRequestCallback_OnReadCompleted, Cronet_UrlRequestCallback_OnReadCompletedFunc,
-        Cronet_UrlRequestCallback_OnRedirectReceived,
-        Cronet_UrlRequestCallback_OnRedirectReceivedFunc,
-        Cronet_UrlRequestCallback_OnResponseStarted,
-        Cronet_UrlRequestCallback_OnResponseStartedFunc, Cronet_UrlRequestCallback_OnSucceeded,
-        Cronet_UrlRequestCallback_OnSucceededFunc, Cronet_UrlRequestCallback_SetClientContext,
+        Cronet_BufferPtr, Cronet_ClientContext, Cronet_ErrorPtr, Cronet_String, Cronet_UrlRequestCallbackPtr, Cronet_UrlRequestCallback_CreateWith, Cronet_UrlRequestCallback_Destroy, Cronet_UrlRequestCallback_GetClientContext, Cronet_UrlRequestCallback_OnCanceled, Cronet_UrlRequestCallback_OnCanceledFunc, Cronet_UrlRequestCallback_OnFailed, Cronet_UrlRequestCallback_OnFailedFunc, Cronet_UrlRequestCallback_OnReadCompleted, Cronet_UrlRequestCallback_OnReadCompletedFunc, Cronet_UrlRequestCallback_OnRedirectReceived, Cronet_UrlRequestCallback_OnRedirectReceivedFunc, Cronet_UrlRequestCallback_OnResponseStarted, Cronet_UrlRequestCallback_OnResponseStartedFunc, Cronet_UrlRequestCallback_OnSucceeded, Cronet_UrlRequestCallback_OnSucceededFunc, Cronet_UrlRequestCallback_SetClientContext, Cronet_UrlRequestPtr, Cronet_UrlResponseInfoPtr
     },
     util::define_impl,
 };
 
 use super::{Buffer, Error, UrlRequest, UrlResponseInfo};
 
-impl<Ctx> UrlRequestCallback<Ctx> {
+impl<Ctx, UrlRequestCtx, BufferCtx> UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx> {
     pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestCallbackPtr {
         self.ptr
     }
 }
 
-impl<Ctx> UrlRequestCallback<Ctx> {
+impl<Ctx, UrlRequestCtx, BufferCtx> UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx> 
+where 
+    Ctx: UrlRequestCallbackExt<Ctx, UrlRequestCtx, BufferCtx>
+{
     pub(crate) fn create_with(
-        on_redirect_received_func: Cronet_UrlRequestCallback_OnRedirectReceivedFunc,
-        on_response_started_func: Cronet_UrlRequestCallback_OnResponseStartedFunc,
-        on_read_completed_func: Cronet_UrlRequestCallback_OnReadCompletedFunc,
-        on_succeeded_func: Cronet_UrlRequestCallback_OnSucceededFunc,
-        on_failed_func: Cronet_UrlRequestCallback_OnFailedFunc,
-        on_canceled_func: Cronet_UrlRequestCallback_OnCanceledFunc,
+        _on_redirect_received_func: OnRedirectReceivedFunc<Ctx, UrlRequestCtx, BufferCtx>,
+        _on_response_started_func: OnResponseStartedFunc<Ctx, UrlRequestCtx, BufferCtx>,
+        _on_read_completed_func: OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx>,
+        _on_succeeded_func: OnSucceededFunc<Ctx, UrlRequestCtx, BufferCtx>,
+        _on_failed_func: OnFailedFunc<Ctx, UrlRequestCtx, BufferCtx>,
+        _on_canceled_func: OnCanceledFunc<Ctx, UrlRequestCtx, BufferCtx>,
     ) -> Self {
         unsafe {
             let ptr = Cronet_UrlRequestCallback_CreateWith(
-                on_redirect_received_func,
-                on_response_started_func,
-                on_read_completed_func,
-                on_succeeded_func,
-                on_failed_func,
-                on_canceled_func,
+                Some(Self::raw_on_redirect_received_func),
+                Some(Self::raw_on_response_started_func),
+                Some(Self::raw_on_read_completed_func),
+                Some(Self::raw_on_succeeded_func),
+                Some(Self::raw_on_failed_func),
+                Some(Self::raw_on_canceled_func),
             );
             Self {
                 ptr,
@@ -49,7 +43,121 @@ impl<Ctx> UrlRequestCallback<Ctx> {
             }
         }
     }
+
+    unsafe extern "C" fn raw_on_redirect_received_func(
+        self_: Cronet_UrlRequestCallbackPtr,
+        request: Cronet_UrlRequestPtr,
+        info: Cronet_UrlResponseInfoPtr,
+        new_location_url: Cronet_String,
+    ) {
+        let self_ = UrlRequestCallback::<Ctx, UrlRequestCtx, BufferCtx>::from_ptr(self_);
+        let request = UrlRequest::<UrlRequestCtx>::from_ptr(request);
+        let info = UrlResponseInfo::from_ptr(info);
+        let new_localtion_url = CStr::from_ptr(new_location_url);
+
+        let ctx = self_.get_client_context();
+        let on_redirect_received = ctx.on_redirect_received_func();
+        on_redirect_received(&self_, request, info, new_localtion_url)
+    }
+
+    unsafe extern "C" fn raw_on_response_started_func(
+        self_: Cronet_UrlRequestCallbackPtr,
+        request: Cronet_UrlRequestPtr,
+        info: Cronet_UrlResponseInfoPtr,
+    ) {
+        let self_ = UrlRequestCallback::<Ctx, UrlRequestCtx, BufferCtx>::from_ptr(self_);
+        let request = UrlRequest::<UrlRequestCtx>::from_ptr(request);
+        let info = UrlResponseInfo::from_ptr(info);
+
+        let ctx = self_.get_client_context();
+        let on_response_started = ctx.on_response_started_func();
+        on_response_started(&self_, request, info)
+    }
+
+    unsafe extern "C" fn raw_on_read_completed_func(
+        self_: Cronet_UrlRequestCallbackPtr,
+        request: Cronet_UrlRequestPtr,
+        info: Cronet_UrlResponseInfoPtr,
+        buffer: Cronet_BufferPtr,
+        bytes_read: u64,
+    ) {
+        let self_ = UrlRequestCallback::<Ctx, UrlRequestCtx, BufferCtx>::from_ptr(self_);
+        let request = UrlRequest::<UrlRequestCtx>::from_ptr(request);
+        let info = UrlResponseInfo::from_ptr(info);
+        let buffer = Buffer::<BufferCtx>::from_ptr(buffer);
+
+        let ctx = self_.get_client_context();
+        let on_read_completed = ctx.on_read_completed_func();
+        on_read_completed(&self_, request, info, buffer, bytes_read)
+    }
+
+    unsafe extern "C" fn raw_on_succeeded_func(
+        self_: Cronet_UrlRequestCallbackPtr,
+        request: Cronet_UrlRequestPtr,
+        info: Cronet_UrlResponseInfoPtr,
+    ) {
+        let self_ = UrlRequestCallback::<Ctx, UrlRequestCtx, BufferCtx>::from_ptr(self_);
+        let request = UrlRequest::<UrlRequestCtx>::from_ptr(request);
+        let info = UrlResponseInfo::from_ptr(info);
+
+        let ctx = self_.get_client_context();
+        let on_succeeded = ctx.on_succeeded_func();
+        on_succeeded(&self_, request, info)
+    }
+
+    unsafe extern "C" fn raw_on_failed_func(
+        self_: Cronet_UrlRequestCallbackPtr,
+        request: Cronet_UrlRequestPtr,
+        info: Cronet_UrlResponseInfoPtr,
+        error: Cronet_ErrorPtr,
+    ) {
+        let self_ = UrlRequestCallback::<Ctx, UrlRequestCtx, BufferCtx>::from_ptr(self_);
+        let request = UrlRequest::<UrlRequestCtx>::from_ptr(request);
+        let info = UrlResponseInfo::from_ptr(info);
+        let error = Error::from_ptr(error);
+
+        let ctx = self_.get_client_context();
+        let on_failed = ctx.on_failed_func();
+        on_failed(&self_, request, info, error)
+    }
+
+    unsafe extern "C" fn raw_on_canceled_func(
+        self_: Cronet_UrlRequestCallbackPtr,
+        request: Cronet_UrlRequestPtr,
+        info: Cronet_UrlResponseInfoPtr,
+    ) {
+        let self_ = UrlRequestCallback::<Ctx, UrlRequestCtx, BufferCtx>::from_ptr(self_);
+        let request = UrlRequest::<UrlRequestCtx>::from_ptr(request);
+        let info = UrlResponseInfo::from_ptr(info);
+
+        let ctx = self_.get_client_context();
+        let on_canceled = ctx.on_canceled_func();
+        on_canceled(&self_, request, info)
+    }
+
+    pub fn new(ctx: Ctx) -> Self{
+        let mut self_ = Self::create_with(ctx.on_redirect_received_func(), ctx.on_response_started_func(), ctx.on_read_completed_func(), ctx.on_succeeded_func(), ctx.on_failed_func(), ctx.on_canceled_func());
+        self_.set_client_context(ctx);
+        self_
+    }
 }
+
+pub(crate) trait UrlRequestCallbackExt<Ctx, UrlRequestCtx, BufferCtx> {
+    fn on_redirect_received_func(&self) -> OnRedirectReceivedFunc<Ctx, UrlRequestCtx, BufferCtx>;
+    fn on_response_started_func(&self) -> OnResponseStartedFunc<Ctx, UrlRequestCtx, BufferCtx>;
+    fn on_read_completed_func(&self) -> OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx>;
+    fn on_succeeded_func(&self) -> OnSucceededFunc<Ctx, UrlRequestCtx, BufferCtx>;
+    fn on_failed_func(&self) -> OnFailedFunc<Ctx, UrlRequestCtx, BufferCtx>;
+    fn on_canceled_func(&self) -> OnCanceledFunc<Ctx, UrlRequestCtx, BufferCtx>;
+}
+
+pub(crate) type OnRedirectReceivedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(self_: &UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx>,  request: &UrlRequest<UrlRequestCtx>, info: &UrlResponseInfo, new_location_url: &CStr);
+pub(crate) type OnResponseStartedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(self_: &UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx>,  request: &UrlRequest<UrlRequestCtx>, info: &UrlResponseInfo);
+pub(crate) type OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(self_: &UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx>,  request: &UrlRequest<UrlRequestCtx>, info: &UrlResponseInfo, buffer: &Buffer<BufferCtx>, bytes_read: u64);
+pub(crate) type OnSucceededFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(self_: &UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx>,  request: &UrlRequest<UrlRequestCtx>, info: &UrlResponseInfo);
+pub(crate) type OnFailedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(self_: &UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx>,  request: &UrlRequest<UrlRequestCtx>, info: &UrlResponseInfo, error: &Error);
+pub(crate) type OnCanceledFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(self_: &UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx>, request: &UrlRequest<UrlRequestCtx>, info: &UrlResponseInfo);
+
 
 define_impl! {
     UrlRequestCallback, Cronet_UrlRequestCallbackPtr, Cronet_UrlRequestCallback_Destroy,
@@ -96,7 +204,7 @@ define_impl! {
     ); Cronet_UrlRequestCallback_OnCanceled,
 
 
-    with_ctx: <Ctx>,
+    with_ctx: <Ctx, UrlRequestCtx, BufferCtx>,
     get: Cronet_UrlRequestCallback_GetClientContext,
     set: Cronet_UrlRequestCallback_SetClientContext,
 }

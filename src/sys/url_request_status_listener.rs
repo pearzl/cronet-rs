@@ -19,7 +19,7 @@ impl<Ctx> UrlRequestStatusListener<Ctx> {
 
 impl<Ctx> UrlRequestStatusListener<Ctx> 
 where 
-    Ctx: OnStatusFuncCallback<Ctx>
+    Ctx: UrlRequestStatusListenerExt<Ctx>
 {
     pub(crate) fn create_with(
         _on_status_func: OnStatusFunc<Ctx>,
@@ -53,7 +53,7 @@ where
 
 pub(crate) type OnStatusFunc<Ctx> = fn(self_: &UrlRequestStatusListener<Ctx>, status: Cronet_UrlRequestStatusListener_Status);
 
-pub(crate) trait OnStatusFuncCallback<Ctx> {
+pub(crate) trait UrlRequestStatusListenerExt<Ctx> {
     fn on_status_func(&self) -> OnStatusFunc<Ctx>;
 }
 
