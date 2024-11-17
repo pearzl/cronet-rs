@@ -13,10 +13,15 @@ impl<Ctx> Runnable<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_RunnablePtr {
         self.ptr
     }
+}
 
-    pub(crate) fn create_with(run_func: Cronet_Runnable_RunFunc) -> Self {
+impl<Ctx> Runnable<Ctx> 
+where 
+    Ctx: RunnableExt<Ctx>
+{
+    pub(crate) fn create_with(_run_func: RunFunc<Ctx>) -> Self {
         unsafe {
-            let ptr = Cronet_Runnable_CreateWith(run_func);
+            let ptr = Cronet_Runnable_CreateWith(Some(Self::raw_run_func));
             Self {
                 ptr,
                 ctx: None,
@@ -24,6 +29,26 @@ impl<Ctx> Runnable<Ctx> {
             }
         }
     }
+
+    unsafe extern "C" fn raw_run_func(self_: Cronet_RunnablePtr) {
+        let self_ = Self::from_ptr(self_);
+
+        let ctx = self_.get_client_context();
+        let run = ctx.run_func();
+        run(self_)
+    }
+
+    pub(crate) fn new(ctx: Ctx) -> Self {
+        let mut self_ = Self::create_with(ctx.run_func());
+        self_.set_client_context(ctx);
+        self_
+    }
+}
+
+pub(crate) type RunFunc<Ctx> = fn(self_: &Runnable<Ctx>);
+
+pub(crate) trait RunnableExt<Ctx> {
+    fn run_func(&self) -> RunFunc<Ctx>;
 }
 
 define_impl! {

@@ -73,10 +73,10 @@ impl<Ctx> Engine<Ctx> {
 define_impl! {
     Engine, Cronet_EnginePtr, Cronet_Engine_Destroy,
 
-    fn add_request_finished_listener<ListenerCtx, ExecutorCtx>(
+    fn add_request_finished_listener<ListenerCtx, ExecutorCtx, RunnableCtx>(
         &Self,
         listener: &RequestFinishedInfoListener<ListenerCtx> >> RequestFinishedInfoListener::as_ptr, // safety: pass ref?
-        executor: &Executor<ExecutorCtx> >> Executor::as_ptr   // safety:: pass ref?
+        executor: &Executor<ExecutorCtx, RunnableCtx> >> Executor::as_ptr   // safety:: pass ref?
     );Cronet_Engine_AddRequestFinishedListener,
 
     fn remove_request_finished_listener<ListenerCtx>(

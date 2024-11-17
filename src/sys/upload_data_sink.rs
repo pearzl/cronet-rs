@@ -31,6 +31,7 @@ impl<Ctx> UploadDataSink<Ctx> {
         }
     }
 
+    #[cfg(test)]
     pub(crate) fn create_with(
         on_read_succeeded_func: Cronet_UploadDataSink_OnReadSucceededFunc,
         on_read_error_func: Cronet_UploadDataSink_OnReadErrorFunc,

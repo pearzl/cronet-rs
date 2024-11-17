@@ -51,6 +51,13 @@ where
         let on_request_finished = ctx.on_request_finished_func();
         on_request_finished(self_, request_info, response_info, error);
     }
+
+    pub(crate) fn new(ctx: Ctx) -> Self {
+        let mut self_ = Self::create_with(ctx.on_request_finished_func());
+        self_.set_client_context(ctx);
+        self_
+    }
+
 }
 
 pub(crate) type OnRequestFinishedFunc<Ctx> =

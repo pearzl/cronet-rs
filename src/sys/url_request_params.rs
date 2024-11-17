@@ -95,11 +95,11 @@ define_impl! {
     -> &UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx> >> UploadDataProvider::from_ptr;
         Cronet_UrlRequestParams_upload_data_provider_get,
 
-    fn upload_data_provider_executor_set<ExecutorCtx>(
+    fn upload_data_provider_executor_set<ExecutorCtx, RunnableCtx>(
         &mut Self,
-        upload_data_provider_executor: &Executor<ExecutorCtx> >> Executor::as_ptr   // safety: pass ref?
+        upload_data_provider_executor: &Executor<ExecutorCtx, RunnableCtx> >> Executor::as_ptr   // safety: pass ref?
     );Cronet_UrlRequestParams_upload_data_provider_executor_set,
-    fn upload_data_provider_executor_get<ExecutorCtx>(&Self) -> &Executor<ExecutorCtx> >> Executor::from_ptr;
+    fn upload_data_provider_executor_get<ExecutorCtx, RunnableCtx>(&Self) -> &Executor<ExecutorCtx, RunnableCtx> >> Executor::from_ptr;
         Cronet_UrlRequestParams_upload_data_provider_executor_get,
 
     fn request_finished_listener_set<Ctx>(
@@ -110,11 +110,11 @@ define_impl! {
         >> RequestFinishedInfoListener::from_ptr;
         Cronet_UrlRequestParams_request_finished_listener_get,
 
-    fn request_finished_executor_set<ExecutorCtx>(
+    fn request_finished_executor_set<ExecutorCtx, RunnableCtx>(
         &mut Self,
-        request_finished_executor: &Executor<ExecutorCtx> >> Executor::as_ptr // safety::pass_ref?
+        request_finished_executor: &Executor<ExecutorCtx, RunnableCtx> >> Executor::as_ptr // safety::pass_ref?
     ) ; Cronet_UrlRequestParams_request_finished_executor_set,
-    fn request_finished_executor_get<EngineContext>( &Self ) -> &Executor<EngineContext>
+    fn request_finished_executor_get<EngineContext, RunnableCtx>( &Self ) -> &Executor<EngineContext, RunnableCtx>
         >> Executor::from_ptr;
         Cronet_UrlRequestParams_request_finished_executor_get,
 
