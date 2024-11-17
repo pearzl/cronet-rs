@@ -9,13 +9,8 @@ use crate::{
     util::define_impl,
 };
 
-use super::{Runnable};
+use super::Runnable;
 
-impl<'a, Ctx, RunnableCtx> Executor<Ctx, RunnableCtx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_ExecutorPtr {
-        self.ptr
-    }
-}
 
 impl<Ctx, RunnableCtx> Executor<Ctx, RunnableCtx> 
 where

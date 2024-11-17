@@ -9,12 +9,6 @@ use crate::{
 
 use super::{Buffer, Error, UrlRequest, UrlResponseInfo};
 
-impl<Ctx, UrlRequestCtx, BufferCtx> UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestCallbackPtr {
-        self.ptr
-    }
-}
-
 impl<Ctx, UrlRequestCtx, BufferCtx> UrlRequestCallback<Ctx, UrlRequestCtx, BufferCtx> 
 where 
     Ctx: UrlRequestCallbackExt<Ctx, UrlRequestCtx, BufferCtx>

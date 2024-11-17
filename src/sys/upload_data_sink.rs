@@ -13,12 +13,6 @@ use crate::{
     util::define_impl,
 };
 
-impl<'a, Ctx> UploadDataSink<Ctx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_UploadDataSinkPtr {
-        self.ptr
-    }
-}
-
 impl<Ctx> UploadDataSink<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {

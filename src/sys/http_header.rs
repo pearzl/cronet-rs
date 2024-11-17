@@ -9,12 +9,6 @@ use crate::{
     util::define_impl,
 };
 
-impl<'a> HttpHeader {
-    pub(crate) fn as_ptr(&self) -> Cronet_HttpHeaderPtr {
-        self.ptr
-    }
-}
-
 define_impl! {
     HttpHeader, Cronet_HttpHeaderPtr, Cronet_HttpHeader_Destroy,
 

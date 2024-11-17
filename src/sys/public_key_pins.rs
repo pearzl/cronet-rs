@@ -12,12 +12,6 @@ use crate::{
     util::define_impl,
 };
 
-impl<'a> PublicKeyPins {
-    pub(crate) fn as_ptr(&self) -> Cronet_PublicKeyPinsPtr {
-        self.ptr
-    }
-}
-
 define_impl! {
     PublicKeyPins, Cronet_PublicKeyPinsPtr, Cronet_PublicKeyPins_Destroy,
 

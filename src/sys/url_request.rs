@@ -21,10 +21,6 @@ use super::{
 };
 
 impl<Ctx> UrlRequest<Ctx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestPtr {
-        self.ptr
-    }
-
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_UrlRequest_Create();

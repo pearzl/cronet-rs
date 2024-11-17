@@ -16,11 +16,6 @@ use crate::{
 
 use super::{Buffer, UploadDataSink};
 
-impl<'a, Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_UploadDataProviderPtr {
-        self.ptr
-    }
-}
 
 impl<Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>
 where

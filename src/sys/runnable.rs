@@ -9,11 +9,6 @@ use crate::{
     util::define_impl,
 };
 
-impl<Ctx> Runnable<Ctx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_RunnablePtr {
-        self.ptr
-    }
-}
 
 impl<Ctx> Runnable<Ctx> 
 where 

@@ -28,10 +28,6 @@ use crate::{
 use super::date_time::DateTime;
 
 impl<'a> Metrics {
-    pub(crate) fn as_ptr(&self) -> Cronet_MetricsPtr {
-        self.ptr
-    }
-
     pub(crate) fn into_raw(self) -> Cronet_MetricsPtr {
         self.ptr
     }

@@ -14,11 +14,6 @@ use crate::{
 
 use super::{Error, RequestFinishedInfo, UrlResponseInfo};
 
-impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {
-        self.ptr
-    }
-}
 
 impl<Ctx> RequestFinishedInfoListener<Ctx>
 where

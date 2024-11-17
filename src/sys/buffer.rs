@@ -12,11 +12,6 @@ use crate::{
     util::define_impl,
 };
 
-impl<Ctx> Buffer<Ctx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_BufferPtr {
-        self.ptr
-    }
-}
 
 impl<Ctx> Buffer<Ctx> {
     pub(crate) fn create() -> Self {

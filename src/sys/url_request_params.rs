@@ -33,12 +33,6 @@ use super::{
     executor::Executor, http_header::HttpHeader, upload_data_provider::UploadDataProvider,
 };
 
-impl UrlRequestParams {
-    pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestParamsPtr {
-        self.ptr
-    }
-}
-
 define_impl! {
     UrlRequestParams, Cronet_UrlRequestParamsPtr, Cronet_UrlRequestParams_Destroy,
 

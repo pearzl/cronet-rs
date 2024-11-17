@@ -23,12 +23,6 @@ use super::{
 };
 
 impl<Ctx> Engine<Ctx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_EnginePtr {
-        self.ptr
-    }
-}
-
-impl<Ctx> Engine<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             Engine {

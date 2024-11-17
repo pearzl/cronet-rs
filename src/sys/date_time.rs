@@ -7,9 +7,7 @@ use crate::{
 };
 
 impl<'a> DateTime {
-    pub(crate) fn as_ptr(&self) -> Cronet_DateTimePtr {
-        self.ptr
-    }
+
 
     pub(crate) fn into_raw(self) -> Cronet_DateTimePtr {
         self.ptr

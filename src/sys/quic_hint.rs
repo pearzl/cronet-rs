@@ -10,11 +10,6 @@ use crate::{
     util::define_impl,
 };
 
-impl<'a> QuicHint {
-    pub(crate) fn as_ptr(&self) -> Cronet_QuicHintPtr {
-        self.ptr
-    }
-}
 
 define_impl! {
     QuicHint, Cronet_QuicHintPtr, Cronet_QuicHint_Destroy,

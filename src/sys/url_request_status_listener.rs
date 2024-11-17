@@ -11,12 +11,6 @@ use crate::{
     util::define_impl,
 };
 
-impl<Ctx> UrlRequestStatusListener<Ctx> {
-    pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestStatusListenerPtr {
-        self.ptr
-    }
-}
-
 impl<Ctx> UrlRequestStatusListener<Ctx> 
 where 
     Ctx: UrlRequestStatusListenerExt<Ctx>

@@ -1,5 +1,5 @@
 #[allow(nonstandard_style, clippy::upper_case_acronyms)]
-// #[allow(dead_code)] //todo
+#[allow(dead_code)] //todo
 mod bindings {
     include!(concat! {env!("OUT_DIR"), "/bindings.rs"});
 }

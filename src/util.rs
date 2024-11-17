@@ -23,7 +23,7 @@ macro_rules! define_impl {
         pub struct $struct_name $(<$ctx $(, $ctx_assn)*>)? {
             ptr: $ptr,
             $(ctx: Option<$ctx>,)?
-            $(_phan: std::marker::PhantomData<($($ctx_assn),*)>,)?
+            $(_phan: std::marker::PhantomData<((), $($ctx_assn),*)>,)?
         }
 
         // impl drop
@@ -39,6 +39,10 @@ macro_rules! define_impl {
                 let borrowed = $struct_name { ptr, $(ctx: None::<$ctx> /* fake value */, _phan: PhantomData )?};
                 let ptr = Box::into_raw(Box::new(borrowed));
                 &mut *ptr
+            }
+
+            pub(crate) fn as_ptr(&self) -> $ptr {
+                self.ptr
             }
         }
 

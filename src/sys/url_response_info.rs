@@ -22,12 +22,6 @@ use crate::{
 
 use super::http_header::HttpHeader;
 
-impl<'a> UrlResponseInfo {
-    pub(crate) fn as_ptr(&self) -> Cronet_UrlResponseInfoPtr {
-        self.ptr
-    }
-}
-
 define_impl! {
     UrlResponseInfo, Cronet_UrlResponseInfoPtr, Cronet_UrlResponseInfo_Destroy,
 

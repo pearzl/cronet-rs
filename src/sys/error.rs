@@ -21,11 +21,6 @@ impl Error {
     }
 }
 
-impl<'a> Error {
-    pub(crate) fn as_ptr(&self) -> Cronet_ErrorPtr {
-        self.ptr
-    }
-}
 
 define_impl! {
     Error, Cronet_ErrorPtr, Cronet_Error_Destroy,
