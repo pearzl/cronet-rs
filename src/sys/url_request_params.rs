@@ -95,9 +95,9 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn upload_data_provider_set<UploadDateProviderCtx>(
+    pub(crate) fn upload_data_provider_set<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(
         &mut self,
-        upload_data_provider: UploadDataProvider<UploadDateProviderCtx>,
+        upload_data_provider: UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>,
     ) {
         unsafe {
             Cronet_UrlRequestParams_upload_data_provider_set(
@@ -143,9 +143,9 @@ impl UrlRequestParams {
         }
     }
 
-    pub(crate) fn upload_data_provider_get<UploadDateProviderCtx>(
+    pub(crate) fn upload_data_provider_get<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(
         &self,
-    ) -> Borrowed<UploadDataProvider<UploadDateProviderCtx>> {
+    ) -> Borrowed<UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>> {
         unsafe {
             let ptr = Cronet_UrlRequestParams_upload_data_provider_get(self.ptr);
             assert!(!ptr.is_null());
