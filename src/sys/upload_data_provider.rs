@@ -80,7 +80,7 @@ where
         let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
 
         let close = <Ctx as UploadDataProviderExt<Ctx>>::close_func();
-        close(&self_)
+        close(std::ptr::read(self_))
     }
 
     pub(crate) fn new() -> Self {
@@ -107,7 +107,7 @@ pub(crate) type ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx> =
     fn(&UploadDataProvider<Ctx>, &UploadDataSink<UploadDataSinkCtx>, &Buffer<BufferCtx>);
 pub(crate) type RewindFunc<Ctx, UploadDataSinkCtx> =
     fn(&UploadDataProvider<Ctx>, &UploadDataSink<UploadDataSinkCtx>);
-pub(crate) type CloseFunc<Ctx> = fn(&UploadDataProvider<Ctx>);
+pub(crate) type CloseFunc<Ctx> = fn(UploadDataProvider<Ctx>);
 
 define_impl! {
     UploadDataProvider, Cronet_UploadDataProviderPtr,Cronet_UploadDataProvider_Destroy,

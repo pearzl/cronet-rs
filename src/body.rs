@@ -83,7 +83,7 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
     }
 
     fn read_func() -> ReadFunc<ReqBodyContext, UploadDataSinkContext, BufferContext> {
-        todo!()
+        |upload_data_provider, upload_data_sink, buffer| todo!()
     }
 
     fn rewind_func() -> RewindFunc<ReqBodyContext, UploadDataSinkContext> {
@@ -91,7 +91,9 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
     }
 
     fn close_func() -> CloseFunc<ReqBodyContext> {
-        todo!()
+        |upload_data_provider| {
+            let _ = upload_data_provider;
+        }
     }
 }
 

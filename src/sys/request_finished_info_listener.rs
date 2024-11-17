@@ -41,7 +41,8 @@ where
         let response_info = UrlResponseInfo::from_ptr(response_info);
         let error = Error::from_ptr(error);
 
-        let on_request_finished = <Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func();
+        let on_request_finished =
+            <Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func();
         on_request_finished(self_, request_info, response_info, error);
     }
 
