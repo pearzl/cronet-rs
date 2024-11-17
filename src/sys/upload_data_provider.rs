@@ -15,7 +15,7 @@ impl<'a, Ctx> UploadDataProvider<Ctx> {
     }
 
     pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_UploadDataProviderPtr) -> &'a mut UploadDataProvider<Ctx> {
-        let self_ = UploadDataProvider {ptr, ctx: None::<Ctx> /* fake field */};
+        let self_ = UploadDataProvider {ptr, ctx: None::<Ctx> /* fake field */, _phan: PhantomData};
         let self_ = Box::into_raw(Box::new(self_));
         &mut *self_
     }
@@ -24,7 +24,7 @@ impl<'a, Ctx> UploadDataProvider<Ctx> {
         ptr: Cronet_UploadDataProviderPtr,
         lifetime: &'a X,
     ) -> Borrowed<'a, UploadDataProvider<Ctx>> {
-        let borrowed = UploadDataProvider { ptr, ctx: None };
+        let borrowed = UploadDataProvider { ptr, ctx: None, _phan: PhantomData };
         let ptr = Box::into_raw(Box::new(borrowed));
         Borrowed::new(ptr, lifetime)
     }
@@ -46,7 +46,7 @@ impl<Ctx> UploadDataProvider<Ctx>
                 Some(Self::raw_rewind),
                 Some(Self::raw_close),
             );
-            Self { ptr, ctx: None }
+            Self { ptr, ctx: None, _phan: PhantomData }
         }
     }
 
@@ -113,7 +113,7 @@ pub(crate) type CloseFunc<Ctx> = fn(&UploadDataProvider<Ctx>);
 
 define_impl! {
     UploadDataProvider, Cronet_UploadDataProviderPtr,Cronet_UploadDataProvider_Destroy,
-    with_ctx: Ctx,
+    with_ctx: <Ctx>,
     get: Cronet_UploadDataProvider_GetClientContext,
     set: Cronet_UploadDataProvider_SetClientContext,
 }

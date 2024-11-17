@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use crate::{
     bindings::{
         Cronet_ClientContext, Cronet_UrlRequestCallbackPtr, Cronet_UrlRequestCallback_CreateWith,
@@ -35,14 +37,14 @@ impl<Ctx> UrlRequestCallback<Ctx> {
                 on_failed_func,
                 on_canceled_func,
             );
-            Self { ptr, ctx: None }
+            Self { ptr, ctx: None, _phan: PhantomData}
         }
     }
 }
 
 define_impl! {
     UrlRequestCallback, Cronet_UrlRequestCallbackPtr, Cronet_UrlRequestCallback_Destroy,
-    with_ctx: Ctx,
+    with_ctx: <Ctx>,
     get: Cronet_UrlRequestCallback_GetClientContext,
     set: Cronet_UrlRequestCallback_SetClientContext,
 }

@@ -13,26 +13,27 @@ macro_rules! define_impl {
         )*
 
         $(
-            with_ctx: $ctx: tt,
+            with_ctx: <$ctx: tt $(, $ctx_assn: tt)*>,
             get:  $cronet_get: ident,
             set:  $cronet_set: ident,
         )?
     ) => {
         // define
-        pub struct $struct_name $(<$ctx>)? {
+        pub struct $struct_name $(<$ctx $(, $ctx_assn)*>)? {
             ptr: $ptr,
-            $(ctx: Option<$ctx>)?
+            $(ctx: Option<$ctx>,)?
+            $(_phan: std::marker::PhantomData<($($ctx_assn),*)>,)?
         }
 
         // impl drop
-        impl $(<$ctx>)? Drop for $struct_name $(<$ctx>)? {
+        impl $(<$ctx $(, $ctx_assn)*>)? Drop for $struct_name $(<$ctx $(, $ctx_assn)*>)? {
             fn drop(&mut self) {
                 unsafe { $drop_fn(self.ptr) }
             }
         }
 
         // impl simple method
-        impl $(<$ctx>)? $struct_name $(<$ctx>)? {
+        impl $(<$ctx $(, $ctx_assn)*>)? $struct_name $(<$ctx $(, $ctx_assn)*>)? {
         $(
             pub(crate) fn $func_name $(<$($gen_param),*>)?(self: $self_ $(,$arg_name: $arg_type )*) $( -> $return_type)? {
                 unsafe {
@@ -51,7 +52,7 @@ macro_rules! define_impl {
 
         // impl ctx
         $(
-            impl <$ctx> $struct_name <$ctx> {
+            impl <$ctx $(, $ctx_assn)*> $struct_name <$ctx $(, $ctx_assn)*> {
                 pub(crate) fn get_client_context(&self) -> crate::sys::Borrowed<$ctx> {
                     let void_ptr = unsafe { $cronet_get(self.ptr) };
                     let ctx_ptr = void_ptr as *mut Ctx;

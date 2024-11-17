@@ -1,4 +1,4 @@
-use std::ffi::CStr;
+use std::{ffi::CStr, marker::PhantomData};
 
 use crate::{
     bindings::{
@@ -24,7 +24,7 @@ impl<Ctx> UrlRequest<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_UrlRequest_Create();
-            Self { ptr, ctx: None }
+            Self { ptr, ctx: None, _phan: PhantomData }
         }
     }
 
@@ -47,7 +47,7 @@ impl<Ctx> UrlRequest<Ctx> {
                 is_done_func,
                 get_status_func,
             );
-            Self { ptr, ctx: None }
+            Self { ptr, ctx: None, _phan: PhantomData }
         }
     }
 }
@@ -85,7 +85,7 @@ define_impl! {
     Cronet_UrlRequest_IsDone,
 
 
-    with_ctx: Ctx,
+    with_ctx: <Ctx>,
     get: Cronet_UrlRequest_GetClientContext,
     set: Cronet_UrlRequest_SetClientContext,
 }

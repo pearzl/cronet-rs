@@ -34,6 +34,7 @@ impl<Ctx> Engine<Ctx> {
             Engine {
                 ptr: Cronet_Engine_Create(),
                 ctx: None,
+                _phan: PhantomData,
             }
         }
     }
@@ -60,7 +61,7 @@ impl<Ctx> Engine<Ctx> {
                 add_request_finished_listener_func,
                 remove_request_finished_listener_func,
             );
-            Engine { ptr, ctx: None }
+            Engine { ptr, ctx: None, _phan: PhantomData }
         }
     }
 }
@@ -98,7 +99,7 @@ define_impl! {
         Cronet_Engine_GetDefaultUserAgent,
 
 
-    with_ctx: Ctx,
+    with_ctx: <Ctx>,
     get: Cronet_Engine_GetClientContext,
     set: Cronet_Engine_SetClientContext,
 }

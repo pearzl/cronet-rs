@@ -15,7 +15,7 @@ use super::Borrowed;
 
 impl<'a, Ctx> UploadDataSink<Ctx> {
     pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_UploadDataSinkPtr) -> &'a mut UploadDataSink<Ctx> {
-        let self_ = UploadDataSink {ptr, ctx: None::<Ctx> /* fake field */};
+        let self_ = UploadDataSink {ptr, ctx: None::<Ctx> /* fake field */, _phan: PhantomData};
         let self_ = Box::into_raw(Box::new(self_));
         &mut *self_
     }
@@ -24,7 +24,7 @@ impl<'a, Ctx> UploadDataSink<Ctx> {
         ptr: Cronet_UploadDataSinkPtr,
         lifetime: &'a X,
     ) -> Borrowed<'a, UploadDataSink<Ctx>> {
-        let borrowed = UploadDataSink { ptr, ctx: None };
+        let borrowed = UploadDataSink { ptr, ctx: None, _phan: PhantomData };
         let ptr = Box::into_raw(Box::new(borrowed));
         Borrowed::new(ptr, lifetime)
     }
@@ -34,7 +34,7 @@ impl<Ctx> UploadDataSink<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_UploadDataSink_Create();
-            Self { ptr, ctx: None }
+            Self { ptr, ctx: None, _phan: PhantomData }
         }
     }
 
@@ -51,7 +51,7 @@ impl<Ctx> UploadDataSink<Ctx> {
                 on_rewind_succeeded_func,
                 on_rewind_error_func,
             );
-            Self { ptr, ctx: None }
+            Self { ptr, ctx: None, _phan: PhantomData }
         }
     }
 }
@@ -61,7 +61,7 @@ unsafe impl<Ctx> Sync for UploadDataSink<Ctx> {}
 
 define_impl! {
     UploadDataSink, Cronet_UploadDataSinkPtr, Cronet_UploadDataSink_Destroy,
-    with_ctx: Ctx,
+    with_ctx: <Ctx>,
     get: Cronet_UploadDataSink_GetClientContext,
     set: Cronet_UploadDataSink_SetClientContext,
 }

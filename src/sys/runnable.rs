@@ -15,14 +15,14 @@ impl<Ctx> Runnable<Ctx> {
     pub(crate) fn create_with(run_func: Cronet_Runnable_RunFunc) -> Self {
         unsafe {
             let ptr = Cronet_Runnable_CreateWith(run_func);
-            Self { ptr, ctx: None }
+            Self { ptr, ctx: None, _phan: PhantomData }
         }
     }
 }
 
 define_impl! {
     Runnable, Cronet_RunnablePtr, Cronet_Runnable_Destroy,
-    with_ctx: Ctx,
+    with_ctx: <Ctx>,
     get: Cronet_Runnable_GetClientContext,
     set: Cronet_Runnable_SetClientContext,
 }

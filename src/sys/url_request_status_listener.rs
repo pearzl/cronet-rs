@@ -26,14 +26,14 @@ impl<Ctx> UrlRequestStatusListener<Ctx> {
     ) -> Self {
         unsafe {
             let ptr = Cronet_UrlRequestStatusListener_CreateWith(on_status_func);
-            Self { ptr, ctx: None }
+            Self { ptr, ctx: None, _phan: PhantomData}
         }
     }
 }
 
 define_impl! {
     UrlRequestStatusListener, Cronet_UrlRequestStatusListenerPtr, Cronet_UrlRequestStatusListener_Destroy,
-    with_ctx: Ctx,
+    with_ctx: <Ctx>,
     get: Cronet_UrlRequestStatusListener_GetClientContext,
     set: Cronet_UrlRequestStatusListener_SetClientContext,
 }
