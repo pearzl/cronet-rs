@@ -2,7 +2,12 @@ use std::marker::PhantomData;
 
 use crate::{
     bindings::{
-        Cronet_ClientContext, Cronet_ErrorPtr, Cronet_RequestFinishedInfoListenerPtr, Cronet_RequestFinishedInfoListener_CreateWith, Cronet_RequestFinishedInfoListener_Destroy, Cronet_RequestFinishedInfoListener_GetClientContext, Cronet_RequestFinishedInfoListener_OnRequestFinishedFunc, Cronet_RequestFinishedInfoListener_SetClientContext, Cronet_RequestFinishedInfoPtr, Cronet_UrlResponseInfoPtr
+        Cronet_ClientContext, Cronet_ErrorPtr, Cronet_RequestFinishedInfoListenerPtr,
+        Cronet_RequestFinishedInfoListener_CreateWith, Cronet_RequestFinishedInfoListener_Destroy,
+        Cronet_RequestFinishedInfoListener_GetClientContext,
+        Cronet_RequestFinishedInfoListener_OnRequestFinishedFunc,
+        Cronet_RequestFinishedInfoListener_SetClientContext, Cronet_RequestFinishedInfoPtr,
+        Cronet_UrlResponseInfoPtr,
     },
     util::define_impl,
 };
@@ -14,8 +19,14 @@ impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
         self.ptr
     }
 
-    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_RequestFinishedInfoListenerPtr) -> &'a mut RequestFinishedInfoListener<Ctx> {
-        let self_ = RequestFinishedInfoListener {ptr, ctx: None::<Ctx> /* fake field */, _phan: PhantomData};
+    pub(crate) unsafe fn borrow_from_ptr(
+        ptr: Cronet_RequestFinishedInfoListenerPtr,
+    ) -> &'a mut RequestFinishedInfoListener<Ctx> {
+        let self_ = RequestFinishedInfoListener {
+            ptr,
+            ctx: None::<Ctx>, /* fake field */
+            _phan: PhantomData,
+        };
         let self_ = Box::into_raw(Box::new(self_));
         &mut *self_
     }
@@ -24,21 +35,29 @@ impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
         ptr: Cronet_RequestFinishedInfoListenerPtr,
         lifetime: &'a X,
     ) -> Borrowed<'a, RequestFinishedInfoListener<Ctx>> {
-        let borrowed = RequestFinishedInfoListener { ptr, ctx: None, _phan: PhantomData };
+        let borrowed = RequestFinishedInfoListener {
+            ptr,
+            ctx: None,
+            _phan: PhantomData,
+        };
         let ptr = Box::into_raw(Box::new(borrowed));
         Borrowed::new(ptr, lifetime)
     }
 }
 
-impl<Ctx> RequestFinishedInfoListener<Ctx> 
-    where Ctx: RequestFinishedInfoListenerCallback<Ctx>
+impl<Ctx> RequestFinishedInfoListener<Ctx>
+where
+    Ctx: RequestFinishedInfoListenerCallback<Ctx>,
 {
-    pub(crate) fn create_with(
-        _on_request_finished_func: OnRequestFinishedFunc<Ctx>,
-    ) -> Self {
+    pub(crate) fn create_with(_on_request_finished_func: OnRequestFinishedFunc<Ctx>) -> Self {
         unsafe {
-            let ptr = Cronet_RequestFinishedInfoListener_CreateWith(Some(Self::raw_on_request_finished));
-            Self { ptr, ctx: None, _phan: PhantomData }
+            let ptr =
+                Cronet_RequestFinishedInfoListener_CreateWith(Some(Self::raw_on_request_finished));
+            Self {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 
@@ -50,8 +69,8 @@ impl<Ctx> RequestFinishedInfoListener<Ctx>
     ) {
         let self_ = RequestFinishedInfoListener::<Ctx>::borrow_from_ptr(self_);
         let request_info = RequestFinishedInfo::borrow_from_ptr(request_info);
-        let response_info =  UrlResponseInfo::borrow_from_ptr(response_info);
-        let error= Error::borrow_from_ptr(error);
+        let response_info = UrlResponseInfo::borrow_from_ptr(response_info);
+        let error = Error::borrow_from_ptr(error);
 
         let ctx = self_.get_client_context();
         let on_request_finished = ctx.on_request_finished_func();
@@ -59,13 +78,12 @@ impl<Ctx> RequestFinishedInfoListener<Ctx>
     }
 }
 
-pub(crate) type OnRequestFinishedFunc<Ctx> = fn(&RequestFinishedInfoListener<Ctx>, &RequestFinishedInfo, &UrlResponseInfo, &Error); // safety: pass ref?
+pub(crate) type OnRequestFinishedFunc<Ctx> =
+    fn(&RequestFinishedInfoListener<Ctx>, &RequestFinishedInfo, &UrlResponseInfo, &Error); // safety: pass ref?
 
 pub(crate) trait RequestFinishedInfoListenerCallback<Ctx> {
     fn on_request_finished_func(&self) -> OnRequestFinishedFunc<Ctx>;
 }
-
-
 
 define_impl! {
     RequestFinishedInfoListener, Cronet_RequestFinishedInfoListenerPtr, Cronet_RequestFinishedInfoListener_Destroy,

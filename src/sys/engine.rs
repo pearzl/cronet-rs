@@ -61,7 +61,11 @@ impl<Ctx> Engine<Ctx> {
                 add_request_finished_listener_func,
                 remove_request_finished_listener_func,
             );
-            Engine { ptr, ctx: None, _phan: PhantomData }
+            Engine {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 }

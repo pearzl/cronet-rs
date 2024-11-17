@@ -20,7 +20,11 @@ impl<Ctx> Buffer<Ctx> {
     }
 
     pub(crate) unsafe fn borrow_from_ptr<'a>(ptr: Cronet_BufferPtr) -> &'a mut Buffer<Ctx> {
-        let self_ = Buffer {ptr, ctx: None::<Ctx> /* fake field */, _phan: PhantomData};
+        let self_ = Buffer {
+            ptr,
+            ctx: None::<Ctx>, /* fake field */
+            _phan: PhantomData,
+        };
         let self_ = Box::into_raw(Box::new(self_));
         &mut *self_
     }
@@ -30,7 +34,11 @@ impl<Ctx> Buffer<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_Buffer_Create();
-            Buffer { ptr, ctx: None, _phan: PhantomData }
+            Buffer {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 
@@ -64,7 +72,11 @@ impl<Ctx> Buffer<Ctx> {
                 get_size_func,
                 get_data_func,
             );
-            Self { ptr, ctx: None, _phan: PhantomData }
+            Self {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 }

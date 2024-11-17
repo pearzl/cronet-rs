@@ -24,7 +24,11 @@ impl<Ctx> UrlRequest<Ctx> {
     pub(crate) fn create() -> Self {
         unsafe {
             let ptr = Cronet_UrlRequest_Create();
-            Self { ptr, ctx: None, _phan: PhantomData }
+            Self {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 
@@ -47,7 +51,11 @@ impl<Ctx> UrlRequest<Ctx> {
                 is_done_func,
                 get_status_func,
             );
-            Self { ptr, ctx: None, _phan: PhantomData }
+            Self {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 }

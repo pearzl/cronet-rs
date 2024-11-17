@@ -37,7 +37,11 @@ impl<Ctx> UrlRequestCallback<Ctx> {
                 on_failed_func,
                 on_canceled_func,
             );
-            Self { ptr, ctx: None, _phan: PhantomData}
+            Self {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 }

@@ -13,7 +13,11 @@ impl<Ctx> BufferCallback<Ctx> {
     pub(crate) fn create_with(on_destroy_func: Cronet_BufferCallback_OnDestroyFunc) -> Self {
         unsafe {
             let ptr = Cronet_BufferCallback_CreateWith(on_destroy_func);
-            Self { ptr, ctx: None, _phan: PhantomData }
+            Self {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 }

@@ -26,7 +26,11 @@ impl<Ctx> UrlRequestStatusListener<Ctx> {
     ) -> Self {
         unsafe {
             let ptr = Cronet_UrlRequestStatusListener_CreateWith(on_status_func);
-            Self { ptr, ctx: None, _phan: PhantomData}
+            Self {
+                ptr,
+                ctx: None,
+                _phan: PhantomData,
+            }
         }
     }
 }

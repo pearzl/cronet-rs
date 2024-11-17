@@ -85,6 +85,39 @@ define_impl! {
         Cronet_UrlRequestParams_idempotency_set,
     fn idempotency_get(&Self) -> Cronet_UrlRequestParams_IDEMPOTENCY;
         Cronet_UrlRequestParams_idempotency_get,
+
+    fn upload_data_provider_set<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(
+        &mut Self,
+        upload_data_provider: &UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>
+            >> UploadDataProvider::as_ptr // safey: pass ref?
+    ); Cronet_UrlRequestParams_upload_data_provider_set,
+    fn upload_data_provider_get<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(&Self)
+    -> &UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx> >> UploadDataProvider::borrow_from_ptr;
+        Cronet_UrlRequestParams_upload_data_provider_get,
+
+    fn upload_data_provider_executor_set<ExecutorCtx>(
+        &mut Self,
+        upload_data_provider_executor: &Executor<ExecutorCtx> >> Executor::as_ptr   // safety: pass ref?
+    );Cronet_UrlRequestParams_upload_data_provider_executor_set,
+    fn upload_data_provider_executor_get<ExecutorCtx>(&Self) -> &Executor<ExecutorCtx> >> Executor::borrow_from_ptr;
+        Cronet_UrlRequestParams_upload_data_provider_executor_get,
+
+    fn request_finished_listener_set<Ctx>(
+        &Self,
+        request_finished_listener: &RequestFinishedInfoListener<Ctx> >> RequestFinishedInfoListener::as_ptr // safety::pass_ref?
+    );Cronet_UrlRequestParams_request_finished_listener_set,
+    fn request_finished_listener_get<Ctx>(&Self) -> &RequestFinishedInfoListener<Ctx>
+        >> RequestFinishedInfoListener::borrow_from_ptr;
+        Cronet_UrlRequestParams_request_finished_listener_get,
+
+    fn request_finished_executor_set<ExecutorCtx>(
+        &mut Self,
+        request_finished_executor: &Executor<ExecutorCtx> >> Executor::as_ptr // safety::pass_ref?
+    ) ; Cronet_UrlRequestParams_request_finished_executor_set,
+    fn request_finished_executor_get<EngineContext>( &Self ) -> &Executor<EngineContext>
+        >> Executor::borrow_from_ptr;
+        Cronet_UrlRequestParams_request_finished_executor_get,
+
 }
 
 impl UrlRequestParams {
@@ -92,94 +125,6 @@ impl UrlRequestParams {
         unsafe {
             let ptr = Cronet_UrlRequestParams_Create();
             Self { ptr }
-        }
-    }
-
-    pub(crate) fn upload_data_provider_set<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(
-        &mut self,
-        upload_data_provider: UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>,
-    ) {
-        unsafe {
-            Cronet_UrlRequestParams_upload_data_provider_set(
-                self.ptr,
-                upload_data_provider.as_ptr(),
-            );
-        }
-    }
-
-    pub(crate) fn upload_data_provider_executor_set<ExecutorCtx>(
-        &mut self,
-        upload_data_provider_executor: Executor<ExecutorCtx>,
-    ) {
-        unsafe {
-            Cronet_UrlRequestParams_upload_data_provider_executor_set(
-                self.ptr,
-                upload_data_provider_executor.as_ptr(),
-            );
-        }
-    }
-
-    pub(crate) fn request_finished_listener_set<Ctx>(
-        &self,
-        request_finished_listener: RequestFinishedInfoListener<Ctx>,
-    ) {
-        unsafe {
-            Cronet_UrlRequestParams_request_finished_listener_set(
-                self.ptr,
-                request_finished_listener.as_ptr(),
-            );
-        }
-    }
-
-    pub(crate) fn request_finished_executor_set<ExecutorCtx>(
-        &mut self,
-        request_finished_executor: Executor<ExecutorCtx>,
-    ) {
-        unsafe {
-            Cronet_UrlRequestParams_request_finished_executor_set(
-                self.ptr,
-                request_finished_executor.as_ptr(),
-            );
-        }
-    }
-
-    pub(crate) fn upload_data_provider_get<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(
-        &self,
-    ) -> Borrowed<UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>> {
-        unsafe {
-            let ptr = Cronet_UrlRequestParams_upload_data_provider_get(self.ptr);
-            assert!(!ptr.is_null());
-            UploadDataProvider::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn upload_data_provider_executor_get<ExecutorCtx>(
-        &self,
-    ) -> Borrowed<Executor<ExecutorCtx>> {
-        unsafe {
-            let ptr = Cronet_UrlRequestParams_upload_data_provider_executor_get(self.ptr);
-            assert!(!ptr.is_null());
-            Executor::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn request_finished_listener_get<Ctx>(
-        &self,
-    ) -> Borrowed<RequestFinishedInfoListener<Ctx>> {
-        unsafe {
-            let ptr = Cronet_UrlRequestParams_request_finished_listener_get(self.ptr);
-            assert!(!ptr.is_null());
-            RequestFinishedInfoListener::borrow_from(ptr, self)
-        }
-    }
-
-    pub(crate) fn request_finished_executor_get<EngineContext>(
-        &self,
-    ) -> Borrowed<Executor<EngineContext>> {
-        unsafe {
-            let ptr = Cronet_UrlRequestParams_request_finished_executor_get(self.ptr);
-            assert!(!ptr.is_null());
-            Executor::borrow_from(ptr, self)
         }
     }
 }
