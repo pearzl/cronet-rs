@@ -11,7 +11,7 @@ use crate::{
     util::define_impl,
 };
 
-use super::{metrics::Metrics, Borrowed};
+use super::{metrics::Metrics};
 
 impl<'a> RequestFinishedInfo {
     pub(crate) unsafe fn borrow_from_ptr(

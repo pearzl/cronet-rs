@@ -26,7 +26,7 @@ use crate::{
     util::define_impl,
 };
 
-use super::{public_key_pins::PublicKeyPins, quic_hint::QuicHint, Borrowed};
+use super::{public_key_pins::PublicKeyPins, quic_hint::QuicHint};
 
 impl EngineParams {
     pub(crate) fn as_ptr(&self) -> Cronet_EngineParamsPtr {

@@ -19,7 +19,7 @@ use crate::{
 
 use super::{
     engine_params::EngineParams, executor::Executor,
-    request_finished_info_listener::RequestFinishedInfoListener, Borrowed,
+    request_finished_info_listener::RequestFinishedInfoListener,
 };
 
 impl<Ctx> Engine<Ctx> {

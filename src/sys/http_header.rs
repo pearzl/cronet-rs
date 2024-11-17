@@ -9,8 +9,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
-
 impl<'a> HttpHeader {
     pub(crate) fn as_ptr(&self) -> Cronet_HttpHeaderPtr {
         self.ptr
@@ -20,12 +18,6 @@ impl<'a> HttpHeader {
         let borrowed = HttpHeader { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
         &mut *ptr
-    }
-
-    pub fn borrow_from<X>(ptr: Cronet_HttpHeaderPtr, lifetime: &'a X) -> Borrowed<'a, HttpHeader> {
-        let borrowed = HttpHeader { ptr };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr, lifetime)
     }
 }
 

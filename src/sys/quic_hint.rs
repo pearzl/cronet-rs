@@ -10,8 +10,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
-
 impl<'a> QuicHint {
     pub(crate) fn as_ptr(&self) -> Cronet_QuicHintPtr {
         self.ptr
@@ -21,12 +19,6 @@ impl<'a> QuicHint {
         let borrowed = QuicHint { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
         &mut *ptr
-    }
-
-    pub fn borrow_from<X>(ptr: Cronet_QuicHintPtr, lifetime: &'a X) -> Borrowed<'a, QuicHint> {
-        let borrowed = QuicHint { ptr };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr, lifetime)
     }
 }
 

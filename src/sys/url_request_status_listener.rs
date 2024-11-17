@@ -11,8 +11,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
-
 impl<Ctx> UrlRequestStatusListener<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_UrlRequestStatusListenerPtr {
         self.ptr

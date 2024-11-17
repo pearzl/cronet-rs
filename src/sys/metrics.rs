@@ -25,7 +25,7 @@ use crate::{
     util::define_impl,
 };
 
-use super::{date_time::DateTime, Borrowed};
+use super::{date_time::DateTime};
 
 impl<'a> Metrics {
     pub(crate) fn as_ptr(&self) -> Cronet_MetricsPtr {
@@ -43,12 +43,6 @@ impl<'a> Metrics {
         let borrowed = Metrics { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
         Some(&mut *ptr)
-    }
-
-    pub fn borrow_from<X>(ptr: Cronet_MetricsPtr, lifetime: &'a X) -> Borrowed<'a, Metrics> {
-        let borrowed = Metrics { ptr };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr, lifetime)
     }
 }
 

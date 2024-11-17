@@ -12,8 +12,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
-
 impl<'a> PublicKeyPins {
     pub(crate) fn as_ptr(&self) -> Cronet_PublicKeyPinsPtr {
         self.ptr
@@ -23,15 +21,6 @@ impl<'a> PublicKeyPins {
         let borrowed = PublicKeyPins { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
         &mut *ptr
-    }
-
-    pub fn borrow_from<X>(
-        ptr: Cronet_PublicKeyPinsPtr,
-        lifetime: &'a X,
-    ) -> Borrowed<'a, PublicKeyPins> {
-        let borrowed = PublicKeyPins { ptr };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr, lifetime)
     }
 }
 

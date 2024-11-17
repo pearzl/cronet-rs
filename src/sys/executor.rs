@@ -9,8 +9,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
-
 impl<'a, Ctx> Executor<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_ExecutorPtr {
         self.ptr
@@ -24,16 +22,6 @@ impl<'a, Ctx> Executor<Ctx> {
         };
         let self_ = Box::into_raw(Box::new(self_));
         &mut *self_
-    }
-
-    pub fn borrow_from<X>(ptr: Cronet_ExecutorPtr, lifetime: &'a X) -> Borrowed<'a, Executor<Ctx>> {
-        let borrowed = Executor {
-            ptr,
-            ctx: None,
-            _phan: PhantomData,
-        };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr, lifetime)
     }
 }
 

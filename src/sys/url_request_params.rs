@@ -30,7 +30,7 @@ use crate::{
 };
 
 use super::{
-    executor::Executor, http_header::HttpHeader, upload_data_provider::UploadDataProvider, Borrowed,
+    executor::Executor, http_header::HttpHeader, upload_data_provider::UploadDataProvider, 
 };
 
 impl UrlRequestParams {

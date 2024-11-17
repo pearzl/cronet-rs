@@ -12,7 +12,7 @@ use crate::{
     util::define_impl,
 };
 
-use super::{Borrowed, Buffer, UploadDataSink};
+use super::{Buffer, UploadDataSink};
 
 impl<'a, Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx> {
     pub(crate) fn as_ptr(&self) -> Cronet_UploadDataProviderPtr {
@@ -29,19 +29,6 @@ impl<'a, Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSi
         };
         let self_ = Box::into_raw(Box::new(self_));
         &mut *self_
-    }
-
-    pub fn borrow_from<X>(
-        ptr: Cronet_UploadDataProviderPtr,
-        lifetime: &'a X,
-    ) -> Borrowed<'a, UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>> {
-        let borrowed = UploadDataProvider {
-            ptr,
-            ctx: None,
-            _phan: PhantomData,
-        };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr, lifetime)
     }
 }
 

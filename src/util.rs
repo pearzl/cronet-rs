@@ -53,10 +53,10 @@ macro_rules! define_impl {
         // impl ctx
         $(
             impl <$ctx $(, $ctx_assn)*> $struct_name <$ctx $(, $ctx_assn)*> {
-                pub(crate) fn get_client_context(&self) -> crate::sys::Borrowed<$ctx> {
+                pub(crate) fn get_client_context<'a>(&self) -> &'a $ctx {
                     let void_ptr = unsafe { $cronet_get(self.ptr) };
                     let ctx_ptr = void_ptr as *mut Ctx;
-                    crate::sys::Borrowed::new(ctx_ptr, self)
+                    unsafe{& *ctx_ptr}
                 }
                 pub(crate) fn set_client_context(&mut self, mut client_context: $ctx) {
                     let ptr = &mut client_context as *mut $ctx;

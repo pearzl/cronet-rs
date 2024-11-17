@@ -20,7 +20,7 @@ use crate::{
     util::define_impl,
 };
 
-use super::{http_header::HttpHeader, Borrowed};
+use super::http_header::HttpHeader;
 
 impl<'a> UrlResponseInfo {
     pub(crate) unsafe fn borrow_from_ptr(

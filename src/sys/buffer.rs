@@ -12,8 +12,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
-
 impl<Ctx> Buffer<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_BufferPtr {
         self.ptr

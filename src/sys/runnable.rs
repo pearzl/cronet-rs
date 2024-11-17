@@ -9,8 +9,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
-
 impl<Ctx> Runnable<Ctx> {
     pub(crate) fn create_with(run_func: Cronet_Runnable_RunFunc) -> Self {
         unsafe {

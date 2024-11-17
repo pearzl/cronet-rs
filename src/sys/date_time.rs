@@ -6,8 +6,6 @@ use crate::{
     util::define_impl,
 };
 
-use super::Borrowed;
-
 impl<'a> DateTime {
     pub(crate) fn as_ptr(&self) -> Cronet_DateTimePtr {
         self.ptr
@@ -24,12 +22,6 @@ impl<'a> DateTime {
         let borrowed = DateTime { ptr };
         let ptr = Box::into_raw(Box::new(borrowed));
         Some(&mut *ptr)
-    }
-
-    pub fn borrow_from<X>(ptr: Cronet_DateTimePtr, lifetime: &'a X) -> Borrowed<'a, DateTime> {
-        let borrowed = DateTime { ptr };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr, lifetime)
     }
 }
 

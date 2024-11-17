@@ -12,7 +12,7 @@ use crate::{
     util::define_impl,
 };
 
-use super::{Borrowed, Error, RequestFinishedInfo, UrlResponseInfo};
+use super::{ Error, RequestFinishedInfo, UrlResponseInfo};
 
 impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {
@@ -29,19 +29,6 @@ impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
         };
         let self_ = Box::into_raw(Box::new(self_));
         &mut *self_
-    }
-
-    pub fn borrow_from<X>(
-        ptr: Cronet_RequestFinishedInfoListenerPtr,
-        lifetime: &'a X,
-    ) -> Borrowed<'a, RequestFinishedInfoListener<Ctx>> {
-        let borrowed = RequestFinishedInfoListener {
-            ptr,
-            ctx: None,
-            _phan: PhantomData,
-        };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        Borrowed::new(ptr, lifetime)
     }
 }
 
