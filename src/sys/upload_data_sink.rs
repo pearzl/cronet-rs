@@ -14,6 +14,12 @@ use crate::{
 use super::Borrowed;
 
 impl<'a, Ctx> UploadDataSink<Ctx> {
+    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_UploadDataSinkPtr) -> &'a mut UploadDataSink<Ctx> {
+        let self_ = UploadDataSink {ptr, ctx: None::<Ctx> /* fake field */};
+        let self_ = Box::into_raw(Box::new(self_));
+        &mut *self_
+    }
+
     pub fn borrow_from<X>(
         ptr: Cronet_UploadDataSinkPtr,
         lifetime: &'a X,

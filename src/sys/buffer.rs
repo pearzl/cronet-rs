@@ -18,6 +18,12 @@ impl<Ctx> Buffer<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_BufferPtr {
         self.ptr
     }
+
+    pub(crate) unsafe fn borrow_from_ptr<'a>(ptr: Cronet_BufferPtr) -> &'a mut Buffer<Ctx> {
+        let self_ = Buffer {ptr, ctx: None::<Ctx> /* fake field */};
+        let self_ = Box::into_raw(Box::new(self_));
+        &mut *self_
+    }
 }
 
 impl<Ctx> Buffer<Ctx> {

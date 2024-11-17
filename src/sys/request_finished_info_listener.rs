@@ -31,12 +31,11 @@ impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
 }
 
 impl<Ctx> RequestFinishedInfoListener<Ctx> 
-    where Ctx: OnRequestFinishedFuncContainer<Ctx>
+    where Ctx: RequestFinishedInfoListenerCallback<Ctx>
 {
     pub(crate) fn create_with(
-        on_request_finished_func: OnRequestFinishedFunc<Ctx>,
+        _on_request_finished_func: OnRequestFinishedFunc<Ctx>,
     ) -> Self {
-        let _ = on_request_finished_func;
         unsafe {
             let ptr = Cronet_RequestFinishedInfoListener_CreateWith(Some(Self::raw_on_request_finished));
             Self { ptr, ctx: None }
@@ -55,16 +54,15 @@ impl<Ctx> RequestFinishedInfoListener<Ctx>
         let error= Error::borrow_from_ptr(error);
 
         let ctx = self_.get_client_context();
-        let on_request_finished = ctx.get();
+        let on_request_finished = ctx.on_request_finished_func();
         on_request_finished(self_, request_info, response_info, error);
     }
 }
 
-pub(crate) type OnRequestFinishedFunc<Ctx> = fn(&RequestFinishedInfoListener<Ctx>, &RequestFinishedInfo, &UrlResponseInfo, &Error);
+pub(crate) type OnRequestFinishedFunc<Ctx> = fn(&RequestFinishedInfoListener<Ctx>, &RequestFinishedInfo, &UrlResponseInfo, &Error); // safety: pass ref?
 
-pub(crate) trait OnRequestFinishedFuncContainer<Ctx> {
-    fn get(&self) -> OnRequestFinishedFunc<Ctx>;
-    fn set(&self, on_request_finished: OnRequestFinishedFunc<Ctx>);
+pub(crate) trait RequestFinishedInfoListenerCallback<Ctx> {
+    fn on_request_finished_func(&self) -> OnRequestFinishedFunc<Ctx>;
 }
 
 
