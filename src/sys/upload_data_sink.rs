@@ -1,12 +1,8 @@
-use std::marker::PhantomData;
+use std::{ffi::CStr, marker::PhantomData};
 
 use crate::{
     bindings::{
-        Cronet_ClientContext, Cronet_UploadDataSinkPtr, Cronet_UploadDataSink_Create,
-        Cronet_UploadDataSink_CreateWith, Cronet_UploadDataSink_Destroy,
-        Cronet_UploadDataSink_GetClientContext, Cronet_UploadDataSink_OnReadErrorFunc,
-        Cronet_UploadDataSink_OnReadSucceededFunc, Cronet_UploadDataSink_OnRewindErrorFunc,
-        Cronet_UploadDataSink_OnRewindSucceededFunc, Cronet_UploadDataSink_SetClientContext,
+        Cronet_ClientContext, Cronet_UploadDataSinkPtr, Cronet_UploadDataSink_Create, Cronet_UploadDataSink_CreateWith, Cronet_UploadDataSink_Destroy, Cronet_UploadDataSink_GetClientContext, Cronet_UploadDataSink_OnReadError, Cronet_UploadDataSink_OnReadErrorFunc, Cronet_UploadDataSink_OnReadSucceeded, Cronet_UploadDataSink_OnReadSucceededFunc, Cronet_UploadDataSink_OnRewindError, Cronet_UploadDataSink_OnRewindErrorFunc, Cronet_UploadDataSink_OnRewindSucceeded, Cronet_UploadDataSink_OnRewindSucceededFunc, Cronet_UploadDataSink_SetClientContext
     },
     util::define_impl,
 };
@@ -64,6 +60,12 @@ unsafe impl<Ctx> Sync for UploadDataSink<Ctx> {}
 
 define_impl! {
     UploadDataSink, Cronet_UploadDataSinkPtr, Cronet_UploadDataSink_Destroy,
+
+    fn on_read_succeeded(&Self, bytes_read: u64, final_chunk: bool); Cronet_UploadDataSink_OnReadSucceeded,
+    fn on_read_error(&Self, error_message: &CStr >> CStr::as_ptr); Cronet_UploadDataSink_OnReadError,
+    fn on_rewind_successded(&Self); Cronet_UploadDataSink_OnRewindSucceeded,
+    fn on_rewind_error(&Self, error_message: &CStr >> CStr::as_ptr); Cronet_UploadDataSink_OnRewindError,
+
     with_ctx: <Ctx>,
     get: Cronet_UploadDataSink_GetClientContext,
     set: Cronet_UploadDataSink_SetClientContext,
