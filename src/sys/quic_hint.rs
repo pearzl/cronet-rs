@@ -14,12 +14,6 @@ impl<'a> QuicHint {
     pub(crate) fn as_ptr(&self) -> Cronet_QuicHintPtr {
         self.ptr
     }
-
-    pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_QuicHintPtr) -> &'a mut QuicHint {
-        let borrowed = QuicHint { ptr };
-        let ptr = Box::into_raw(Box::new(borrowed));
-        &mut *ptr
-    }
 }
 
 define_impl! {

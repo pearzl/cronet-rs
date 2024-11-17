@@ -26,14 +26,6 @@ impl<'a> UrlResponseInfo {
     pub(crate) fn as_ptr(&self) -> Cronet_UrlResponseInfoPtr {
         self.ptr
     }
-
-    pub(crate) unsafe fn borrow_from_ptr(
-        ptr: Cronet_UrlResponseInfoPtr,
-    ) -> &'a mut UrlResponseInfo {
-        let self_ = UrlResponseInfo { ptr };
-        let self_ = Box::into_raw(Box::new(self_));
-        &mut *self_
-    }
 }
 
 define_impl! {
@@ -67,7 +59,7 @@ define_impl! {
         Cronet_UrlResponseInfo_all_headers_list_add,
     fn all_headers_list_size(&Self) -> u32;
         Cronet_UrlResponseInfo_all_headers_list_size,
-    fn all_headers_list_at(&Self, index: u32) -> &HttpHeader >> HttpHeader::borrow_from_ptr; // safety: out of bounds
+    fn all_headers_list_at(&Self, index: u32) -> &HttpHeader >> HttpHeader::from_ptr; // safety: out of bounds
         Cronet_UrlResponseInfo_all_headers_list_at,
     fn all_headers_list_clear(&mut Self);
         Cronet_UrlResponseInfo_all_headers_list_clear,

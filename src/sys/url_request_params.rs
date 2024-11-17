@@ -52,7 +52,7 @@ define_impl! {
         Cronet_UrlRequestParams_request_headers_add,
     fn request_headers_size(&Self) -> u32;
         Cronet_UrlRequestParams_request_headers_size,
-    fn request_headers_at(&Self, index: u32) -> &HttpHeader >> HttpHeader::borrow_from_ptr; // safety: null -> None
+    fn request_headers_at(&Self, index: u32) -> &HttpHeader >> HttpHeader::from_ptr; // safety: out of bounds
         Cronet_UrlRequestParams_request_headers_at,
     fn request_headers_clear(&mut Self);
         Cronet_UrlRequestParams_request_headers_clear,
@@ -92,14 +92,14 @@ define_impl! {
             >> UploadDataProvider::as_ptr // safey: pass ref?
     ); Cronet_UrlRequestParams_upload_data_provider_set,
     fn upload_data_provider_get<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(&Self)
-    -> &UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx> >> UploadDataProvider::borrow_from_ptr;
+    -> &UploadDataProvider<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx> >> UploadDataProvider::from_ptr;
         Cronet_UrlRequestParams_upload_data_provider_get,
 
     fn upload_data_provider_executor_set<ExecutorCtx>(
         &mut Self,
         upload_data_provider_executor: &Executor<ExecutorCtx> >> Executor::as_ptr   // safety: pass ref?
     );Cronet_UrlRequestParams_upload_data_provider_executor_set,
-    fn upload_data_provider_executor_get<ExecutorCtx>(&Self) -> &Executor<ExecutorCtx> >> Executor::borrow_from_ptr;
+    fn upload_data_provider_executor_get<ExecutorCtx>(&Self) -> &Executor<ExecutorCtx> >> Executor::from_ptr;
         Cronet_UrlRequestParams_upload_data_provider_executor_get,
 
     fn request_finished_listener_set<Ctx>(
@@ -107,7 +107,7 @@ define_impl! {
         request_finished_listener: &RequestFinishedInfoListener<Ctx> >> RequestFinishedInfoListener::as_ptr // safety::pass_ref?
     );Cronet_UrlRequestParams_request_finished_listener_set,
     fn request_finished_listener_get<Ctx>(&Self) -> &RequestFinishedInfoListener<Ctx>
-        >> RequestFinishedInfoListener::borrow_from_ptr;
+        >> RequestFinishedInfoListener::from_ptr;
         Cronet_UrlRequestParams_request_finished_listener_get,
 
     fn request_finished_executor_set<ExecutorCtx>(
@@ -115,7 +115,7 @@ define_impl! {
         request_finished_executor: &Executor<ExecutorCtx> >> Executor::as_ptr // safety::pass_ref?
     ) ; Cronet_UrlRequestParams_request_finished_executor_set,
     fn request_finished_executor_get<EngineContext>( &Self ) -> &Executor<EngineContext>
-        >> Executor::borrow_from_ptr;
+        >> Executor::from_ptr;
         Cronet_UrlRequestParams_request_finished_executor_get,
 
 }

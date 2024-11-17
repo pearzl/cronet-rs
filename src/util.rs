@@ -33,7 +33,16 @@ macro_rules! define_impl {
             }
         }
 
-        // impl simple method
+        // impl common
+        impl $(<$ctx $(, $ctx_assn)*>)? $struct_name $(<$ctx $(, $ctx_assn)*>)? {
+            pub(crate) unsafe fn from_ptr<'a>(ptr: $ptr) -> &'a mut Self {
+                let borrowed = $struct_name { ptr, $(ctx: None::<$ctx> /* fake value */, _phan: PhantomData )?};
+                let ptr = Box::into_raw(Box::new(borrowed));
+                &mut *ptr
+            }
+        }
+
+        // impl cronet method
         impl $(<$ctx $(, $ctx_assn)*>)? $struct_name $(<$ctx $(, $ctx_assn)*>)? {
         $(
             pub(crate) fn $func_name $(<$($gen_param),*>)?(self: $self_ $(,$arg_name: $arg_type )*) $( -> $return_type)? {

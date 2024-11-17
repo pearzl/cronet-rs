@@ -18,18 +18,6 @@ impl<'a, Ctx> RequestFinishedInfoListener<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_RequestFinishedInfoListenerPtr {
         self.ptr
     }
-
-    pub(crate) unsafe fn borrow_from_ptr(
-        ptr: Cronet_RequestFinishedInfoListenerPtr,
-    ) -> &'a mut RequestFinishedInfoListener<Ctx> {
-        let self_ = RequestFinishedInfoListener {
-            ptr,
-            ctx: None::<Ctx>, /* fake field */
-            _phan: PhantomData,
-        };
-        let self_ = Box::into_raw(Box::new(self_));
-        &mut *self_
-    }
 }
 
 impl<Ctx> RequestFinishedInfoListener<Ctx>
@@ -54,10 +42,10 @@ where
         response_info: Cronet_UrlResponseInfoPtr,
         error: Cronet_ErrorPtr,
     ) {
-        let self_ = RequestFinishedInfoListener::<Ctx>::borrow_from_ptr(self_);
-        let request_info = RequestFinishedInfo::borrow_from_ptr(request_info);
-        let response_info = UrlResponseInfo::borrow_from_ptr(response_info);
-        let error = Error::borrow_from_ptr(error);
+        let self_ = RequestFinishedInfoListener::<Ctx>::from_ptr(self_);
+        let request_info = RequestFinishedInfo::from_ptr(request_info);
+        let response_info = UrlResponseInfo::from_ptr(response_info);
+        let error = Error::from_ptr(error);
 
         let ctx = self_.get_client_context();
         let on_request_finished = ctx.on_request_finished_func();

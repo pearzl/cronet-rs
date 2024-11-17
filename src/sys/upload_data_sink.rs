@@ -17,18 +17,6 @@ impl<'a, Ctx> UploadDataSink<Ctx> {
     pub(crate) fn as_ptr(&self) -> Cronet_UploadDataSinkPtr {
         self.ptr
     }
-
-    pub(crate) unsafe fn borrow_from_ptr(
-        ptr: Cronet_UploadDataSinkPtr,
-    ) -> &'a mut UploadDataSink<Ctx> {
-        let self_ = UploadDataSink {
-            ptr,
-            ctx: None::<Ctx>, /* fake field */
-            _phan: PhantomData,
-        };
-        let self_ = Box::into_raw(Box::new(self_));
-        &mut *self_
-    }
 }
 
 impl<Ctx> UploadDataSink<Ctx> {

@@ -20,18 +20,6 @@ impl<'a, Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSi
     pub(crate) fn as_ptr(&self) -> Cronet_UploadDataProviderPtr {
         self.ptr
     }
-
-    pub(crate) unsafe fn borrow_from_ptr(
-        ptr: Cronet_UploadDataProviderPtr,
-    ) -> &'a mut UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx> {
-        let self_ = UploadDataProvider {
-            ptr,
-            ctx: None::<Ctx>, /* fake field */
-            _phan: PhantomData,
-        };
-        let self_ = Box::into_raw(Box::new(self_));
-        &mut *self_
-    }
 }
 
 impl<Ctx, UploadDataSinkCtx, BufferCtx> UploadDataProvider<Ctx, UploadDataSinkCtx, BufferCtx>
@@ -60,7 +48,7 @@ where
     }
 
     unsafe extern "C" fn raw_get_length(self_: Cronet_UploadDataProviderPtr) -> i64 {
-        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::borrow_from_ptr(self_);
+        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::from_ptr(self_);
 
         let ctx = self_.get_client_context();
         let get_length = ctx.get_length_func();
@@ -72,9 +60,9 @@ where
         upload_data_sink: Cronet_UploadDataSinkPtr,
         buffer: Cronet_BufferPtr,
     ) {
-        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::borrow_from_ptr(self_);
-        let upload_data_sink = UploadDataSink::borrow_from_ptr(upload_data_sink);
-        let buffer = Buffer::borrow_from_ptr(buffer);
+        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::from_ptr(self_);
+        let upload_data_sink = UploadDataSink::from_ptr(upload_data_sink);
+        let buffer = Buffer::from_ptr(buffer);
 
         let ctx = self_.get_client_context();
         let read = ctx.read_func();
@@ -85,8 +73,8 @@ where
         self_: Cronet_UploadDataProviderPtr,
         upload_data_sink: Cronet_UploadDataSinkPtr,
     ) {
-        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::borrow_from_ptr(self_);
-        let upload_data_sink = UploadDataSink::borrow_from_ptr(upload_data_sink);
+        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::from_ptr(self_);
+        let upload_data_sink = UploadDataSink::from_ptr(upload_data_sink);
 
         let ctx = self_.get_client_context();
         let rewind = ctx.rewind_func();
@@ -94,7 +82,7 @@ where
     }
 
     unsafe extern "C" fn raw_close(self_: Cronet_UploadDataProviderPtr) {
-        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::borrow_from_ptr(self_);
+        let self_ = UploadDataProvider::<Ctx, UploadDataSinkCtx, BufferCtx>::from_ptr(self_);
 
         let ctx = self_.get_client_context();
         let close = ctx.close_func();

@@ -50,7 +50,7 @@ define_impl! {
         Cronet_EngineParams_enable_quic_set,
     fn quic_hint_add(&mut Self, element: &QuicHint >> QuicHint::as_ptr); // safety: cloned
         Cronet_EngineParams_quic_hints_add,
-    fn quic_hints_at(&Self, index: u32) -> &QuicHint >> QuicHint::borrow_from_ptr; // safety: out of bounds
+    fn quic_hints_at(&Self, index: u32) -> &QuicHint >> QuicHint::from_ptr; // safety: out of bounds
         Cronet_EngineParams_quic_hints_at,
     fn quic_hints_clear(&mut Self);
         Cronet_EngineParams_quic_hints_clear,
@@ -59,7 +59,7 @@ define_impl! {
         Cronet_EngineParams_public_key_pins_add,
     fn public_key_pins_size(&Self) -> u32;
         Cronet_EngineParams_public_key_pins_size,
-    fn public_key_pins_at(&Self, index: u32) -> &PublicKeyPins >> PublicKeyPins::borrow_from_ptr; // safety: out of bounds
+    fn public_key_pins_at(&Self, index: u32) -> &PublicKeyPins >> PublicKeyPins::from_ptr; // safety: out of bounds
         Cronet_EngineParams_public_key_pins_at,
     fn public_key_pins_clear(&mut Self);
         Cronet_EngineParams_public_key_pins_clear,

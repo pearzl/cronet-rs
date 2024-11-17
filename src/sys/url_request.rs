@@ -36,6 +36,7 @@ impl<Ctx> UrlRequest<Ctx> {
         }
     }
 
+    #[cfg(test)]
     pub(crate) fn create_with(
         init_with_params_func: Cronet_UrlRequest_InitWithParamsFunc,
         start_func: Cronet_UrlRequest_StartFunc,
