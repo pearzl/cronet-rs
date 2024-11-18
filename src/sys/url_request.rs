@@ -27,7 +27,7 @@ impl<Ctx> UrlRequest<Ctx> {
             Self {
                 ptr,
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }
@@ -55,7 +55,7 @@ impl<Ctx> UrlRequest<Ctx> {
             Self {
                 ptr,
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }

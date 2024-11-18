@@ -40,7 +40,7 @@ where
             Self {
                 ptr,
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }

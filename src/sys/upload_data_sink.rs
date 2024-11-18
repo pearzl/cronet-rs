@@ -20,7 +20,7 @@ impl<Ctx> UploadDataSink<Ctx> {
             Self {
                 ptr,
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }
@@ -42,7 +42,7 @@ impl<Ctx> UploadDataSink<Ctx> {
             Self {
                 ptr,
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }

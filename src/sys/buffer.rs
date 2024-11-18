@@ -19,7 +19,7 @@ impl<Ctx> Buffer<Ctx> {
             Buffer {
                 ptr,
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }
@@ -58,7 +58,7 @@ impl<Ctx> Buffer<Ctx> {
             Self {
                 ptr,
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }

@@ -28,7 +28,7 @@ impl<Ctx> Engine<Ctx> {
             Engine {
                 ptr: Cronet_Engine_Create(),
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }
@@ -58,7 +58,7 @@ impl<Ctx> Engine<Ctx> {
             Engine {
                 ptr,
                 _ctx: PhantomData,
-                _phan: PhantomData,
+                
             }
         }
     }

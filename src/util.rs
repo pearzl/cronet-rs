@@ -43,7 +43,7 @@ macro_rules! define_impl {
         )*
 
         $(
-            with_ctx: <$ctx: tt $(, $ctx_assn: tt)*>,
+            with_ctx: <$ctx: tt>,
             get:  $cronet_get: ident,
             set:  $cronet_set: ident,
         )?
@@ -52,7 +52,6 @@ macro_rules! define_impl {
         pub struct $struct_name $(<$ctx>)? {
             ptr: $ptr,
             $(_ctx: std::marker::PhantomData<$ctx>,)?
-            $(_phan: std::marker::PhantomData<((), $($ctx_assn),*)>,)?
         }
 
         // impl drop
@@ -66,13 +65,13 @@ macro_rules! define_impl {
         impl $(<$ctx>)? $struct_name $(<$ctx>)? {
             pub(crate) unsafe fn borrow_from(ptr: $ptr) -> crate::util::Borrowed<Self> {
                 assert!(!ptr.is_null());
-                let borrowed = $struct_name { ptr, $(_ctx: PhantomData::<$ctx>, _phan: PhantomData )?};
+                let borrowed = $struct_name { ptr, $(_ctx: PhantomData::<$ctx>)?};
                 let ptr = Box::into_raw(Box::new(borrowed));
                 crate::util::Borrowed::new(ptr)
             }
             pub(crate) unsafe fn from_ptr<'a>(ptr: $ptr) -> &'a mut Self {
                 assert!(!ptr.is_null());
-                let borrowed = $struct_name { ptr, $(_ctx: PhantomData::<$ctx>, _phan: PhantomData )?};
+                let borrowed = $struct_name { ptr, $(_ctx: PhantomData::<$ctx>)?};
                 let ptr = Box::into_raw(Box::new(borrowed));
                 &mut *ptr
             }
