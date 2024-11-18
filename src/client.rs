@@ -6,12 +6,13 @@ use crate::{
     bindings::{Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_RESULT},
     body::Body,
     error::Error,
-    sys::{Engine, EngineParams},
+    sys::{Engine, EngineParams, Executor},
 };
 
 pub struct Client {
     pub(crate) engine: Engine<EngineContext>,
     pub(crate) run_async: crate::util::RunAsyncFunc,
+    pub(crate) executor: Executor<()>,
 }
 
 impl Client {
@@ -57,7 +58,7 @@ impl ClientBuilder {
         if ret != Cronet_RESULT::SUCCESS {
             return Err(ret);
         }
-        Ok(Client { engine , run_async: todo!()})
+        Ok(Client { engine , run_async: todo!(), executor: todo!()})
     }
 
     pub fn enable_check_result_set(mut self, enable_check_result: bool) -> Self {

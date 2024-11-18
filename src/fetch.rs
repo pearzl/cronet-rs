@@ -14,8 +14,8 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
 
     let mut request_prams = to_url_request_params(parts);
     let upload_data_provider = Body::to_upload_data_provider(body, Arc::clone(&client.run_async));
-    // request_prams.upload_data_provider_set(upload_data_provider);
-    // request_prams
+    request_prams.upload_data_provider_set(upload_data_provider);
+    request_prams.upload_data_provider_executor_set(&client.executor);
     
 
     todo!()

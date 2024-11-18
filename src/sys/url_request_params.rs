@@ -2,28 +2,7 @@ use std::ffi::CStr;
 
 use crate::{
     bindings::{
-        Cronet_RawDataPtr, Cronet_UrlRequestParamsPtr, Cronet_UrlRequestParams_Create,
-        Cronet_UrlRequestParams_Destroy, Cronet_UrlRequestParams_IDEMPOTENCY,
-        Cronet_UrlRequestParams_REQUEST_PRIORITY,
-        Cronet_UrlRequestParams_allow_direct_executor_get,
-        Cronet_UrlRequestParams_allow_direct_executor_set, Cronet_UrlRequestParams_annotations_add,
-        Cronet_UrlRequestParams_annotations_at, Cronet_UrlRequestParams_annotations_clear,
-        Cronet_UrlRequestParams_annotations_size, Cronet_UrlRequestParams_disable_cache_get,
-        Cronet_UrlRequestParams_disable_cache_set, Cronet_UrlRequestParams_http_method_get,
-        Cronet_UrlRequestParams_http_method_set, Cronet_UrlRequestParams_idempotency_get,
-        Cronet_UrlRequestParams_idempotency_set, Cronet_UrlRequestParams_priority_get,
-        Cronet_UrlRequestParams_priority_set,
-        Cronet_UrlRequestParams_request_finished_executor_get,
-        Cronet_UrlRequestParams_request_finished_executor_set,
-        Cronet_UrlRequestParams_request_finished_listener_get,
-        Cronet_UrlRequestParams_request_finished_listener_set,
-        Cronet_UrlRequestParams_request_headers_add, Cronet_UrlRequestParams_request_headers_at,
-        Cronet_UrlRequestParams_request_headers_clear,
-        Cronet_UrlRequestParams_request_headers_size,
-        Cronet_UrlRequestParams_upload_data_provider_executor_get,
-        Cronet_UrlRequestParams_upload_data_provider_executor_set,
-        Cronet_UrlRequestParams_upload_data_provider_get,
-        Cronet_UrlRequestParams_upload_data_provider_set,
+        Cronet_RawDataPtr, Cronet_UploadDataProviderPtr, Cronet_UrlRequestParamsPtr, Cronet_UrlRequestParams_Create, Cronet_UrlRequestParams_Destroy, Cronet_UrlRequestParams_IDEMPOTENCY, Cronet_UrlRequestParams_REQUEST_PRIORITY, Cronet_UrlRequestParams_allow_direct_executor_get, Cronet_UrlRequestParams_allow_direct_executor_set, Cronet_UrlRequestParams_annotations_add, Cronet_UrlRequestParams_annotations_at, Cronet_UrlRequestParams_annotations_clear, Cronet_UrlRequestParams_annotations_size, Cronet_UrlRequestParams_disable_cache_get, Cronet_UrlRequestParams_disable_cache_set, Cronet_UrlRequestParams_http_method_get, Cronet_UrlRequestParams_http_method_set, Cronet_UrlRequestParams_idempotency_get, Cronet_UrlRequestParams_idempotency_set, Cronet_UrlRequestParams_priority_get, Cronet_UrlRequestParams_priority_set, Cronet_UrlRequestParams_request_finished_executor_get, Cronet_UrlRequestParams_request_finished_executor_set, Cronet_UrlRequestParams_request_finished_listener_get, Cronet_UrlRequestParams_request_finished_listener_set, Cronet_UrlRequestParams_request_headers_add, Cronet_UrlRequestParams_request_headers_at, Cronet_UrlRequestParams_request_headers_clear, Cronet_UrlRequestParams_request_headers_size, Cronet_UrlRequestParams_upload_data_provider_executor_get, Cronet_UrlRequestParams_upload_data_provider_executor_set, Cronet_UrlRequestParams_upload_data_provider_get, Cronet_UrlRequestParams_upload_data_provider_set
     },
     sys::request_finished_info_listener::RequestFinishedInfoListener,
     util::define_impl,
@@ -80,20 +59,22 @@ define_impl! {
     fn idempotency_get(&Self) -> Cronet_UrlRequestParams_IDEMPOTENCY;
         Cronet_UrlRequestParams_idempotency_get,
 
+    /// take the ownership of upload_data_provider, 
+    ///     which will be dropped by close callback
     fn upload_data_provider_set<UploadDateProviderCtx>(
         &mut Self,
-        upload_data_provider: &UploadDataProvider<UploadDateProviderCtx>
-            >> UploadDataProvider::as_ptr // safey: pass ref?
+        upload_data_provider: UploadDataProvider<UploadDateProviderCtx>
+            >> consume_data_provider
     ); Cronet_UrlRequestParams_upload_data_provider_set,
     fn upload_data_provider_get<UploadDateProviderCtx>(&Self)
     -> &UploadDataProvider<UploadDateProviderCtx> >> UploadDataProvider::from_ptr;
         Cronet_UrlRequestParams_upload_data_provider_get,
 
-    fn upload_data_provider_executor_set<ExecutorCtx, RunnableCtx>(
+    fn upload_data_provider_executor_set<ExecutorCtx>(
         &mut Self,
         upload_data_provider_executor: &Executor<ExecutorCtx> >> Executor::as_ptr   // safety: pass ref?
     );Cronet_UrlRequestParams_upload_data_provider_executor_set,
-    fn upload_data_provider_executor_get<ExecutorCtx, RunnableCtx>(&Self) -> &Executor<ExecutorCtx> >> Executor::from_ptr;
+    fn upload_data_provider_executor_get<ExecutorCtx>(&Self) -> &Executor<ExecutorCtx> >> Executor::from_ptr;
         Cronet_UrlRequestParams_upload_data_provider_executor_get,
 
     fn request_finished_listener_set<Ctx>(
@@ -121,4 +102,10 @@ impl UrlRequestParams {
             Self { ptr }
         }
     }
+}
+
+fn consume_data_provider<T>(provider: UploadDataProvider<T>) -> Cronet_UploadDataProviderPtr {
+    let ptr = provider.as_ptr();
+    let _ = std::mem::ManuallyDrop::new(provider);
+    ptr
 }
