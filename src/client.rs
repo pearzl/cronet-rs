@@ -6,7 +6,7 @@ use crate::{
     bindings::{Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_RESULT},
     body::Body,
     error::Error,
-    sys::{Engine, EngineParams, Executor},
+    sys::{Engine, EngineParams, Executor}, util::RunAsyncFunc,
 };
 
 pub struct Client {
@@ -52,13 +52,13 @@ pub struct ClientBuilder {
 }
 
 impl ClientBuilder {
-    pub fn construct(self) -> Result<Client, Cronet_RESULT> {
+    pub fn construct(self, run_async: RunAsyncFunc) -> Result<Client, Cronet_RESULT> {
         let engine = Engine::create();
         let ret = engine.start_with_params(&self.engine_params);
         if ret != Cronet_RESULT::SUCCESS {
             return Err(ret);
         }
-        Ok(Client { engine , run_async: todo!(), executor: todo!()})
+        Ok(Client { engine , run_async, executor: todo!()})
     }
 
     pub fn enable_check_result_set(mut self, enable_check_result: bool) -> Self {

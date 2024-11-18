@@ -57,6 +57,14 @@ macro_rules! define_impl {
         // impl drop
         impl $(<$ctx>)? Drop for $struct_name $(<$ctx>)? {
             fn drop(&mut self) {
+                $(unsafe{
+                    let void_ptr = $cronet_get(self.ptr);
+                    if !void_ptr.is_null() {
+                        let ctx = Box::from_raw(void_ptr as *mut $ctx);
+                        drop(ctx);
+                    }
+                })?
+
                 unsafe { $drop_fn(self.ptr) }
             }
         }

@@ -53,9 +53,8 @@ fn to_url_request_params(parts: Parts) -> UrlRequestParams {
 
 /// uri, header_name and method do not contain the '\0'
 fn to_cstr(s: impl Into<Vec<u8>>) -> CString {
-    let mut buf = s.into();
-    buf.push(b'\0');
-    unsafe { CString::from_vec_with_nul_unchecked(buf) }
+    let buf = s.into();
+    unsafe { CString::from_vec_unchecked(buf) }
 }
 
 fn new_callback() -> UrlRequestCallback<()> {

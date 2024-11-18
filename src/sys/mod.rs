@@ -1,4 +1,3 @@
-use std::marker::PhantomData;
 
 pub(crate) use buffer::Buffer;
 pub(crate) use buffer_callback::BufferCallback;
