@@ -19,7 +19,7 @@ impl<Ctx> UploadDataSink<Ctx> {
             let ptr = Cronet_UploadDataSink_Create();
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }
@@ -41,7 +41,7 @@ impl<Ctx> UploadDataSink<Ctx> {
             );
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }

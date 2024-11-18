@@ -27,7 +27,7 @@ impl<Ctx> Engine<Ctx> {
         unsafe {
             Engine {
                 ptr: Cronet_Engine_Create(),
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }
@@ -57,7 +57,7 @@ impl<Ctx> Engine<Ctx> {
             );
             Engine {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }

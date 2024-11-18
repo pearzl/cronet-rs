@@ -18,7 +18,7 @@ impl<Ctx> BufferCallback<Ctx> {
             let ptr = Cronet_BufferCallback_CreateWith(on_destroy_func);
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }

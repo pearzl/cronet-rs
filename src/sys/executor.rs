@@ -20,7 +20,7 @@ where
             let ptr = Cronet_Executor_CreateWith(Some(Self::raw_execute_func));
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }

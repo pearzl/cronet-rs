@@ -24,7 +24,7 @@ where
                 Cronet_RequestFinishedInfoListener_CreateWith(Some(Self::raw_on_request_finished));
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }

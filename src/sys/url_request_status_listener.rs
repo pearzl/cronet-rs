@@ -20,7 +20,7 @@ where
             let ptr = Cronet_UrlRequestStatusListener_CreateWith(Some(Self::raw_on_status_func));
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }

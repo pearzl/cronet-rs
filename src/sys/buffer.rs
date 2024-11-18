@@ -18,7 +18,7 @@ impl<Ctx> Buffer<Ctx> {
             let ptr = Cronet_Buffer_Create();
             Buffer {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }
@@ -57,7 +57,7 @@ impl<Ctx> Buffer<Ctx> {
             );
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }

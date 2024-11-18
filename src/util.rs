@@ -51,7 +51,7 @@ macro_rules! define_impl {
         // define
         pub struct $struct_name $(<$ctx $(, $ctx_assn)*>)? {
             ptr: $ptr,
-            $(ctx: Option<$ctx>,)?
+            $(_ctx: std::marker::PhantomData<$ctx>,)?
             $(_phan: std::marker::PhantomData<((), $($ctx_assn),*)>,)?
         }
 
@@ -66,13 +66,13 @@ macro_rules! define_impl {
         impl $(<$ctx $(, $ctx_assn)*>)? $struct_name $(<$ctx $(, $ctx_assn)*>)? {
             pub(crate) unsafe fn borrow_from(ptr: $ptr) -> crate::util::Borrowed<Self> {
                 assert!(!ptr.is_null());
-                let borrowed = $struct_name { ptr, $(ctx: None::<$ctx> /* fake value */, _phan: PhantomData )?};
+                let borrowed = $struct_name { ptr, $(_ctx: PhantomData::<$ctx>, _phan: PhantomData )?};
                 let ptr = Box::into_raw(Box::new(borrowed));
                 crate::util::Borrowed::new(ptr)
             }
             pub(crate) unsafe fn from_ptr<'a>(ptr: $ptr) -> &'a mut Self {
                 assert!(!ptr.is_null());
-                let borrowed = $struct_name { ptr, $(ctx: None::<$ctx> /* fake value */, _phan: PhantomData )?};
+                let borrowed = $struct_name { ptr, $(_ctx: PhantomData::<$ctx>, _phan: PhantomData )?};
                 let ptr = Box::into_raw(Box::new(borrowed));
                 &mut *ptr
             }
@@ -114,9 +114,9 @@ macro_rules! define_impl {
                     let ctx_ptr = void_ptr as *mut Ctx;
                     unsafe{& *ctx_ptr}
                 }
-                pub(crate) fn set_client_context(&mut self, mut client_context: $ctx) {
-                    let ptr = &mut client_context as *mut $ctx;
-                    let _ = self.ctx.replace(client_context);
+                pub(crate) fn set_client_context(&mut self, client_context: $ctx) {
+                    let ptr = Box::into_raw(Box::new(client_context));
+                    // todo: may leak previous ctx
                     unsafe { $cronet_set(self.ptr, ptr as crate::bindings::Cronet_ClientContext) }
                 }
             }

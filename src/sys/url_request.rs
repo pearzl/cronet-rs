@@ -26,7 +26,7 @@ impl<Ctx> UrlRequest<Ctx> {
             let ptr = Cronet_UrlRequest_Create();
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }
@@ -54,7 +54,7 @@ impl<Ctx> UrlRequest<Ctx> {
             );
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }

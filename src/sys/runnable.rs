@@ -18,7 +18,7 @@ where
             let ptr = Cronet_Runnable_CreateWith(Some(Self::raw_run_func));
             Self {
                 ptr,
-                ctx: None,
+                _ctx: PhantomData,
                 _phan: PhantomData,
             }
         }
