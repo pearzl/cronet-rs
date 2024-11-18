@@ -80,12 +80,12 @@ define_impl! {
     fn idempotency_get(&Self) -> Cronet_UrlRequestParams_IDEMPOTENCY;
         Cronet_UrlRequestParams_idempotency_get,
 
-    fn upload_data_provider_set<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(
+    fn upload_data_provider_set<UploadDateProviderCtx>(
         &mut Self,
         upload_data_provider: &UploadDataProvider<UploadDateProviderCtx>
             >> UploadDataProvider::as_ptr // safey: pass ref?
     ); Cronet_UrlRequestParams_upload_data_provider_set,
-    fn upload_data_provider_get<UploadDateProviderCtx, UploadDataSinkCtx, BufferCtx>(&Self)
+    fn upload_data_provider_get<UploadDateProviderCtx>(&Self)
     -> &UploadDataProvider<UploadDateProviderCtx> >> UploadDataProvider::from_ptr;
         Cronet_UrlRequestParams_upload_data_provider_get,
 

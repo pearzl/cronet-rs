@@ -64,6 +64,19 @@ impl<Ctx> Buffer<Ctx> {
     }
 }
 
+impl<Ctx> Buffer<Ctx> {
+    /// return (bytes_filled, bytes_free)
+    pub(crate) fn write(&mut self, bytes: &[u8]) -> (usize, u64){
+        let buf_len = self.get_size();
+        let buf = self.get_data() as *mut u8;
+        let size_to_write = std::cmp::min(buf_len, bytes.len() as u64) as usize;
+        unsafe {
+            buf.copy_from_nonoverlapping(bytes.as_ptr(), size_to_write);
+        }
+        (size_to_write, buf_len - size_to_write as u64)
+    }
+}
+
 define_impl! {
     Buffer, Cronet_BufferPtr, Cronet_Buffer_Destroy,
 
@@ -75,3 +88,7 @@ define_impl! {
     get: Cronet_Buffer_GetClientContext,
     set: Cronet_Buffer_SetClientContext,
 }
+
+
+unsafe impl<Ctx> Send for Buffer<Ctx> {}
+unsafe impl<Ctx> Sync for Buffer<Ctx> {}

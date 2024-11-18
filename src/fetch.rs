@@ -1,4 +1,4 @@
-use std::ffi::CString;
+use std::{ffi::CString, sync::Arc};
 
 use http::{request::Parts, Request, Response};
 
@@ -12,8 +12,11 @@ use crate::{
 pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>, Error> {
     let (parts, body) = req.into_parts();
 
-    let request_prams = to_url_request_params(parts);
-    // let data_provider = Body::to
+    let mut request_prams = to_url_request_params(parts);
+    let upload_data_provider = Body::to_upload_data_provider(body, Arc::clone(&client.run_async));
+    // request_prams.upload_data_provider_set(upload_data_provider);
+    // request_prams
+    
 
     todo!()
 }

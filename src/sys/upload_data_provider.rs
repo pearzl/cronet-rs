@@ -11,7 +11,7 @@ use crate::{
         Cronet_UploadDataProvider_RewindFunc, Cronet_UploadDataProvider_SetClientContext,
         Cronet_UploadDataSinkPtr,
     },
-    util::define_impl,
+    util::{define_impl, Borrowed},
 };
 
 use super::{Buffer, UploadDataSink};
@@ -57,23 +57,23 @@ where
         upload_data_sink: Cronet_UploadDataSinkPtr,
         buffer: Cronet_BufferPtr,
     ) {
-        let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
-        let upload_data_sink = UploadDataSink::from_ptr(upload_data_sink);
-        let buffer = Buffer::from_ptr(buffer);
+        let self_ = UploadDataProvider::<Ctx>::borrow_from(self_);
+        let upload_data_sink = UploadDataSink::borrow_from(upload_data_sink);
+        let buffer = Buffer::borrow_from(buffer);
 
         let read = <Ctx as UploadDataProviderExt<Ctx>>::read_func();
-        read(&self_, upload_data_sink, buffer)
+        read(self_, upload_data_sink, buffer)
     }
 
     unsafe extern "C" fn raw_rewind(
         self_: Cronet_UploadDataProviderPtr,
         upload_data_sink: Cronet_UploadDataSinkPtr,
     ) {
-        let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
-        let upload_data_sink = UploadDataSink::from_ptr(upload_data_sink);
+        let self_ = UploadDataProvider::<Ctx>::borrow_from(self_);
+        let upload_data_sink = UploadDataSink::borrow_from(upload_data_sink);
 
         let rewind = <Ctx as UploadDataProviderExt<Ctx>>::rewind_func();
-        rewind(&self_, upload_data_sink)
+        rewind(self_, upload_data_sink)
     }
 
     unsafe extern "C" fn raw_close(self_: Cronet_UploadDataProviderPtr) {
@@ -104,9 +104,9 @@ pub(crate) trait UploadDataProviderExt<Ctx> {
 
 pub(crate) type GetLengthFunc<Ctx> = fn(&UploadDataProvider<Ctx>) -> i64;
 pub(crate) type ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx> =
-    fn(&UploadDataProvider<Ctx>, &UploadDataSink<UploadDataSinkCtx>, &Buffer<BufferCtx>);
+    fn(Borrowed<UploadDataProvider<Ctx>>, Borrowed<UploadDataSink<UploadDataSinkCtx>>, Borrowed<Buffer<BufferCtx>>);
 pub(crate) type RewindFunc<Ctx, UploadDataSinkCtx> =
-    fn(&UploadDataProvider<Ctx>, &UploadDataSink<UploadDataSinkCtx>);
+    fn(Borrowed<UploadDataProvider<Ctx>>, Borrowed<UploadDataSink<UploadDataSinkCtx>>);
 pub(crate) type CloseFunc<Ctx> = fn(UploadDataProvider<Ctx>);
 
 define_impl! {

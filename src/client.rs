@@ -10,7 +10,8 @@ use crate::{
 };
 
 pub struct Client {
-    engine: Engine<EngineContext>,
+    pub(crate) engine: Engine<EngineContext>,
+    pub(crate) run_async: crate::util::RunAsyncFunc,
 }
 
 impl Client {
@@ -56,7 +57,7 @@ impl ClientBuilder {
         if ret != Cronet_RESULT::SUCCESS {
             return Err(ret);
         }
-        Ok(Client { engine })
+        Ok(Client { engine , run_async: todo!()})
     }
 
     pub fn enable_check_result_set(mut self, enable_check_result: bool) -> Self {

@@ -1,14 +1,16 @@
+use std::ffi::CStr;
 use std::ops::{Deref, DerefMut};
 use std::pin::Pin;
+use std::sync::Arc;
 
 use bytes::Bytes;
-use futures::Stream;
+use futures::{Stream, StreamExt};
 
 use crate::error::Result;
 use crate::sys::{
     CloseFunc, GetLengthFunc, ReadFunc, RewindFunc, UploadDataProvider, UploadDataProviderExt,
 };
-use crate::util::BoxedFuture;
+use crate::util::RunAsyncFunc;
 
 pub struct Body {
     data: BoxedStream,
@@ -51,13 +53,15 @@ impl DerefMut for Body {
 impl Body {
     pub(crate) fn to_upload_data_provider(
         self,
-        run_async: Box<dyn Fn(BoxedFuture<()>) + Send + Sync + 'static>,
+        run_async: RunAsyncFunc,
     ) -> UploadDataProvider<ReqBodyContext> {
-        let _ctx = ReqBodyContext {
+        let ctx = ReqBodyContext {
             body: self,
             run_async,
         };
-        let upload_data_provider = UploadDataProvider::new();
+
+        let mut upload_data_provider = UploadDataProvider::new();
+        upload_data_provider.set_client_context(ctx);
 
         upload_data_provider
     }
@@ -65,11 +69,8 @@ impl Body {
 
 pub(crate) struct ReqBodyContext {
     body: Body,
-    run_async: Box<dyn Fn(BoxedFuture<()>) + Send + Sync + 'static>,
+    run_async: RunAsyncFunc,
 }
-
-unsafe impl Send for ReqBodyContext {}
-unsafe impl Sync for ReqBodyContext {}
 
 impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
     type BufferCtx = BufferContext;
@@ -83,11 +84,37 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
     }
 
     fn read_func() -> ReadFunc<ReqBodyContext, UploadDataSinkContext, BufferContext> {
-        |upload_data_provider, upload_data_sink, buffer| todo!()
+        |mut upload_data_provider, upload_data_sink, mut buffer| {
+            let ctx = upload_data_provider.get_client_context_mut();
+            let run_async = Arc::clone(&ctx.run_async);
+            run_async(Box::pin(async move {
+                match ctx.body.next().await {
+                    Some(Ok(data)) => {
+                        // todo: buffer < data  -> save data; buffer > data -> continue write;
+                        let (bytes_read, _) = buffer.write(&data); 
+                        upload_data_sink.on_read_succeeded(bytes_read as u64, false);
+                    },
+                    Some(Err(_err)) => {
+                        let msg = unsafe{CStr::from_bytes_with_nul_unchecked(b"read body failed\0")};
+                        upload_data_sink.on_read_error(msg);
+                    },
+                    None => {
+                        upload_data_sink.on_read_succeeded(0, true);
+                    }
+                }
+            }));
+        }
     }
 
-    fn rewind_func() -> RewindFunc<ReqBodyContext, UploadDataSinkContext> {
-        todo!()
+    fn rewind_func() -> RewindFunc<ReqBodyContext, UploadDataSinkContext>{
+        |upload_data_provider, upload_data_sink| {
+            let ctx = upload_data_provider.get_client_context();
+            let run_async = Arc::clone(&ctx.run_async);
+            run_async(Box::pin(async move{
+                let msg = unsafe{CStr::from_bytes_with_nul_unchecked(b"rewind failed\0")};
+                upload_data_sink.on_rewind_error(msg);
+            }))
+        }
     }
 
     fn close_func() -> CloseFunc<ReqBodyContext> {
