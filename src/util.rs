@@ -33,7 +33,7 @@ unsafe impl<T> Sync for Borrowed<T> where T: Sync{}
 
 macro_rules! define_impl {
     (
-        $struct_name: tt, $ptr: ty, $drop_fn: ident,
+        $struct_name: tt $(<$($gens: tt),*>)?, $ptr: ty, $drop_fn: ident,
 
         $(
             $(#[$attr: meta])*
@@ -49,21 +49,21 @@ macro_rules! define_impl {
         )?
     ) => {
         // define
-        pub struct $struct_name $(<$ctx $(, $ctx_assn)*>)? {
+        pub struct $struct_name $(<$ctx>)? {
             ptr: $ptr,
             $(_ctx: std::marker::PhantomData<$ctx>,)?
             $(_phan: std::marker::PhantomData<((), $($ctx_assn),*)>,)?
         }
 
         // impl drop
-        impl $(<$ctx $(, $ctx_assn)*>)? Drop for $struct_name $(<$ctx $(, $ctx_assn)*>)? {
+        impl $(<$ctx>)? Drop for $struct_name $(<$ctx>)? {
             fn drop(&mut self) {
                 unsafe { $drop_fn(self.ptr) }
             }
         }
 
         // impl common
-        impl $(<$ctx $(, $ctx_assn)*>)? $struct_name $(<$ctx $(, $ctx_assn)*>)? {
+        impl $(<$ctx>)? $struct_name $(<$ctx>)? {
             pub(crate) unsafe fn borrow_from(ptr: $ptr) -> crate::util::Borrowed<Self> {
                 assert!(!ptr.is_null());
                 let borrowed = $struct_name { ptr, $(_ctx: PhantomData::<$ctx>, _phan: PhantomData )?};
@@ -82,7 +82,7 @@ macro_rules! define_impl {
         }
 
         // impl cronet method
-        impl $(<$ctx $(, $ctx_assn)*>)? $struct_name $(<$ctx $(, $ctx_assn)*>)? {
+        impl $(<$ctx>)? $struct_name $(<$ctx>)? {
         $(
             pub(crate) fn $func_name $(<$($gen_param),*>)?(self: $self_ $(,$arg_name: $arg_type )*) $( -> $return_type)? {
                 unsafe {
@@ -101,7 +101,7 @@ macro_rules! define_impl {
 
         // impl ctx
         $(
-            impl <$ctx $(, $ctx_assn)*> $struct_name <$ctx $(, $ctx_assn)*> {
+            impl <$ctx> $struct_name <$ctx> {
                 pub(crate) fn get_client_context_mut<'a>(&mut self) -> &'a mut $ctx {
                     let void_ptr = unsafe { $cronet_get(self.ptr) };
                     assert!(!void_ptr.is_null());
