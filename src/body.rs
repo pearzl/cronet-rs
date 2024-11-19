@@ -60,8 +60,7 @@ impl Body {
             run_async,
         };
 
-        let mut upload_data_provider = UploadDataProvider::new();
-        upload_data_provider.set_client_context(ctx);
+        let mut upload_data_provider = UploadDataProvider::new(ctx);
 
         upload_data_provider
     }

@@ -83,13 +83,15 @@ where
         close(std::ptr::read(self_))
     }
 
-    pub(crate) fn new() -> Self {
-        Self::create_with(
+    pub(crate) fn new(ctx: Ctx) -> Self {
+        let mut self_ = Self::create_with(
             <Ctx as UploadDataProviderExt<Ctx>>::get_length_func(),
             <Ctx as UploadDataProviderExt<Ctx>>::read_func(),
             <Ctx as UploadDataProviderExt<Ctx>>::rewind_func(),
             <Ctx as UploadDataProviderExt<Ctx>>::close_func(),
-        )
+        );
+        self_.set_client_context(ctx);
+        self_
     }
 }
 

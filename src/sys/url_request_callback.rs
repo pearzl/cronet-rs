@@ -153,15 +153,17 @@ where
         on_canceled(&self_, request, info)
     }
 
-    pub fn new() -> Self {
-        Self::create_with(
+    pub fn new(ctx: Ctx) -> Self {
+        let mut self_ = Self::create_with(
             <Ctx as UrlRequestCallbackExt<Ctx>>::on_redirect_received_func(),
             <Ctx as UrlRequestCallbackExt<Ctx>>::on_response_started_func(),
             <Ctx as UrlRequestCallbackExt<Ctx>>::on_read_completed_func(),
             <Ctx as UrlRequestCallbackExt<Ctx>>::on_succeeded_func(),
             <Ctx as UrlRequestCallbackExt<Ctx>>::on_failed_func(),
             <Ctx as UrlRequestCallbackExt<Ctx>>::on_canceled_func(),
-        )
+        );
+        self_.set_client_context(ctx);
+        self_
     }
 }
 

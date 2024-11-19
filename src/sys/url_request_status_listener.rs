@@ -35,8 +35,10 @@ where
         on_status(&self_, status)
     }
 
-    pub(crate) fn new() -> Self {
-        Self::create_with(<Ctx as UrlRequestStatusListenerExt<Ctx>>::on_status_func())
+    pub(crate) fn new(ctx: Ctx) -> Self {
+        let mut self_ = Self::create_with(<Ctx as UrlRequestStatusListenerExt<Ctx>>::on_status_func());
+        self_.set_client_context(ctx);
+        self_
     }
 }
 

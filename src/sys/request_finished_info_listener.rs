@@ -46,8 +46,10 @@ where
         on_request_finished(self_, request_info, response_info, error);
     }
 
-    pub(crate) fn new() -> Self {
-        Self::create_with(<Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func())
+    pub(crate) fn new(ctx: Ctx) -> Self {
+        let mut self_ = Self::create_with(<Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func());
+        self_.set_client_context(ctx);
+        self_
     }
 }
 

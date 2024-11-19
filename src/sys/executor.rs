@@ -33,6 +33,12 @@ where
         let execute = <Ctx as ExecuteExt<Ctx>>::execute_func();
         execute(self_, command)
     }
+
+    pub(crate) fn new(ctx: Ctx) -> Self {
+        let mut self_ = Self::create_with(<Ctx as ExecuteExt<Ctx>>::execute_func());
+        self_.set_client_context(ctx);
+        self_
+    }
 }
 
 pub(crate) type ExecuteFunc<Ctx, RunnableCtx> =

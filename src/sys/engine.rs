@@ -33,6 +33,7 @@ impl<Ctx> Engine<Ctx> {
         }
     }
 
+    #[cfg(test)]
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn create_with(
         start_with_params_func: Cronet_Engine_StartWithParamsFunc,
