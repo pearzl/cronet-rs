@@ -5,7 +5,7 @@ pub(crate) use date_time::DateTime;
 pub(crate) use engine::Engine;
 pub(crate) use engine_params::EngineParams;
 pub(crate) use error::Error;
-pub(crate) use executor::Executor;
+pub(crate) use executor::{Executor, ExecuteExt, ExecuteFunc};
 pub(crate) use http_header::HttpHeader;
 pub(crate) use metrics::Metrics;
 pub(crate) use public_key_pins::PublicKeyPins;

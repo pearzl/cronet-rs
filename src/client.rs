@@ -1,18 +1,19 @@
 use std::ffi::CStr;
 
+use futures::{channel::mpsc, executor::LocalPool, StreamExt};
 use http::{Request, Response};
 
 use crate::{
     bindings::{Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_RESULT},
     body::Body,
     error::Error,
-    sys::{Engine, EngineParams, Executor}, util::RunAsyncFunc,
+    sys::{Engine, EngineParams, ExecuteExt, Executor, Runnable}, util::RunAsyncFunc,
 };
 
 pub struct Client {
     pub(crate) engine: Engine<EngineContext>,
     pub(crate) run_async: crate::util::RunAsyncFunc,
-    pub(crate) executor: Executor<()>,
+    pub(crate) executor: Executor<ExecutorContext>,
 }
 
 impl Client {
@@ -58,7 +59,10 @@ impl ClientBuilder {
         if ret != Cronet_RESULT::SUCCESS {
             return Err(ret);
         }
-        Ok(Client { engine , run_async, executor: todo!()})
+
+        let executor = Executor::new(ExecutorContext::new());
+
+        Ok(Client { engine , run_async, executor})
     }
 
     pub fn enable_check_result_set(mut self, enable_check_result: bool) -> Self {
@@ -133,12 +137,51 @@ impl ClientBuilder {
 
 pub(crate) struct EngineContext {}
 
+pub(crate) struct ExecutorContext {
+    command_tx: mpsc::UnboundedSender<Runnable<RunnableContext>>,
+}
+
+impl ExecutorContext {
+    fn new() -> Self {
+        let (tx, rx) = mpsc::unbounded::<Runnable<RunnableContext>>();
+        std::thread::Builder::new()
+            .name("cronet-rs: execute runnable".into())
+            .spawn(move || {
+                let mut pool = LocalPool::new();
+                pool.run_until(Self::run_runable_loop(rx));
+            }).unwrap();
+        Self { command_tx: tx }
+    }
+
+    async fn run_runable_loop(mut rx: mpsc::UnboundedReceiver<Runnable<RunnableContext>>) {
+        while let Some(runnable) = rx.next().await {
+            runnable.run();
+        }
+    }
+}
+
+impl ExecuteExt<ExecutorContext> for ExecutorContext {
+    type RunnableCtx = RunnableContext;
+
+    fn execute_func() -> crate::sys::ExecuteFunc<ExecutorContext, Self::RunnableCtx> {
+        |executor, command|{
+            let ctx = executor.get_client_context();
+            let ret = ctx.command_tx.unbounded_send(command);
+            debug_assert!(ret.is_ok())
+        }
+    }
+}
+
+pub(crate) struct RunnableContext {}
+
 #[cfg(test)]
 mod test {
+    use std::sync::Arc;
+
     use super::*;
 
     #[test]
     fn new_client() {
-        let _client = Client::builder().construct().unwrap();
+        let _client = Client::builder().construct(Arc::new(|_|())).unwrap();
     }
 }

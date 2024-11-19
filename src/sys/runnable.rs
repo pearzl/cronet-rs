@@ -54,3 +54,6 @@ define_impl! {
     get: Cronet_Runnable_GetClientContext,
     set: Cronet_Runnable_SetClientContext,
 }
+
+unsafe impl<Ctx> Send for Runnable<Ctx> {}
+unsafe impl<Ctx> Sync for Runnable<Ctx> {}
