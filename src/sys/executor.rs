@@ -27,8 +27,8 @@ where
     }
 
     unsafe extern "C" fn raw_execute_func(self_: Cronet_ExecutorPtr, command: Cronet_RunnablePtr) {
-        let self_ = Executor::<Ctx>::from_ptr(self_);
-        let command = Runnable::<<Ctx as ExecuteExt<Ctx>>::RunnableCtx>::from_ptr(command);
+        let self_ = Executor::from_ptr(self_);
+        let command = Runnable::from_raw(command);
 
         let execute = <Ctx as ExecuteExt<Ctx>>::execute_func();
         execute(self_, command)
@@ -42,7 +42,7 @@ where
 }
 
 pub(crate) type ExecuteFunc<Ctx, RunnableCtx> =
-    fn(self_: &Executor<Ctx>, command: &Runnable<RunnableCtx>);
+    fn(self_: &Executor<Ctx>, command: Runnable<RunnableCtx>);
 
 pub(crate) trait ExecuteExt<Ctx> {
     type RunnableCtx;

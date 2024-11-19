@@ -83,6 +83,9 @@ macro_rules! define_impl {
                 let ptr = Box::into_raw(Box::new(borrowed));
                 &mut *ptr
             }
+            pub(crate) unsafe fn from_raw(ptr: $ptr) -> Self {
+                $struct_name { ptr, $(_ctx: PhantomData::<$ctx>)?}
+            }
             pub(crate) fn as_ptr(&self) -> $ptr {
                 self.ptr
             }

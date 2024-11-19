@@ -77,10 +77,10 @@ where
     }
 
     unsafe extern "C" fn raw_close(self_: Cronet_UploadDataProviderPtr) {
-        let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
+        let self_ = UploadDataProvider::from_raw(self_);
 
         let close = <Ctx as UploadDataProviderExt<Ctx>>::close_func();
-        close(std::ptr::read(self_))
+        close(self_)
     }
 
     pub(crate) fn new(ctx: Ctx) -> Self {

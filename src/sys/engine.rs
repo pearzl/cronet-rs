@@ -70,8 +70,8 @@ define_impl! {
 
     fn add_request_finished_listener<ListenerCtx, ExecutorCtx>(
         &Self,
-        listener: &RequestFinishedInfoListener<ListenerCtx> >> RequestFinishedInfoListener::as_ptr, // safety: pass ref?
-        executor: &Executor<ExecutorCtx> >> Executor::as_ptr   // safety:: pass ref?
+        listener: &RequestFinishedInfoListener<ListenerCtx> >> RequestFinishedInfoListener::as_ptr, 
+        executor: &Executor<ExecutorCtx> >> Executor::as_ptr   
     );Cronet_Engine_AddRequestFinishedListener,
 
     fn remove_request_finished_listener<ListenerCtx>(

@@ -59,8 +59,6 @@ define_impl! {
     fn idempotency_get(&Self) -> Cronet_UrlRequestParams_IDEMPOTENCY;
         Cronet_UrlRequestParams_idempotency_get,
 
-    /// take the ownership of upload_data_provider, 
-    ///     which will be dropped by close callback
     fn upload_data_provider_set<UploadDateProviderCtx>(
         &mut Self,
         upload_data_provider: UploadDataProvider<UploadDateProviderCtx>
@@ -104,6 +102,9 @@ impl UrlRequestParams {
     }
 }
 
+/// used by `upload_data_provider_set` only.
+/// 
+/// take the ownership, it will be dropped by close callback
 fn consume_data_provider<T>(provider: UploadDataProvider<T>) -> Cronet_UploadDataProviderPtr {
     let ptr = provider.as_ptr();
     let _ = std::mem::ManuallyDrop::new(provider);

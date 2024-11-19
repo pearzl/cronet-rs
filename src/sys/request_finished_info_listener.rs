@@ -39,7 +39,7 @@ where
         let self_ = RequestFinishedInfoListener::<Ctx>::from_ptr(self_);
         let request_info = RequestFinishedInfo::from_ptr(request_info);
         let response_info = UrlResponseInfo::from_ptr(response_info);
-        let error = Error::from_ptr(error);
+        let error = (!error.is_null()).then(||Error::from_ptr(error) as _);
 
         let on_request_finished =
             <Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func();
@@ -54,7 +54,7 @@ where
 }
 
 pub(crate) type OnRequestFinishedFunc<Ctx> =
-    fn(&RequestFinishedInfoListener<Ctx>, &RequestFinishedInfo, &UrlResponseInfo, &Error); // safety: pass ref?
+    fn(&RequestFinishedInfoListener<Ctx>, &RequestFinishedInfo, &UrlResponseInfo, Option<&Error>);
 
 pub(crate) trait RequestFinishedInfoListenerExt<Ctx> {
     fn on_request_finished_func() -> OnRequestFinishedFunc<Ctx>;

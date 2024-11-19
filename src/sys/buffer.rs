@@ -19,7 +19,6 @@ impl<Ctx> Buffer<Ctx> {
             Buffer {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }

@@ -103,7 +103,7 @@ where
         let request =
             UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
         let info = UrlResponseInfo::from_ptr(info);
-        let buffer = Buffer::<<Ctx as UrlRequestCallbackExt<Ctx>>::BufferCtx>::from_ptr(buffer);
+        let buffer = Buffer::from_raw(buffer);
 
         let on_read_completed = <Ctx as UrlRequestCallbackExt<Ctx>>::on_read_completed_func();
         on_read_completed(&self_, request, info, buffer, bytes_read)
@@ -132,7 +132,7 @@ where
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
             UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
-        let info = UrlResponseInfo::from_ptr(info);
+        let info = (!info.is_null()).then(||UrlResponseInfo::from_ptr(info) as &_);
         let error = Error::from_ptr(error);
 
         let on_failed = <Ctx as UrlRequestCallbackExt<Ctx>>::on_failed_func();
@@ -147,7 +147,7 @@ where
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
             UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
-        let info = UrlResponseInfo::from_ptr(info);
+        let info = (!info.is_null()).then(||UrlResponseInfo::from_ptr(info) as &_);
 
         let on_canceled = <Ctx as UrlRequestCallbackExt<Ctx>>::on_canceled_func();
         on_canceled(&self_, request, info)
@@ -193,7 +193,7 @@ pub(crate) type OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(
     self_: &UrlRequestCallback<Ctx>,
     request: &UrlRequest<UrlRequestCtx>,
     info: &UrlResponseInfo,
-    buffer: &Buffer<BufferCtx>,
+    buffer: Buffer<BufferCtx>,
     bytes_read: u64,
 );
 pub(crate) type OnSucceededFunc<Ctx, UrlRequestCtx> = fn(
@@ -204,13 +204,13 @@ pub(crate) type OnSucceededFunc<Ctx, UrlRequestCtx> = fn(
 pub(crate) type OnFailedFunc<Ctx, UrlRequestCtx> = fn(
     self_: &UrlRequestCallback<Ctx>,
     request: &UrlRequest<UrlRequestCtx>,
-    info: &UrlResponseInfo,
+    info: Option<&UrlResponseInfo>,
     error: &Error,
 );
 pub(crate) type OnCanceledFunc<Ctx, UrlRequestCtx> = fn(
     self_: &UrlRequestCallback<Ctx>,
     request: &UrlRequest<UrlRequestCtx>,
-    info: &UrlResponseInfo,
+    info: Option<&UrlResponseInfo>,
 );
 
 define_impl! {

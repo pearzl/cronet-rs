@@ -60,7 +60,7 @@ impl Body {
             run_async,
         };
 
-        let mut upload_data_provider = UploadDataProvider::new(ctx);
+        let upload_data_provider = UploadDataProvider::new(ctx);
 
         upload_data_provider
     }
@@ -98,7 +98,7 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
                         upload_data_sink.on_read_error(msg);
                     },
                     None => {
-                        upload_data_sink.on_read_succeeded(0, true);
+                        upload_data_sink.on_read_succeeded(0, ctx.body.len.is_none());
                     }
                 }
             }));
