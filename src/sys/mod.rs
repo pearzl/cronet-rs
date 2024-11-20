@@ -18,7 +18,7 @@ pub(crate) use upload_data_provider::{
 };
 pub(crate) use upload_data_sink::UploadDataSink;
 pub(crate) use url_request::UrlRequest;
-pub(crate) use url_request_callback::UrlRequestCallback;
+pub(crate) use url_request_callback::{UrlRequestCallback, UrlRequestCallbackExt, OnCanceledFunc, OnFailedFunc, OnReadCompletedFunc, OnRedirectReceivedFunc, OnResponseStartedFunc, OnSucceededFunc};
 pub(crate) use url_request_params::UrlRequestParams;
 pub(crate) use url_request_status_listener::UrlRequestStatusListener;
 pub(crate) use url_response_info::UrlResponseInfo;
