@@ -33,15 +33,12 @@ fn to_url_request_params(parts: Parts) -> UrlRequestParams {
 
     params.http_method_set(&to_cstr(method.as_str()));
 
-    // > The first yielded item will have HeaderName set.
-    let mut name = unsafe { CString::from_vec_unchecked(vec![]) };
-    for (k, v) in headers {
+
+    for (k,v) in headers.iter() {
         let Ok(value) = CString::new(v.as_bytes()) else {
             continue;
         };
-        if let Some(key) = k {
-            name = to_cstr(key.as_str());
-        }
+        let name = to_cstr(k.as_str());
         let mut header = HttpHeader::create();
         header.name_set(&name);
         header.value_set(&value);

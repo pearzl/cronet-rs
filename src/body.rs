@@ -105,6 +105,7 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
         }
     }
 
+    // todo: rewind support
     fn rewind_func() -> RewindFunc<ReqBodyContext, UploadDataSinkContext>{
         |upload_data_provider, upload_data_sink| {
             let ctx = upload_data_provider.get_client_context();
