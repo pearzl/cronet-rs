@@ -1,4 +1,5 @@
-use std::marker::PhantomData;
+use core::slice;
+use std::{marker::PhantomData, ops::Index};
 
 use crate::{
     bindings::{
@@ -73,6 +74,13 @@ impl<Ctx> Buffer<Ctx> {
             buf.copy_from_nonoverlapping(bytes.as_ptr(), size_to_write);
         }
         (size_to_write, buf_len - size_to_write as u64)
+    }
+
+
+    pub(crate) fn get_n(&self, n: usize) -> &[u8] {
+        unsafe {
+            slice::from_raw_parts(self.get_data() as *const u8, n)
+        }
     }
 }
 

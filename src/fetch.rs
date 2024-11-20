@@ -1,7 +1,7 @@
 use std::{ffi::CString, sync::Arc};
 
 use bytes::Bytes;
-use futures::channel::{mpsc, oneshot};
+use futures::{channel::{mpsc, oneshot}, SinkExt};
 use http::{header::CONTENT_LENGTH, request::Parts, status, HeaderName, HeaderValue, Request, Response, StatusCode, Uri};
 
 use crate::{
@@ -73,6 +73,7 @@ fn new_callback(resp_tx: oneshot::Sender<Response<Body>>) -> UrlRequestCallback<
 }
 
 pub(crate) struct UrlRequestCallbackContext {
+    buffer_size: usize,
     // on_response_started
     resp_tx: Option<oneshot::Sender<Response<Body>>>,
     body_rx: Option<mpsc::Receiver<Result<Bytes, Error>>>,
@@ -106,14 +107,23 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
             let resp_tx = ctx.resp_tx.take().unwrap();
             let _ = resp_tx.send(resp.map(|_|body));
 
-            let buffer: Buffer<()> = Buffer::create();
-            request.read(buffer);
+            let mut buffer: Buffer<()> = Buffer::create();
+            buffer.init_with_alloc(ctx.buffer_size as u64);
+            request.read(buffer); // todo: Error
         }
     }
 
     fn on_read_completed_func() -> crate::sys::OnReadCompletedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx, Self::BufferCtx> {
-        |sel_, requset, info, buffer, bytes_read|{
+        |self_, requset, _info, buffer, bytes_read|{
+            let ctx = self_.get_client_context_mut();
 
+            let buf = buffer.get_n(bytes_read as usize); 
+            let data = Bytes::copy_from_slice(buf);
+
+            ctx.body_tx.send(Ok(data));
+
+            let buffer: Buffer<()> = Buffer::create();
+            requset.read(buffer); // todo: Error
         }
     }
 

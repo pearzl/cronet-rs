@@ -190,7 +190,7 @@ pub(crate) type OnResponseStartedFunc<Ctx, UrlRequestCtx> = fn(
     info: &UrlResponseInfo,
 );
 pub(crate) type OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(
-    self_: &UrlRequestCallback<Ctx>,
+    self_: &mut UrlRequestCallback<Ctx>,
     request: &UrlRequest<UrlRequestCtx>,
     info: &UrlResponseInfo,
     buffer: Buffer<BufferCtx>,
