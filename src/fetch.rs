@@ -1,13 +1,14 @@
 use std::{ffi::CString, sync::Arc};
 
-use futures::channel::oneshot;
-use http::{request::Parts, status, HeaderName, HeaderValue, Request, Response, StatusCode, Uri};
+use bytes::Bytes;
+use futures::channel::{mpsc, oneshot};
+use http::{header::CONTENT_LENGTH, request::Parts, status, HeaderName, HeaderValue, Request, Response, StatusCode, Uri};
 
 use crate::{
     body::{Body, BufferContext},
     client::Client,
     error::Error,
-    sys::{HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt, UrlRequestParams, UrlResponseInfo},
+    sys::{Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt, UrlRequestParams, UrlResponseInfo},
 };
 
 pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>, Error> {
@@ -19,15 +20,15 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
     request_prams.upload_data_provider_set(upload_data_provider);
     request_prams.upload_data_provider_executor_set(&client.executor);
     
-    let (tx, rx) = oneshot::channel();
-    let callback = new_callback(tx);
+    let (resp_tx, resp_rx) = oneshot::channel();
+    let callback = new_callback(resp_tx);
 
 
     let url_request = UrlRequest::<()>::create();
     url_request.init_with_params(&client.engine, &url, &request_prams, &callback, &client.executor);
 
 
-    rx.await.map_err(|_e| Error) // todo: error trans
+    resp_rx.await.map_err(|_e| Error) // todo: error trans
 }
 
 fn to_url_request_params(parts: Parts) -> UrlRequestParams {
@@ -60,15 +61,23 @@ fn to_cstr(s: impl Into<Vec<u8>>) -> CString {
 }
 
 fn new_callback(resp_tx: oneshot::Sender<Response<Body>>) -> UrlRequestCallback<UrlRequestCallbackContext> {
+    
+    let (body_tx, body_rx) = mpsc::channel(1);
     let ctx = UrlRequestCallbackContext{
-        resp_tx,
+        resp_tx: Some(resp_tx),
+        body_rx: Some(body_rx),
+        body_tx,
     };
     let url_request_callback = UrlRequestCallback::new(ctx);
     url_request_callback
 }
 
 pub(crate) struct UrlRequestCallbackContext {
-    resp_tx: oneshot::Sender<Response<Body>>,
+    // on_response_started
+    resp_tx: Option<oneshot::Sender<Response<Body>>>,
+    body_rx: Option<mpsc::Receiver<Result<Bytes, Error>>>,
+    // on_read_completed
+    body_tx: mpsc::Sender<Result<Bytes, Error>>,
 }
 
 impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackContext {
@@ -85,7 +94,20 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
 
     fn on_response_started_func() -> crate::sys::OnResponseStartedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
         |self_, request, info|{
+            let ctx = self_.get_client_context_mut();
             let resp = to_response(info);
+            
+            let body_len = resp.headers().get(CONTENT_LENGTH)
+                .and_then(|v|v.to_str().ok())
+                .and_then(|s|s.parse().ok());
+            let body_stream = ctx.body_rx.take().unwrap();
+            let body = Body::stream(Box::pin(body_stream), body_len);
+
+            let resp_tx = ctx.resp_tx.take().unwrap();
+            let _ = resp_tx.send(resp.map(|_|body));
+
+            let buffer: Buffer<()> = Buffer::create();
+            request.read(buffer);
         }
     }
 

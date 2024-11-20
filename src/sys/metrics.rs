@@ -28,10 +28,6 @@ use crate::{
 use super::date_time::DateTime;
 
 impl<'a> Metrics {
-    pub(crate) fn into_raw(self) -> Cronet_MetricsPtr {
-        self.ptr
-    }
-
     pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_MetricsPtr) -> Option<&'a mut Metrics> {
         if ptr.is_null() {
             return None;

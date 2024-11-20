@@ -7,10 +7,6 @@ use crate::{
 };
 
 impl<'a> DateTime {
-    pub(crate) fn into_raw(self) -> Cronet_DateTimePtr {
-        self.ptr
-    }
-
     pub(crate) unsafe fn borrow_from_ptr(ptr: Cronet_DateTimePtr) -> Option<&'a mut DateTime> {
         if ptr.is_null() {
             return None;

@@ -86,6 +86,11 @@ macro_rules! define_impl {
             pub(crate) unsafe fn from_raw(ptr: $ptr) -> Self {
                 $struct_name { ptr, $(_ctx: PhantomData::<$ctx>)?}
             }
+            pub(crate) fn into_raw(self) -> $ptr {
+                let ptr = self.ptr;
+                let _ = std::mem::ManuallyDrop::new(self);
+                ptr
+            }
             pub(crate) fn as_ptr(&self) -> $ptr {
                 self.ptr
             }

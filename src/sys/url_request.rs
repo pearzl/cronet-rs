@@ -85,7 +85,7 @@ define_impl! {
     fn follow_redirect(&Self) -> Cronet_RESULT;
     Cronet_UrlRequest_FollowRedirect,
 
-    fn read<BufferCtx>(&Self, buffer: &mut Buffer<BufferCtx> >> Buffer::as_ptr) -> Cronet_RESULT;
+    fn read<BufferCtx>(&Self, buffer: Buffer<BufferCtx> >> Buffer::into_raw) -> Cronet_RESULT;
     Cronet_UrlRequest_Read,
 
     fn cancel(&Self);

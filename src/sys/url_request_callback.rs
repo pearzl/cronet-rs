@@ -89,7 +89,7 @@ where
         let info = UrlResponseInfo::from_ptr(info);
 
         let on_response_started = <Ctx as UrlRequestCallbackExt<Ctx>>::on_response_started_func();
-        on_response_started(&self_, request, info)
+        on_response_started(self_, request, info)
     }
 
     unsafe extern "C" fn raw_on_read_completed_func(
@@ -185,7 +185,7 @@ pub(crate) type OnRedirectReceivedFunc<Ctx, UrlRequestCtx> = fn(
     new_location_url: &CStr,
 );
 pub(crate) type OnResponseStartedFunc<Ctx, UrlRequestCtx> = fn(
-    self_: &UrlRequestCallback<Ctx>,
+    self_: &mut UrlRequestCallback<Ctx>,
     request: &UrlRequest<UrlRequestCtx>,
     info: &UrlResponseInfo,
 );
