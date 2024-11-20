@@ -8,7 +8,7 @@ use crate::{
     body::{Body, BufferContext},
     client::Client,
     error::Error,
-    sys::{Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt, UrlRequestParams, UrlResponseInfo},
+    sys::{Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt, UrlRequestParams, UrlResponseInfo}, util::RunAsyncFunc,
 };
 
 pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>, Error> {
@@ -21,7 +21,7 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
     request_prams.upload_data_provider_executor_set(&client.executor);
     
     let (resp_tx, resp_rx) = oneshot::channel();
-    let callback = new_callback(resp_tx);
+    let callback = new_callback(Arc::clone(&client.run_async), resp_tx);
 
 
     let url_request = UrlRequest::<()>::create();
@@ -60,10 +60,12 @@ fn to_cstr(s: impl Into<Vec<u8>>) -> CString {
     unsafe { CString::from_vec_unchecked(buf) }
 }
 
-fn new_callback(resp_tx: oneshot::Sender<Response<Body>>) -> UrlRequestCallback<UrlRequestCallbackContext> {
+fn new_callback(run_async_func: RunAsyncFunc, resp_tx: oneshot::Sender<Response<Body>>) -> UrlRequestCallback<UrlRequestCallbackContext> {
     
     let (body_tx, body_rx) = mpsc::channel(1);
     let ctx = UrlRequestCallbackContext{
+        run_async_func,
+        buffer_size: 16 * 1024,
         resp_tx: Some(resp_tx),
         body_rx: Some(body_rx),
         body_tx,
@@ -73,6 +75,7 @@ fn new_callback(resp_tx: oneshot::Sender<Response<Body>>) -> UrlRequestCallback<
 }
 
 pub(crate) struct UrlRequestCallbackContext {
+    run_async_func: RunAsyncFunc,
     buffer_size: usize,
     // on_response_started
     resp_tx: Option<oneshot::Sender<Response<Body>>>,
@@ -116,14 +119,18 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
     fn on_read_completed_func() -> crate::sys::OnReadCompletedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx, Self::BufferCtx> {
         |self_, requset, _info, buffer, bytes_read|{
             let ctx = self_.get_client_context_mut();
+            let run_async = Arc::clone(&ctx.run_async_func);
 
-            let buf = buffer.get_n(bytes_read as usize); 
-            let data = Bytes::copy_from_slice(buf);
-
-            ctx.body_tx.send(Ok(data));
-
-            let buffer: Buffer<()> = Buffer::create();
-            requset.read(buffer); // todo: Error
+            run_async(Box::pin(async move {
+                let buf = buffer.get_n(bytes_read as usize); 
+                let data = Bytes::copy_from_slice(buf);
+    
+                let is_cancled = ctx.body_tx.send(Ok(data)).await.is_err();
+                if is_cancled { return }
+    
+                let buffer: Buffer<()> = Buffer::create();
+                requset.read(buffer); // todo: Error
+            }));
         }
     }
 

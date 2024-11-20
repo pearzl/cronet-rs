@@ -15,7 +15,7 @@ use crate::{
         Cronet_UrlRequestCallback_OnSucceededFunc, Cronet_UrlRequestCallback_SetClientContext,
         Cronet_UrlRequestPtr, Cronet_UrlResponseInfoPtr,
     },
-    util::define_impl,
+    util::{define_impl, Borrowed},
 };
 
 use super::{Buffer, Error, UrlRequest, UrlResponseInfo};
@@ -101,12 +101,12 @@ where
     ) {
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
-            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
+            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::borrow_from(request);
         let info = UrlResponseInfo::from_ptr(info);
         let buffer = Buffer::from_raw(buffer);
 
         let on_read_completed = <Ctx as UrlRequestCallbackExt<Ctx>>::on_read_completed_func();
-        on_read_completed(&self_, request, info, buffer, bytes_read)
+        on_read_completed(self_, request, info, buffer, bytes_read)
     }
 
     unsafe extern "C" fn raw_on_succeeded_func(
@@ -191,7 +191,7 @@ pub(crate) type OnResponseStartedFunc<Ctx, UrlRequestCtx> = fn(
 );
 pub(crate) type OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(
     self_: &mut UrlRequestCallback<Ctx>,
-    request: &UrlRequest<UrlRequestCtx>,
+    request: Borrowed<UrlRequest<UrlRequestCtx>>,
     info: &UrlResponseInfo,
     buffer: Buffer<BufferCtx>,
     bytes_read: u64,

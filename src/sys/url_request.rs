@@ -99,3 +99,6 @@ define_impl! {
     get: Cronet_UrlRequest_GetClientContext,
     set: Cronet_UrlRequest_SetClientContext,
 }
+
+unsafe impl<Ctx> Send for UrlRequest<Ctx> {}
+unsafe impl<Ctx> Sync for UrlRequest<Ctx> {}
