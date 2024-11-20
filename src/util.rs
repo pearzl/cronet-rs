@@ -1,35 +1,39 @@
-use std::{future::Future, ops::{Deref, DerefMut}, pin::Pin, sync::Arc};
+use std::{
+    future::Future,
+    ops::{Deref, DerefMut},
+    pin::Pin,
+    sync::Arc,
+};
 
 pub(crate) type BoxedFuture<T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'static>>;
 pub(crate) type RunAsyncFunc = Arc<dyn Fn(BoxedFuture<()>) + Send + Sync + 'static>;
 
 pub(crate) struct Borrowed<T> {
-    inner: *mut T
+    inner: *mut T,
 }
 
 impl<T> Borrowed<T> {
-    pub(crate) fn new(ptr: *mut T) -> Self{
+    pub(crate) fn new(ptr: *mut T) -> Self {
         Self { inner: ptr }
     }
-
 }
 
 impl<T> Deref for Borrowed<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        unsafe {&*self.inner}
+        unsafe { &*self.inner }
     }
 }
 
 impl<T> DerefMut for Borrowed<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        unsafe {&mut *self.inner}
+        unsafe { &mut *self.inner }
     }
 }
 
-unsafe impl<T> Send for Borrowed<T> where T: Send{}
-unsafe impl<T> Sync for Borrowed<T> where T: Sync{}
+unsafe impl<T> Send for Borrowed<T> where T: Send {}
+unsafe impl<T> Sync for Borrowed<T> where T: Sync {}
 
 macro_rules! define_impl {
     (

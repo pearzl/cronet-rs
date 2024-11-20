@@ -15,13 +15,14 @@ impl<Ctx> Executor<Ctx>
 where
     Ctx: ExecuteExt<Ctx>,
 {
-    pub(crate) fn create_with(_execute_func: ExecuteFunc<Ctx, <Ctx as ExecuteExt<Ctx>>::RunnableCtx>) -> Self {
+    pub(crate) fn create_with(
+        _execute_func: ExecuteFunc<Ctx, <Ctx as ExecuteExt<Ctx>>::RunnableCtx>,
+    ) -> Self {
         unsafe {
             let ptr = Cronet_Executor_CreateWith(Some(Self::raw_execute_func));
             Self {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }

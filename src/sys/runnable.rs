@@ -19,7 +19,6 @@ where
             Self {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }

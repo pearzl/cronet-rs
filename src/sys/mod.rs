@@ -1,11 +1,10 @@
-
 pub(crate) use buffer::Buffer;
 pub(crate) use buffer_callback::BufferCallback;
 pub(crate) use date_time::DateTime;
 pub(crate) use engine::Engine;
 pub(crate) use engine_params::EngineParams;
 pub(crate) use error::Error;
-pub(crate) use executor::{Executor, ExecuteExt, ExecuteFunc};
+pub(crate) use executor::{ExecuteExt, ExecuteFunc, Executor};
 pub(crate) use http_header::HttpHeader;
 pub(crate) use metrics::Metrics;
 pub(crate) use public_key_pins::PublicKeyPins;
@@ -18,7 +17,10 @@ pub(crate) use upload_data_provider::{
 };
 pub(crate) use upload_data_sink::UploadDataSink;
 pub(crate) use url_request::UrlRequest;
-pub(crate) use url_request_callback::{UrlRequestCallback, UrlRequestCallbackExt, OnCanceledFunc, OnFailedFunc, OnReadCompletedFunc, OnRedirectReceivedFunc, OnResponseStartedFunc, OnSucceededFunc};
+pub(crate) use url_request_callback::{
+    OnCanceledFunc, OnFailedFunc, OnReadCompletedFunc, OnRedirectReceivedFunc,
+    OnResponseStartedFunc, OnSucceededFunc, UrlRequestCallback, UrlRequestCallbackExt,
+};
 pub(crate) use url_request_params::UrlRequestParams;
 pub(crate) use url_request_status_listener::UrlRequestStatusListener;
 pub(crate) use url_response_info::UrlResponseInfo;

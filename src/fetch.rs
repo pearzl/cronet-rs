@@ -1,14 +1,24 @@
 use std::{ffi::CString, sync::Arc};
 
 use bytes::Bytes;
-use futures::{channel::{mpsc, oneshot}, SinkExt};
-use http::{header::CONTENT_LENGTH, request::Parts, status, HeaderName, HeaderValue, Request, Response, StatusCode, Uri};
+use futures::{
+    channel::{mpsc, oneshot},
+    SinkExt,
+};
+use http::{
+    header::CONTENT_LENGTH, request::Parts, status, HeaderName, HeaderValue, Request, Response,
+    StatusCode, Uri,
+};
 
 use crate::{
     body::{Body, BufferContext},
     client::Client,
     error::Error,
-    sys::{Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt, UrlRequestParams, UrlResponseInfo}, util::RunAsyncFunc,
+    sys::{
+        Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt,
+        UrlRequestParams, UrlResponseInfo,
+    },
+    util::RunAsyncFunc,
 };
 
 pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>, Error> {
@@ -19,14 +29,20 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
     let upload_data_provider = Body::to_upload_data_provider(body, Arc::clone(&client.run_async));
     request_prams.upload_data_provider_set(upload_data_provider);
     request_prams.upload_data_provider_executor_set(&client.executor);
-    
+
     let (resp_tx, resp_rx) = oneshot::channel();
     let callback = new_callback(Arc::clone(&client.run_async), resp_tx);
 
-
     let url_request = UrlRequest::<()>::create();
-    url_request.init_with_params(&client.engine, &url, &request_prams, &callback, &client.executor);
+    url_request.init_with_params(
+        &client.engine,
+        &url,
+        &request_prams,
+        &callback,
+        &client.executor,
+    );
 
+    todo!();
 
     resp_rx.await.map_err(|_e| Error) // todo: error trans
 }
@@ -39,8 +55,7 @@ fn to_url_request_params(parts: Parts) -> UrlRequestParams {
 
     params.http_method_set(&to_cstr(method.as_str()));
 
-
-    for (k,v) in headers.iter() {
+    for (k, v) in headers.iter() {
         let Ok(value) = CString::new(v.as_bytes()) else {
             continue;
         };
@@ -60,10 +75,12 @@ fn to_cstr(s: impl Into<Vec<u8>>) -> CString {
     unsafe { CString::from_vec_unchecked(buf) }
 }
 
-fn new_callback(run_async_func: RunAsyncFunc, resp_tx: oneshot::Sender<Response<Body>>) -> UrlRequestCallback<UrlRequestCallbackContext> {
-    
+fn new_callback(
+    run_async_func: RunAsyncFunc,
+    resp_tx: oneshot::Sender<Response<Body>>,
+) -> UrlRequestCallback<UrlRequestCallbackContext> {
     let (body_tx, body_rx) = mpsc::channel(1);
-    let ctx = UrlRequestCallbackContext{
+    let ctx = UrlRequestCallbackContext {
         run_async_func,
         buffer_size: 16 * 1024,
         resp_tx: Some(resp_tx),
@@ -89,26 +106,30 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
 
     type BufferCtx = BufferContext;
 
-    fn on_redirect_received_func() -> crate::sys::OnRedirectReceivedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
-        |self_,request,info,new_location_url|{
+    fn on_redirect_received_func(
+    ) -> crate::sys::OnRedirectReceivedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
+        |self_, request, info, new_location_url| {
             let _ret = request.follow_redirect(); // todo: how to deal with _ret?
             let _ = (self_, info, new_location_url);
         }
     }
 
-    fn on_response_started_func() -> crate::sys::OnResponseStartedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
-        |self_, request, info|{
+    fn on_response_started_func(
+    ) -> crate::sys::OnResponseStartedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
+        |self_, request, info| {
             let ctx = self_.get_client_context_mut();
             let resp = to_response(info);
-            
-            let body_len = resp.headers().get(CONTENT_LENGTH)
-                .and_then(|v|v.to_str().ok())
-                .and_then(|s|s.parse().ok());
+
+            let body_len = resp
+                .headers()
+                .get(CONTENT_LENGTH)
+                .and_then(|v| v.to_str().ok())
+                .and_then(|s| s.parse().ok());
             let body_stream = ctx.body_rx.take().unwrap();
             let body = Body::stream(Box::pin(body_stream), body_len);
 
             let resp_tx = ctx.resp_tx.take().unwrap();
-            let _ = resp_tx.send(resp.map(|_|body));
+            let _ = resp_tx.send(resp.map(|_| body));
 
             let mut buffer: Buffer<()> = Buffer::create();
             buffer.init_with_alloc(ctx.buffer_size as u64);
@@ -116,33 +137,42 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
         }
     }
 
-    fn on_read_completed_func() -> crate::sys::OnReadCompletedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx, Self::BufferCtx> {
-        |self_, requset, _info, buffer, bytes_read|{
+    fn on_read_completed_func() -> crate::sys::OnReadCompletedFunc<
+        UrlRequestCallbackContext,
+        Self::UrlRequestCtx,
+        Self::BufferCtx,
+    > {
+        |self_, requset, _info, buffer, bytes_read| {
             let ctx = self_.get_client_context_mut();
             let run_async = Arc::clone(&ctx.run_async_func);
 
             run_async(Box::pin(async move {
-                let buf = buffer.get_n(bytes_read as usize); 
+                let buf = buffer.get_n(bytes_read as usize);
                 let data = Bytes::copy_from_slice(buf);
-    
+
                 let is_cancled = ctx.body_tx.send(Ok(data)).await.is_err();
-                if is_cancled { return }
-    
+                if is_cancled {
+                    return;
+                }
+
                 let buffer: Buffer<()> = Buffer::create();
                 requset.read(buffer); // todo: Error
             }));
         }
     }
 
-    fn on_succeeded_func() -> crate::sys::OnSucceededFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
+    fn on_succeeded_func(
+    ) -> crate::sys::OnSucceededFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
         todo!()
     }
 
-    fn on_failed_func() -> crate::sys::OnFailedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
+    fn on_failed_func() -> crate::sys::OnFailedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx>
+    {
         todo!()
     }
 
-    fn on_canceled_func() -> crate::sys::OnCanceledFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
+    fn on_canceled_func(
+    ) -> crate::sys::OnCanceledFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
         todo!()
     }
 }
@@ -151,7 +181,7 @@ fn to_response(info: &UrlResponseInfo) -> Response<()> {
     let mut resp = Response::new(());
 
     let status_code = info.http_status_code_get();
-    if let Ok(Ok(s)) = u16::try_from(status_code).map(http::StatusCode::from_u16){
+    if let Ok(Ok(s)) = u16::try_from(status_code).map(http::StatusCode::from_u16) {
         *resp.status_mut() = s
     } else {
         *resp.status_mut() = StatusCode::from_u16(999).unwrap();
@@ -166,15 +196,16 @@ fn to_response(info: &UrlResponseInfo) -> Response<()> {
         let value = header.value_get();
         let Ok(header_name) = HeaderName::from_bytes(name.to_bytes()) else {
             invalid_headers.push((name.to_owned(), value.to_owned()));
-            continue
+            continue;
         };
         let Ok(header_value) = HeaderValue::from_bytes(value.to_bytes()) else {
             invalid_headers.push((name.to_owned(), value.to_owned()));
-            continue
+            continue;
         };
         resp.headers_mut().append(header_name, header_value);
     }
-    resp.extensions_mut().insert(InvalidHeaders(invalid_headers));
+    resp.extensions_mut()
+        .insert(InvalidHeaders(invalid_headers));
 
     resp
 }

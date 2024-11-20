@@ -91,13 +91,14 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
                 match ctx.body.next().await {
                     Some(Ok(data)) => {
                         // todo: buffer < data  -> save data; buffer > data -> continue write;
-                        let (bytes_read, _) = buffer.write(&data); 
+                        let (bytes_read, _) = buffer.write(&data);
                         upload_data_sink.on_read_succeeded(bytes_read as u64, false);
-                    },
+                    }
                     Some(Err(_err)) => {
-                        let msg = unsafe{CStr::from_bytes_with_nul_unchecked(b"read body failed\0")};
+                        let msg =
+                            unsafe { CStr::from_bytes_with_nul_unchecked(b"read body failed\0") };
                         upload_data_sink.on_read_error(msg);
-                    },
+                    }
                     None => {
                         upload_data_sink.on_read_succeeded(0, ctx.body.len.is_none());
                     }
@@ -107,12 +108,12 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
     }
 
     // todo: rewind support
-    fn rewind_func() -> RewindFunc<ReqBodyContext, UploadDataSinkContext>{
+    fn rewind_func() -> RewindFunc<ReqBodyContext, UploadDataSinkContext> {
         |upload_data_provider, upload_data_sink| {
             let ctx = upload_data_provider.get_client_context();
             let run_async = Arc::clone(&ctx.run_async);
-            run_async(Box::pin(async move{
-                let msg = unsafe{CStr::from_bytes_with_nul_unchecked(b"rewind failed\0")};
+            run_async(Box::pin(async move {
+                let msg = unsafe { CStr::from_bytes_with_nul_unchecked(b"rewind failed\0") };
                 upload_data_sink.on_rewind_error(msg);
             }))
         }

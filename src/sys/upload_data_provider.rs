@@ -40,7 +40,6 @@ where
             Self {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }
@@ -105,8 +104,11 @@ pub(crate) trait UploadDataProviderExt<Ctx> {
 }
 
 pub(crate) type GetLengthFunc<Ctx> = fn(&UploadDataProvider<Ctx>) -> i64;
-pub(crate) type ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx> =
-    fn(Borrowed<UploadDataProvider<Ctx>>, Borrowed<UploadDataSink<UploadDataSinkCtx>>, Borrowed<Buffer<BufferCtx>>);
+pub(crate) type ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx> = fn(
+    Borrowed<UploadDataProvider<Ctx>>,
+    Borrowed<UploadDataSink<UploadDataSinkCtx>>,
+    Borrowed<Buffer<BufferCtx>>,
+);
 pub(crate) type RewindFunc<Ctx, UploadDataSinkCtx> =
     fn(Borrowed<UploadDataProvider<Ctx>>, Borrowed<UploadDataSink<UploadDataSinkCtx>>);
 pub(crate) type CloseFunc<Ctx> = fn(UploadDataProvider<Ctx>);

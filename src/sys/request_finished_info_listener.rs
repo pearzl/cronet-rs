@@ -25,7 +25,6 @@ where
             Self {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }
@@ -39,7 +38,7 @@ where
         let self_ = RequestFinishedInfoListener::<Ctx>::from_ptr(self_);
         let request_info = RequestFinishedInfo::from_ptr(request_info);
         let response_info = UrlResponseInfo::from_ptr(response_info);
-        let error = (!error.is_null()).then(||Error::from_ptr(error) as _);
+        let error = (!error.is_null()).then(|| Error::from_ptr(error) as _);
 
         let on_request_finished =
             <Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func();
@@ -47,7 +46,9 @@ where
     }
 
     pub(crate) fn new(ctx: Ctx) -> Self {
-        let mut self_ = Self::create_with(<Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func());
+        let mut self_ = Self::create_with(
+            <Ctx as RequestFinishedInfoListenerExt<Ctx>>::on_request_finished_func(),
+        );
         self_.set_client_context(ctx);
         self_
     }

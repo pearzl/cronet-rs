@@ -27,7 +27,6 @@ impl<Ctx> UrlRequest<Ctx> {
             Self {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }
@@ -55,7 +54,6 @@ impl<Ctx> UrlRequest<Ctx> {
             Self {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }
@@ -69,7 +67,7 @@ define_impl! {
         &Self,
         engine: &Engine<EngineCtx> >> Engine::as_ptr,
         url: &CStr >> CStr::as_ptr,
-        params: &UrlRequestParams >> UrlRequestParams::as_ptr, 
+        params: &UrlRequestParams >> UrlRequestParams::as_ptr,
         callback: &UrlRequestCallback<UrlRequestCallbackCtx> >> UrlRequestCallback::as_ptr,   // safety: pass ref?
         executor: &Executor<ExecutorCtx> >> Executor::as_ptr      // safety: pass ref?
     ) -> Cronet_RESULT; Cronet_UrlRequest_InitWithParams,

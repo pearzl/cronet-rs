@@ -58,7 +58,6 @@ impl<Ctx> Buffer<Ctx> {
             Self {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }
@@ -66,7 +65,7 @@ impl<Ctx> Buffer<Ctx> {
 
 impl<Ctx> Buffer<Ctx> {
     /// return (bytes_filled, bytes_free)
-    pub(crate) fn write(&mut self, bytes: &[u8]) -> (usize, u64){
+    pub(crate) fn write(&mut self, bytes: &[u8]) -> (usize, u64) {
         let buf_len = self.get_size();
         let buf = self.get_data() as *mut u8;
         let size_to_write = std::cmp::min(buf_len, bytes.len() as u64) as usize;
@@ -76,11 +75,8 @@ impl<Ctx> Buffer<Ctx> {
         (size_to_write, buf_len - size_to_write as u64)
     }
 
-
     pub(crate) fn get_n(&self, n: usize) -> &[u8] {
-        unsafe {
-            slice::from_raw_parts(self.get_data() as *const u8, n)
-        }
+        unsafe { slice::from_raw_parts(self.get_data() as *const u8, n) }
     }
 }
 
@@ -95,7 +91,6 @@ define_impl! {
     get: Cronet_Buffer_GetClientContext,
     set: Cronet_Buffer_SetClientContext,
 }
-
 
 unsafe impl<Ctx> Send for Buffer<Ctx> {}
 unsafe impl<Ctx> Sync for Buffer<Ctx> {}

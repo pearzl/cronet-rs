@@ -57,7 +57,6 @@ where
             Self {
                 ptr,
                 _ctx: PhantomData,
-                
             }
         }
     }
@@ -132,7 +131,7 @@ where
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
             UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
-        let info = (!info.is_null()).then(||UrlResponseInfo::from_ptr(info) as &_);
+        let info = (!info.is_null()).then(|| UrlResponseInfo::from_ptr(info) as &_);
         let error = Error::from_ptr(error);
 
         let on_failed = <Ctx as UrlRequestCallbackExt<Ctx>>::on_failed_func();
@@ -147,7 +146,7 @@ where
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
             UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
-        let info = (!info.is_null()).then(||UrlResponseInfo::from_ptr(info) as &_);
+        let info = (!info.is_null()).then(|| UrlResponseInfo::from_ptr(info) as &_);
 
         let on_canceled = <Ctx as UrlRequestCallbackExt<Ctx>>::on_canceled_func();
         on_canceled(&self_, request, info)

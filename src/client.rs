@@ -7,7 +7,8 @@ use crate::{
     bindings::{Cronet_EngineParams_HTTP_CACHE_MODE, Cronet_RESULT},
     body::Body,
     error::Error,
-    sys::{Engine, EngineParams, ExecuteExt, Executor, Runnable}, util::RunAsyncFunc,
+    sys::{Engine, EngineParams, ExecuteExt, Executor, Runnable},
+    util::RunAsyncFunc,
 };
 
 pub struct Client {
@@ -62,7 +63,11 @@ impl ClientBuilder {
 
         let executor = Executor::new(ExecutorContext::new());
 
-        Ok(Client { engine , run_async, executor})
+        Ok(Client {
+            engine,
+            run_async,
+            executor,
+        })
     }
 
     pub fn enable_check_result_set(mut self, enable_check_result: bool) -> Self {
@@ -149,7 +154,8 @@ impl ExecutorContext {
             .spawn(move || {
                 let mut pool = LocalPool::new();
                 pool.run_until(Self::run_runable_loop(rx));
-            }).unwrap();
+            })
+            .unwrap();
         Self { command_tx: tx }
     }
 
@@ -164,7 +170,7 @@ impl ExecuteExt<ExecutorContext> for ExecutorContext {
     type RunnableCtx = RunnableContext;
 
     fn execute_func() -> crate::sys::ExecuteFunc<ExecutorContext, Self::RunnableCtx> {
-        |executor, command|{
+        |executor, command| {
             let ctx = executor.get_client_context();
             let ret = ctx.command_tx.unbounded_send(command);
             debug_assert!(ret.is_ok())
@@ -182,6 +188,6 @@ mod test {
 
     #[test]
     fn new_client() {
-        let _client = Client::builder().construct(Arc::new(|_|())).unwrap();
+        let _client = Client::builder().construct(Arc::new(|_| ())).unwrap();
     }
 }
