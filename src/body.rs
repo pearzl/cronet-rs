@@ -4,10 +4,9 @@ use std::pin::Pin;
 use std::sync::Arc;
 
 use bytes::Bytes;
-use futures::channel::mpsc;
 use futures::{Stream, StreamExt};
 
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::sys::{
     CloseFunc, GetLengthFunc, ReadFunc, RewindFunc, UploadDataProvider, UploadDataProviderExt,
 };

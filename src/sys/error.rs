@@ -51,3 +51,6 @@ define_impl! {
         Cronet_Error_quic_detailed_error_code_get,
 
 }
+
+unsafe impl Send for Error {}
+unsafe impl Sync for Error {}

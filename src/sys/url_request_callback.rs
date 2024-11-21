@@ -135,7 +135,7 @@ where
         let error = Error::from_ptr(error);
 
         let on_failed = <Ctx as UrlRequestCallbackExt<Ctx>>::on_failed_func();
-        on_failed(&self_, request, info, error)
+        on_failed(self_, request, info, error)
     }
 
     unsafe extern "C" fn raw_on_canceled_func(
@@ -201,7 +201,7 @@ pub(crate) type OnSucceededFunc<Ctx, UrlRequestCtx> = fn(
     info: &UrlResponseInfo,
 );
 pub(crate) type OnFailedFunc<Ctx, UrlRequestCtx> = fn(
-    self_: &UrlRequestCallback<Ctx>,
+    self_: &mut UrlRequestCallback<Ctx>,
     request: &UrlRequest<UrlRequestCtx>,
     info: Option<&UrlResponseInfo>,
     error: &Error,

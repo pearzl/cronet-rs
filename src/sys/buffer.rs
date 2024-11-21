@@ -78,6 +78,12 @@ impl<Ctx> Buffer<Ctx> {
     pub(crate) fn get_n(&self, n: usize) -> &[u8] {
         unsafe { slice::from_raw_parts(self.get_data() as *const u8, n) }
     }
+
+    pub(crate) fn with_capacity(capacity: usize) -> Self {
+        let mut buffer = Self::create();
+        buffer.init_with_alloc(capacity as u64);
+        buffer
+    }
 }
 
 define_impl! {

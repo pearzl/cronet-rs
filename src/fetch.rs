@@ -6,19 +6,16 @@ use futures::{
     SinkExt,
 };
 use http::{
-    header::CONTENT_LENGTH, request::Parts, status, HeaderName, HeaderValue, Request, Response,
-    StatusCode, Uri,
+    header::CONTENT_LENGTH, request::Parts, HeaderName, HeaderValue, Request, Response,
+    StatusCode,
 };
 
 use crate::{
-    body::{Body, BufferContext},
-    client::Client,
-    error::Error,
-    sys::{
+    bindings::Cronet_RESULT, body::{Body, BufferContext}, client::Client, error::Error, sys::{
         Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt,
         UrlRequestParams, UrlResponseInfo,
-    },
-    util::RunAsyncFunc,
+    }, util::RunAsyncFunc,
+    error::Result,
 };
 
 pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>, Error> {
@@ -44,7 +41,7 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
 
     todo!();
 
-    resp_rx.await.map_err(|_e| Error) // todo: error trans
+    resp_rx.await.unwrap_or(Err(Error::Canceled))
 }
 
 fn to_url_request_params(parts: Parts) -> UrlRequestParams {
@@ -77,7 +74,7 @@ fn to_cstr(s: impl Into<Vec<u8>>) -> CString {
 
 fn new_callback(
     run_async_func: RunAsyncFunc,
-    resp_tx: oneshot::Sender<Response<Body>>,
+    resp_tx: oneshot::Sender<Result<Response<Body>>>,
 ) -> UrlRequestCallback<UrlRequestCallbackContext> {
     let (body_tx, body_rx) = mpsc::channel(1);
     let ctx = UrlRequestCallbackContext {
@@ -95,7 +92,7 @@ pub(crate) struct UrlRequestCallbackContext {
     run_async_func: RunAsyncFunc,
     buffer_size: usize,
     // on_response_started
-    resp_tx: Option<oneshot::Sender<Response<Body>>>,
+    resp_tx: Option<oneshot::Sender<Result<Response<Body>>>>,
     body_rx: Option<mpsc::Receiver<Result<Bytes, Error>>>,
     // on_read_completed
     body_tx: mpsc::Sender<Result<Bytes, Error>>,
@@ -129,11 +126,14 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
             let body = Body::stream(Box::pin(body_stream), body_len);
 
             let resp_tx = ctx.resp_tx.take().unwrap();
-            let _ = resp_tx.send(resp.map(|_| body));
+            let is_canceled = resp_tx.send(Ok(resp.map(|_| body))).is_err();
+            if is_canceled {
+                return;
+            }
 
-            let mut buffer: Buffer<()> = Buffer::create();
-            buffer.init_with_alloc(ctx.buffer_size as u64);
-            request.read(buffer); // todo: Error
+            let buffer: Buffer<()> = Buffer::with_capacity(ctx.buffer_size);
+            let ret = request.read(buffer);
+            assert_eq!(ret, Cronet_RESULT::SUCCESS);
         }
     }
 
@@ -142,7 +142,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
         Self::UrlRequestCtx,
         Self::BufferCtx,
     > {
-        |self_, requset, _info, buffer, bytes_read| {
+        |self_, request, _info, buffer, bytes_read| {
             let ctx = self_.get_client_context_mut();
             let run_async = Arc::clone(&ctx.run_async_func);
 
@@ -150,30 +150,47 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
                 let buf = buffer.get_n(bytes_read as usize);
                 let data = Bytes::copy_from_slice(buf);
 
-                let is_cancled = ctx.body_tx.send(Ok(data)).await.is_err();
-                if is_cancled {
+                let is_canceled = ctx.body_tx.send(Ok(data)).await.is_err();
+                if is_canceled {
                     return;
                 }
 
-                let buffer: Buffer<()> = Buffer::create();
-                requset.read(buffer); // todo: Error
+                let buffer: Buffer<()> = Buffer::with_capacity(ctx.buffer_size);
+                let ret = request.read(buffer);
+                assert_eq!(ret, Cronet_RESULT::SUCCESS);
             }));
         }
     }
 
     fn on_succeeded_func(
     ) -> crate::sys::OnSucceededFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
-        todo!()
+        |self_, request, info| {
+            let _ = (self_, request, info);
+        }
     }
 
     fn on_failed_func() -> crate::sys::OnFailedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx>
     {
-        todo!()
+        |self_, request, info, error| {
+            let _ = (request, info);
+            let ctx = self_.get_client_context_mut();
+            let error = error.into();
+            if let Some(resp_tx) = ctx.resp_tx.take() {
+                let _ret = resp_tx.send(Err(error));
+            } else {
+                let run_async = Arc::clone(&ctx.run_async_func);
+                run_async(Box::pin(async move{
+                    let _ret = ctx.body_tx.send(Err(error)).await;
+                }));
+            }
+        }
     }
 
     fn on_canceled_func(
     ) -> crate::sys::OnCanceledFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
-        todo!()
+        |self_, request, info| {
+            let _ = (self_, request, info);
+        }
     }
 }
 
