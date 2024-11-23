@@ -184,10 +184,40 @@ pub(crate) struct RunnableContext {}
 mod test {
     use std::sync::Arc;
 
+    use futures::executor::ThreadPool;
+    use futures_scopes::{relay::new_relay_scope, ScopedSpawnExt, SpawnScope};
+    use http::Method;
+
     use super::*;
 
     #[test]
     fn new_client() {
-        let _client = Client::builder().construct(Arc::new(|_| ())).unwrap();
+        let pool = ThreadPool::new().unwrap();
+        let client = Client::builder()
+            .construct(Arc::new(move |fut|{
+                let scope = new_relay_scope!();
+                scope.relay_to(&pool).unwrap();
+                scope.spawner().spawn_scoped(fut).unwrap()
+            }))
+            .unwrap();
+
+        let req = Request::builder()
+            .method(Method::GET)
+            .uri("http://www.baidu.com")
+            .body(Body::empty())
+            .unwrap();
+
+        let mut pool = LocalPool::new();
+        let mut resp = pool.run_until(async {client.fetch(req).await}).unwrap();
+        println!("{:?}\n{:#?}", resp.status(), resp.headers());
+        let body = pool.run_until(async{
+            let mut body_buf = vec![];
+            while let Some(data) = resp.body_mut().next().await {
+                let data = data.unwrap();
+                body_buf.extend_from_slice(&data);
+            }
+            body_buf
+        });
+        println!("{:?}", String::from_utf8(body));
     }
 }
