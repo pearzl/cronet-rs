@@ -83,10 +83,10 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
     }
 
     fn read_func() -> ReadFunc<ReqBodyContext, UploadDataSinkContext, BufferContext> {
-        |mut upload_data_provider, upload_data_sink, mut buffer| {
+        |upload_data_provider, upload_data_sink, buffer| {
             let ctx = upload_data_provider.get_client_context_mut();
             let run_async = Arc::clone(&ctx.run_async);
-            run_async(Box::pin(async move {
+            run_async(Box::pin(async {
                 match ctx.body.next().await {
                     Some(Ok(data)) => {
                         // todo: buffer < data  -> save data; buffer > data -> continue write;

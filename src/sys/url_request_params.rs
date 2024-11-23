@@ -83,7 +83,7 @@ define_impl! {
     fn upload_data_provider_set<UploadDateProviderCtx>(
         &mut Self,
         upload_data_provider: UploadDataProvider<UploadDateProviderCtx>
-            >> consume_data_provider
+            >> UploadDataProvider::into_raw
     ); Cronet_UrlRequestParams_upload_data_provider_set,
     fn upload_data_provider_get<UploadDateProviderCtx>(&Self)
     -> &UploadDataProvider<UploadDateProviderCtx> >> UploadDataProvider::from_ptr;
@@ -121,13 +121,4 @@ impl UrlRequestParams {
             Self { ptr }
         }
     }
-}
-
-/// used by `upload_data_provider_set` only.
-///
-/// take the ownership, it will be dropped by close callback
-fn consume_data_provider<T>(provider: UploadDataProvider<T>) -> Cronet_UploadDataProviderPtr {
-    let ptr = provider.as_ptr();
-    let _ = std::mem::ManuallyDrop::new(provider);
-    ptr
 }

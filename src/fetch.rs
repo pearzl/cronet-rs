@@ -146,7 +146,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
             let ctx = self_.get_client_context_mut();
             let run_async = Arc::clone(&ctx.run_async_func);
 
-            run_async(Box::pin(async move {
+            run_async(Box::pin(async {
                 let buf = buffer.get_n(bytes_read as usize);
                 let data = Bytes::copy_from_slice(buf);
 

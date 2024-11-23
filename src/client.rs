@@ -153,13 +153,13 @@ impl ExecutorContext {
             .name("cronet-rs: execute runnable".into())
             .spawn(move || {
                 let mut pool = LocalPool::new();
-                pool.run_until(Self::run_runable_loop(rx));
+                pool.run_until(Self::run_runnable_loop(rx));
             })
             .unwrap();
         Self { command_tx: tx }
     }
 
-    async fn run_runable_loop(mut rx: mpsc::UnboundedReceiver<Runnable<RunnableContext>>) {
+    async fn run_runnable_loop(mut rx: mpsc::UnboundedReceiver<Runnable<RunnableContext>>) {
         while let Some(runnable) = rx.next().await {
             runnable.run();
         }

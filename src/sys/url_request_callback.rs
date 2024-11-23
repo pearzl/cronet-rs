@@ -15,7 +15,7 @@ use crate::{
         Cronet_UrlRequestCallback_OnSucceededFunc, Cronet_UrlRequestCallback_SetClientContext,
         Cronet_UrlRequestPtr, Cronet_UrlResponseInfoPtr,
     },
-    util::{define_impl, Borrowed},
+    util::{define_impl},
 };
 
 use super::{Buffer, Error, UrlRequest, UrlResponseInfo};
@@ -100,7 +100,7 @@ where
     ) {
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
-            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::borrow_from(request);
+            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
         let info = UrlResponseInfo::from_ptr(info);
         let buffer = Buffer::from_raw(buffer);
 
@@ -115,7 +115,7 @@ where
     ) {
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
-            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
+            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_raw(request);
         let info = UrlResponseInfo::from_ptr(info);
 
         let on_succeeded = <Ctx as UrlRequestCallbackExt<Ctx>>::on_succeeded_func();
@@ -130,7 +130,7 @@ where
     ) {
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
-            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
+            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_raw(request);
         let info = (!info.is_null()).then(|| UrlResponseInfo::from_ptr(info) as &_);
         let error = Error::from_ptr(error);
 
@@ -145,7 +145,7 @@ where
     ) {
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
-            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
+            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_raw(request);
         let info = (!info.is_null()).then(|| UrlResponseInfo::from_ptr(info) as &_);
 
         let on_canceled = <Ctx as UrlRequestCallbackExt<Ctx>>::on_canceled_func();
@@ -190,25 +190,25 @@ pub(crate) type OnResponseStartedFunc<Ctx, UrlRequestCtx> = fn(
 );
 pub(crate) type OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(
     self_: &mut UrlRequestCallback<Ctx>,
-    request: Borrowed<UrlRequest<UrlRequestCtx>>,
+    request: &mut UrlRequest<UrlRequestCtx>,
     info: &UrlResponseInfo,
     buffer: Buffer<BufferCtx>,
     bytes_read: u64,
 );
 pub(crate) type OnSucceededFunc<Ctx, UrlRequestCtx> = fn(
     self_: &UrlRequestCallback<Ctx>,
-    request: &UrlRequest<UrlRequestCtx>,
+    request: UrlRequest<UrlRequestCtx>,
     info: &UrlResponseInfo,
 );
 pub(crate) type OnFailedFunc<Ctx, UrlRequestCtx> = fn(
     self_: &mut UrlRequestCallback<Ctx>,
-    request: &UrlRequest<UrlRequestCtx>,
+    request: UrlRequest<UrlRequestCtx>,
     info: Option<&UrlResponseInfo>,
     error: &Error,
 );
 pub(crate) type OnCanceledFunc<Ctx, UrlRequestCtx> = fn(
     self_: &UrlRequestCallback<Ctx>,
-    request: &UrlRequest<UrlRequestCtx>,
+    request: UrlRequest<UrlRequestCtx>,
     info: Option<&UrlResponseInfo>,
 );
 
