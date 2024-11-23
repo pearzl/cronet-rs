@@ -1,6 +1,6 @@
 use std::ffi::CString;
 
-use crate::{bindings::Cronet_Error_ERROR_CODE, sys};
+use crate::{bindings::{Cronet_Error_ERROR_CODE, Cronet_RESULT}, sys};
 
 #[derive(Debug)]
 pub enum Error {
@@ -12,6 +12,7 @@ pub enum Error {
         quic_detailed_error_code: i32,
     },
     Canceled, // not expected to been seen by user.
+    CronetResult(Cronet_RESULT),
 }
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;

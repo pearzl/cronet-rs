@@ -30,16 +30,23 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
     let (resp_tx, resp_rx) = oneshot::channel();
     let callback = new_callback(Arc::clone(&client.run_async), resp_tx);
 
-    let url_request = UrlRequest::<()>::create();
+    let mut url_request = UrlRequest::create();
+    let ctx = UrlRequestContext{ callback };
+    url_request.set_client_context(ctx);
+
+    let ctx_ref = &url_request.get_client_context().callback;
     url_request.init_with_params(
         &client.engine,
         &url,
         &request_prams,
-        &callback,
+        ctx_ref,
         &client.executor,
     );
 
-    todo!();
+    let ret = url_request.start();
+    if ret != Cronet_RESULT::SUCCESS {
+        return Err(Error::CronetResult(ret))
+    }
 
     resp_rx.await.unwrap_or(Err(Error::Canceled))
 }
@@ -232,3 +239,7 @@ pub struct InvalidStatusCode(pub i32);
 
 #[derive(Clone, Debug)]
 pub struct InvalidHeaders(pub Vec<(CString, CString)>);
+
+pub(crate) struct UrlRequestContext {
+    callback: UrlRequestCallback<UrlRequestCallbackContext>,
+}

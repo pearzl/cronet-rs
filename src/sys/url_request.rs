@@ -57,6 +57,11 @@ impl<Ctx> UrlRequest<Ctx> {
             }
         }
     }
+
+    pub(crate) fn start(self) -> Cronet_RESULT {
+        let ptr = Self::into_raw(self);
+        unsafe {Cronet_UrlRequest_Start(ptr)}
+    }
 }
 
 define_impl! {
@@ -77,8 +82,8 @@ define_impl! {
         listener: &UrlRequestStatusListener<UrlRequestStatusListenerCtx> >> UrlRequestStatusListener::as_ptr // safety: pass ref?
     ); Cronet_UrlRequest_GetStatus,
 
-    fn start(&Self) -> Cronet_RESULT;
-    Cronet_UrlRequest_Start,
+    // fn start(Self) -> Cronet_RESULT;
+    // Cronet_UrlRequest_Start,
 
     fn follow_redirect(&Self) -> Cronet_RESULT;
     Cronet_UrlRequest_FollowRedirect,
