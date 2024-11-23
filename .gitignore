@@ -2,3 +2,4 @@
 libcronet.so
 .vscode/settings.json
 .gitignore
+vendor

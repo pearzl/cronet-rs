@@ -106,7 +106,7 @@ pub(crate) struct UrlRequestCallbackContext {
 }
 
 impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackContext {
-    type UrlRequestCtx = ();
+    type UrlRequestCtx = UrlRequestContext;
 
     type BufferCtx = BufferContext;
 
@@ -153,10 +153,14 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
             let ctx = self_.get_client_context_mut();
             let run_async = Arc::clone(&ctx.run_async_func);
 
+            log::trace!("on read completed");
             run_async(Box::pin(async {
+                log::trace!("begin send data");
+
                 let buf = buffer.get_n(bytes_read as usize);
                 let data = Bytes::copy_from_slice(buf);
 
+                log::trace!("send data: {}", data.len());
                 let is_canceled = ctx.body_tx.send(Ok(data)).await.is_err();
                 if is_canceled {
                     return;
@@ -172,6 +176,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
     fn on_succeeded_func(
     ) -> crate::sys::OnSucceededFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
         |self_, request, info| {
+            log::trace!("on success");
             let _ = (self_, request, info);
         }
     }

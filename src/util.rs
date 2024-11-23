@@ -4,7 +4,7 @@ use std::{
     sync::Arc,
 };
 
-pub(crate) type BoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'a>>;
+pub(crate) type BoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 pub(crate) type RunAsyncFunc = Arc<dyn Fn(BoxedFuture<()>) + Send + Sync + 'static>;
 
 macro_rules! define_impl {
