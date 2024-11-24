@@ -6,16 +6,20 @@ use futures::{
     SinkExt,
 };
 use http::{
-    header::CONTENT_LENGTH, request::Parts, HeaderName, HeaderValue, Request, Response,
-    StatusCode,
+    header::CONTENT_LENGTH, request::Parts, HeaderName, HeaderValue, Request, Response, StatusCode,
 };
 
 use crate::{
-    bindings::Cronet_RESULT, body::{Body, BufferContext}, client::Client, error::Error, sys::{
+    bindings::Cronet_RESULT,
+    body::{Body, BufferContext},
+    client::Client,
+    error::Error,
+    error::Result,
+    sys::{
         Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt,
         UrlRequestParams, UrlResponseInfo,
-    }, util::RunAsyncFunc,
-    error::Result,
+    },
+    util::RunAsyncFunc,
 };
 
 pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>, Error> {
@@ -23,7 +27,7 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
     let (parts, body) = req.into_parts();
 
     let mut request_prams = to_url_request_params(parts);
-    let upload_data_provider = Body::to_upload_data_provider(body, Arc::clone(&client.run_async));
+    let upload_data_provider = Body::into_upload_data_provider(body, Arc::clone(&client.run_async));
     request_prams.upload_data_provider_set(upload_data_provider);
     request_prams.upload_data_provider_executor_set(&client.executor);
 
@@ -31,7 +35,7 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
     let callback = new_callback(Arc::clone(&client.run_async), resp_tx);
 
     let mut url_request = UrlRequest::create();
-    let ctx = UrlRequestContext{ callback };
+    let ctx = UrlRequestContext { callback };
     url_request.set_client_context(ctx);
 
     let ctx_ref = &url_request.get_client_context().callback;
@@ -45,9 +49,10 @@ pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>,
 
     let ret = url_request.start();
     if ret != Cronet_RESULT::SUCCESS {
-        return Err(Error::CronetResult(ret))
+        return Err(Error::CronetResult(ret));
     }
 
+    log::trace!("request start");
     resp_rx.await.unwrap_or(Err(Error::Canceled))
 }
 
@@ -91,8 +96,7 @@ fn new_callback(
         body_rx: Some(body_rx),
         body_tx,
     };
-    let url_request_callback = UrlRequestCallback::new(ctx);
-    url_request_callback
+    UrlRequestCallback::new(ctx)
 }
 
 pub(crate) struct UrlRequestCallbackContext {
@@ -135,6 +139,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
             let resp_tx = ctx.resp_tx.take().unwrap();
             let is_canceled = resp_tx.send(Ok(resp.map(|_| body))).is_err();
             if is_canceled {
+                request.cancel();
                 return;
             }
 
@@ -163,6 +168,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
                 log::trace!("send data: {}", data.len());
                 let is_canceled = ctx.body_tx.send(Ok(data)).await.is_err();
                 if is_canceled {
+                    request.cancel();
                     return;
                 }
 
@@ -184,6 +190,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
     fn on_failed_func() -> crate::sys::OnFailedFunc<UrlRequestCallbackContext, Self::UrlRequestCtx>
     {
         |self_, request, info, error| {
+            log::trace!("on failed");
             let _ = (request, info);
             let ctx = self_.get_client_context_mut();
             let error = error.into();
@@ -191,7 +198,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
                 let _ret = resp_tx.send(Err(error));
             } else {
                 let run_async = Arc::clone(&ctx.run_async_func);
-                run_async(Box::pin(async move{
+                run_async(Box::pin(async move {
                     let _ret = ctx.body_tx.send(Err(error)).await;
                 }));
             }
@@ -201,6 +208,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
     fn on_canceled_func(
     ) -> crate::sys::OnCanceledFunc<UrlRequestCallbackContext, Self::UrlRequestCtx> {
         |self_, request, info| {
+            log::trace!("on canceled");
             let _ = (self_, request, info);
         }
     }

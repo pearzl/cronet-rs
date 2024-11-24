@@ -15,7 +15,7 @@ use crate::{
         Cronet_UrlRequestCallback_OnSucceededFunc, Cronet_UrlRequestCallback_SetClientContext,
         Cronet_UrlRequestPtr, Cronet_UrlResponseInfoPtr,
     },
-    util::{define_impl},
+    util::define_impl,
 };
 
 use super::{Buffer, Error, UrlRequest, UrlResponseInfo};
@@ -74,7 +74,7 @@ where
         let new_localtion_url = CStr::from_ptr(new_location_url);
 
         let on_redirect_received = <Ctx as UrlRequestCallbackExt<Ctx>>::on_redirect_received_func();
-        on_redirect_received(&self_, request, info, new_localtion_url)
+        on_redirect_received(self_, request, info, new_localtion_url)
     }
 
     unsafe extern "C" fn raw_on_response_started_func(
@@ -119,7 +119,7 @@ where
         let info = UrlResponseInfo::from_ptr(info);
 
         let on_succeeded = <Ctx as UrlRequestCallbackExt<Ctx>>::on_succeeded_func();
-        on_succeeded(&self_, request, info)
+        on_succeeded(self_, request, info)
     }
 
     unsafe extern "C" fn raw_on_failed_func(
@@ -149,7 +149,7 @@ where
         let info = (!info.is_null()).then(|| UrlResponseInfo::from_ptr(info) as &_);
 
         let on_canceled = <Ctx as UrlRequestCallbackExt<Ctx>>::on_canceled_func();
-        on_canceled(&self_, request, info)
+        on_canceled(self_, request, info)
     }
 
     pub fn new(ctx: Ctx) -> Self {
@@ -195,11 +195,8 @@ pub(crate) type OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(
     buffer: Buffer<BufferCtx>,
     bytes_read: u64,
 );
-pub(crate) type OnSucceededFunc<Ctx, UrlRequestCtx> = fn(
-    self_: &UrlRequestCallback<Ctx>,
-    request: UrlRequest<UrlRequestCtx>,
-    info: &UrlResponseInfo,
-);
+pub(crate) type OnSucceededFunc<Ctx, UrlRequestCtx> =
+    fn(self_: &UrlRequestCallback<Ctx>, request: UrlRequest<UrlRequestCtx>, info: &UrlResponseInfo);
 pub(crate) type OnFailedFunc<Ctx, UrlRequestCtx> = fn(
     self_: &mut UrlRequestCallback<Ctx>,
     request: UrlRequest<UrlRequestCtx>,

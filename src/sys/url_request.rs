@@ -60,7 +60,7 @@ impl<Ctx> UrlRequest<Ctx> {
 
     pub(crate) fn start(self) -> Cronet_RESULT {
         let ptr = Self::into_raw(self);
-        unsafe {Cronet_UrlRequest_Start(ptr)}
+        unsafe { Cronet_UrlRequest_Start(ptr) }
     }
 }
 
@@ -73,8 +73,8 @@ define_impl! {
         engine: &Engine<EngineCtx> >> Engine::as_ptr,
         url: &CStr >> CStr::as_ptr,
         params: &UrlRequestParams >> UrlRequestParams::as_ptr,
-        callback: &UrlRequestCallback<UrlRequestCallbackCtx> >> UrlRequestCallback::as_ptr,   
-        executor: &Executor<ExecutorCtx> >> Executor::as_ptr     
+        callback: &UrlRequestCallback<UrlRequestCallbackCtx> >> UrlRequestCallback::as_ptr,
+        executor: &Executor<ExecutorCtx> >> Executor::as_ptr
     ) -> Cronet_RESULT; Cronet_UrlRequest_InitWithParams,
 
     fn get_status<UrlRequestStatusListenerCtx>(

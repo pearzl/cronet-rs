@@ -51,7 +51,7 @@ impl DerefMut for Body {
 }
 
 impl Body {
-    pub(crate) fn to_upload_data_provider(
+    pub(crate) fn into_upload_data_provider(
         self,
         run_async: RunAsyncFunc,
     ) -> UploadDataProvider<ReqBodyContext> {
@@ -60,9 +60,7 @@ impl Body {
             run_async,
         };
 
-        let upload_data_provider = UploadDataProvider::new(ctx);
-
-        upload_data_provider
+        UploadDataProvider::new(ctx)
     }
 }
 

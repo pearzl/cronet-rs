@@ -1,10 +1,13 @@
 use std::ffi::CString;
 
-use crate::{bindings::{Cronet_Error_ERROR_CODE, Cronet_RESULT}, sys};
+use crate::{
+    bindings::{Cronet_Error_ERROR_CODE, Cronet_RESULT},
+    sys,
+};
 
 #[derive(Debug)]
 pub enum Error {
-    CronetError{
+    CronetError {
         code: Cronet_Error_ERROR_CODE,
         message: CString,
         internal_error_code: i32,
@@ -17,9 +20,14 @@ pub enum Error {
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
-
 impl<'a> From<&'a sys::Error> for Error {
     fn from(value: &'a sys::Error) -> Self {
-        Self::CronetError { code: value.error_code_get(), message: value.message_get().to_owned(), internal_error_code: value.internal_error_code_get(), immediately_retryable: value.immediately_retryable_get(), quic_detailed_error_code: value.quic_detailed_error_code_get() }
+        Self::CronetError {
+            code: value.error_code_get(),
+            message: value.message_get().to_owned(),
+            internal_error_code: value.internal_error_code_get(),
+            immediately_retryable: value.immediately_retryable_get(),
+            quic_detailed_error_code: value.quic_detailed_error_code_get(),
+        }
     }
 }

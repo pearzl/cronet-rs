@@ -11,7 +11,7 @@ use crate::{
         Cronet_UploadDataProvider_RewindFunc, Cronet_UploadDataProvider_SetClientContext,
         Cronet_UploadDataSinkPtr,
     },
-    util::{define_impl,},
+    util::define_impl,
 };
 
 use super::{Buffer, UploadDataSink};
@@ -48,7 +48,7 @@ where
         let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
 
         let get_length = <Ctx as UploadDataProviderExt<Ctx>>::get_length_func();
-        get_length(&self_)
+        get_length(self_)
     }
 
     unsafe extern "C" fn raw_read(

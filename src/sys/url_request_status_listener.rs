@@ -31,7 +31,7 @@ where
     ) {
         let self_ = UrlRequestStatusListener::<Ctx>::from_ptr(self_);
         let on_status = <Ctx as UrlRequestStatusListenerExt<Ctx>>::on_status_func();
-        on_status(&self_, status)
+        on_status(self_, status)
     }
 
     pub(crate) fn new(ctx: Ctx) -> Self {

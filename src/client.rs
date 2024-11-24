@@ -24,8 +24,11 @@ impl Client {
         }
     }
 
-    pub async fn fetch(&self, req: Request<Body>) -> Result<Response<Body>, Error> {
-        crate::fetch::send(self, req).await
+    pub fn fetch(
+        &self,
+        req: Request<Body>,
+    ) -> impl std::future::Future<Output = Result<Response<Body>, Error>> + use<'_> {
+        crate::fetch::send(self, req)
     }
 
     pub fn start_net_log_to_file(&self, file_name: &CStr, log_all: bool) -> bool {
@@ -196,7 +199,7 @@ mod test {
 
         let pool = ThreadPool::new().unwrap();
         let client = Client::builder()
-            .construct(Arc::new(move |fut|{
+            .construct(Arc::new(move |fut| {
                 let scope = new_relay_scope!();
                 scope.relay_to(&pool).unwrap();
                 scope.spawner().spawn_scoped(fut).unwrap();
