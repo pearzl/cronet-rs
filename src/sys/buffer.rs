@@ -24,6 +24,7 @@ impl<Ctx> Buffer<Ctx> {
         }
     }
 
+    #[cfg(test)]
     pub(crate) fn init_with_data_and_callback(
         &self,
         data: Box<[u8]>,

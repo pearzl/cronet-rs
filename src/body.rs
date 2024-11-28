@@ -8,10 +8,11 @@ use futures::{Stream, StreamExt};
 
 use crate::error::Result;
 use crate::sys::{
-    CloseFunc, GetLengthFunc, ReadFunc, RewindFunc, UploadDataProvider, UploadDataProviderExt,
+    Buffer, CloseFunc, GetLengthFunc, ReadFunc, RewindFunc, UploadDataProvider, UploadDataProviderExt
 };
 use crate::util::RunAsyncFunc;
 
+/// http body
 pub struct Body {
     data: BoxedStream,
     len: Option<u32>,
@@ -20,6 +21,7 @@ pub struct Body {
 pub(crate) type BoxedStream = Pin<Box<dyn Stream<Item = Result<Bytes>> + Send + Sync + 'static>>;
 
 impl Body {
+    /// create an empty body
     pub fn empty() -> Self {
         Body {
             data: Box::pin(futures::stream::empty()),
@@ -27,10 +29,12 @@ impl Body {
         }
     }
 
+    /// create an body from `stream`, `len` specify how many bytes the body has.
     pub fn stream(stream: BoxedStream, len: Option<u32>) -> Self {
         Body { data: stream, len }
     }
 
+    /// how many bytes the body has. 
     pub fn length(&self) -> Option<u32> {
         self.len
     }
@@ -126,6 +130,25 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
 pub(crate) struct UploadDataSinkContext {}
 
 pub(crate) struct BufferContext {}
+
+/// A chunk of body data buffer
+pub struct Data {
+    buffer: Buffer<()>,
+    len: usize,
+}
+
+impl Data {
+    pub fn as_bytes(&self) -> &[u8] {
+        self.buffer.get_n(self.len)
+    }
+
+    pub fn new(bytes: impl AsRef<[u8]>) -> Self {
+        let bytes = bytes.as_ref();
+        let mut buffer = Buffer::with_capacity(bytes.len());
+        buffer.write(bytes);
+        Self { buffer, len: bytes.len() }
+    }
+}
 
 #[cfg(test)]
 mod test {
