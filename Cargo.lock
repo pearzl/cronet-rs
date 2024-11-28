@@ -135,7 +135,6 @@ name = "cronet-rs"
 version = "0.1.0"
 dependencies = [
  "bindgen",
- "bytes",
  "env_logger",
  "futures",
  "futures-scopes",

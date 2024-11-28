@@ -3,7 +3,6 @@ use std::ops::{Deref, DerefMut};
 use std::pin::Pin;
 use std::sync::Arc;
 
-use bytes::Bytes;
 use futures::{Stream, StreamExt};
 
 use crate::error::Result;
@@ -18,7 +17,7 @@ pub struct Body {
     len: Option<u32>,
 }
 
-pub(crate) type BoxedStream = Pin<Box<dyn Stream<Item = Result<Bytes>> + Send + Sync + 'static>>;
+pub(crate) type BoxedStream = Pin<Box<dyn Stream<Item = Result<Data>> + Send + Sync + 'static>>;
 
 impl Body {
     /// create an empty body
@@ -92,7 +91,7 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
                 match ctx.body.next().await {
                     Some(Ok(data)) => {
                         // todo: buffer < data  -> save data; buffer > data -> continue write;
-                        let (bytes_read, _) = buffer.write(&data);
+                        let (bytes_read, _) = buffer.write(data.as_bytes());
                         upload_data_sink.on_read_succeeded(bytes_read as u64, false);
                     }
                     Some(Err(_err)) => {
@@ -133,11 +132,15 @@ pub(crate) struct BufferContext {}
 
 /// A chunk of body data buffer
 pub struct Data {
-    buffer: Buffer<()>,
+    buffer: Buffer<BufferContext>,
     len: usize,
 }
 
 impl Data {
+    pub(crate) fn from_buffer(buffer: Buffer<BufferContext>, len: usize) -> Self {
+        Self {buffer, len}
+    }
+
     pub fn as_bytes(&self) -> &[u8] {
         self.buffer.get_n(self.len)
     }

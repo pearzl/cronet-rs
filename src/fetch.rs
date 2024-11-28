@@ -1,6 +1,5 @@
 use std::{ffi::CString, sync::Arc};
 
-use bytes::Bytes;
 use futures::{
     channel::{mpsc, oneshot},
     SinkExt,
@@ -11,10 +10,9 @@ use http::{
 
 use crate::{
     bindings::Cronet_RESULT,
-    body::{Body, BufferContext},
+    body::{Body, BufferContext, Data},
     client::Client,
-    error::Error,
-    error::Result,
+    error::{Error, Result},
     sys::{
         Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt,
         UrlRequestParams, UrlResponseInfo,
@@ -104,9 +102,9 @@ pub(crate) struct UrlRequestCallbackContext {
     buffer_size: usize,
     // on_response_started
     resp_tx: Option<oneshot::Sender<Result<Response<Body>>>>,
-    body_rx: Option<mpsc::Receiver<Result<Bytes, Error>>>,
+    body_rx: Option<mpsc::Receiver<Result<Data, Error>>>,
     // on_read_completed
-    body_tx: mpsc::Sender<Result<Bytes, Error>>,
+    body_tx: mpsc::Sender<Result<Data, Error>>,
 }
 
 impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackContext {
@@ -162,10 +160,10 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
             run_async(Box::pin(async {
                 log::trace!("begin send data");
 
-                let buf = buffer.get_n(bytes_read as usize);
-                let data = Bytes::copy_from_slice(buf);
+                // the buffer we created is smaller then usize::MAX
+                let data = Data::from_buffer(buffer, bytes_read as _); 
 
-                log::trace!("send data: {}", data.len());
+                log::trace!("send data: {}", bytes_read);
                 let is_canceled = ctx.body_tx.send(Ok(data)).await.is_err();
                 if is_canceled {
                     request.cancel();
