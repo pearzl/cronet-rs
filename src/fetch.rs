@@ -157,7 +157,7 @@ impl UrlRequestCallbackExt<UrlRequestCallbackContext> for UrlRequestCallbackCont
             let run_async = Arc::clone(&ctx.run_async_func);
 
             log::trace!("on read completed");
-            run_async(Box::pin(async {
+            run_async(Box::pin(async move {
                 log::trace!("begin send data");
 
                 // the buffer we created is smaller then usize::MAX

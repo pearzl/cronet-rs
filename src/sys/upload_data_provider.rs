@@ -11,7 +11,7 @@ use crate::{
         Cronet_UploadDataProvider_RewindFunc, Cronet_UploadDataProvider_SetClientContext,
         Cronet_UploadDataSinkPtr,
     },
-    util::define_impl,
+    util::{define_impl, Borrowed},
 };
 
 use super::{Buffer, UploadDataSink};
@@ -57,8 +57,10 @@ where
         buffer: Cronet_BufferPtr,
     ) {
         let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
-        let upload_data_sink = UploadDataSink::from_ptr(upload_data_sink);
-        let buffer = Buffer::from_ptr(buffer);
+        let upload_data_sink = UploadDataSink::from_raw(upload_data_sink);
+        let upload_data_sink = Borrowed::new(upload_data_sink);
+        let buffer = Buffer::from_raw(buffer);
+        let buffer = Borrowed::new(buffer);
 
         let read = <Ctx as UploadDataProviderExt<Ctx>>::read_func();
         read(self_, upload_data_sink, buffer)
@@ -69,7 +71,8 @@ where
         upload_data_sink: Cronet_UploadDataSinkPtr,
     ) {
         let self_ = UploadDataProvider::<Ctx>::from_ptr(self_);
-        let upload_data_sink = UploadDataSink::from_ptr(upload_data_sink);
+        let upload_data_sink = UploadDataSink::from_raw(upload_data_sink);
+        let upload_data_sink = Borrowed::new(upload_data_sink);
 
         let rewind = <Ctx as UploadDataProviderExt<Ctx>>::rewind_func();
         rewind(self_, upload_data_sink)
@@ -106,11 +109,11 @@ pub(crate) trait UploadDataProviderExt<Ctx> {
 pub(crate) type GetLengthFunc<Ctx> = fn(&UploadDataProvider<Ctx>) -> i64;
 pub(crate) type ReadFunc<Ctx, UploadDataSinkCtx, BufferCtx> = fn(
     &mut UploadDataProvider<Ctx>,
-    &mut UploadDataSink<UploadDataSinkCtx>,
-    &mut Buffer<BufferCtx>,
+    Borrowed<UploadDataSink<UploadDataSinkCtx>>,
+    Borrowed<Buffer<BufferCtx>>,
 );
 pub(crate) type RewindFunc<Ctx, UploadDataSinkCtx> =
-    fn(&mut UploadDataProvider<Ctx>, &mut UploadDataSink<UploadDataSinkCtx>);
+    fn(&mut UploadDataProvider<Ctx>, Borrowed<UploadDataSink<UploadDataSinkCtx>>);
 pub(crate) type CloseFunc<Ctx> = fn(UploadDataProvider<Ctx>);
 
 define_impl! {

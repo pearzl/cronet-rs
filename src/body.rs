@@ -84,10 +84,10 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
     }
 
     fn read_func() -> ReadFunc<ReqBodyContext, UploadDataSinkContext, BufferContext> {
-        |upload_data_provider, upload_data_sink, buffer| {
+        |upload_data_provider, upload_data_sink, mut buffer| {
             let ctx = upload_data_provider.get_client_context_mut();
             let run_async = Arc::clone(&ctx.run_async);
-            run_async(Box::pin(async {
+            run_async(Box::pin(async move {
                 match ctx.body.next().await {
                     Some(Ok(data)) => {
                         // todo: buffer < data  -> save data; buffer > data -> continue write;
@@ -113,7 +113,7 @@ impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {
             let ctx = upload_data_provider.get_client_context();
             let run_async = Arc::clone(&ctx.run_async);
             run_async(Box::pin(async move {
-                let msg = unsafe { CStr::from_bytes_with_nul_unchecked(b"rewind failed\0") };
+                let msg = c"rewind failed";
                 upload_data_sink.on_rewind_error(msg);
             }))
         }

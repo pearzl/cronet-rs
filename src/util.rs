@@ -1,7 +1,36 @@
-use std::{future::Future, pin::Pin, sync::Arc};
+use std::{future::Future, mem::ManuallyDrop, pin::Pin, sync::Arc};
 
-pub(crate) type BoxedFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
+pub(crate) type BoxedFuture<T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'static>>;
 pub(crate) type RunAsyncFunc = Arc<dyn Fn(BoxedFuture<()>) + Send + Sync + 'static>;
+
+pub(crate) struct Borrowed<T> {
+    inner: ManuallyDrop<T>,
+}
+
+impl<T> Borrowed<T> {
+    pub(crate) unsafe fn new(inner: T) -> Self {
+        Self {
+            inner: ManuallyDrop::new(inner)
+        }
+    }
+}
+
+impl<T> std::ops::Deref for Borrowed<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner 
+    }
+}
+
+impl<T> std::ops::DerefMut for Borrowed<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+unsafe impl<T> Send for Borrowed<T> where T: Send {}
+unsafe impl<T> Sync for Borrowed<T> where T: Send {}
 
 macro_rules! define_impl {
     (

@@ -15,7 +15,7 @@ use crate::{
         Cronet_UrlRequestCallback_OnSucceededFunc, Cronet_UrlRequestCallback_SetClientContext,
         Cronet_UrlRequestPtr, Cronet_UrlResponseInfoPtr,
     },
-    util::define_impl,
+    util::{define_impl, Borrowed},
 };
 
 use super::{Buffer, Error, UrlRequest, UrlResponseInfo};
@@ -100,7 +100,8 @@ where
     ) {
         let self_ = UrlRequestCallback::<Ctx>::from_ptr(self_);
         let request =
-            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_ptr(request);
+            UrlRequest::<<Ctx as UrlRequestCallbackExt<Ctx>>::UrlRequestCtx>::from_raw(request);
+        let request = Borrowed::new(request);
         let info = UrlResponseInfo::from_ptr(info);
         let buffer = Buffer::from_raw(buffer);
 
@@ -190,7 +191,7 @@ pub(crate) type OnResponseStartedFunc<Ctx, UrlRequestCtx> = fn(
 );
 pub(crate) type OnReadCompletedFunc<Ctx, UrlRequestCtx, BufferCtx> = fn(
     self_: &mut UrlRequestCallback<Ctx>,
-    request: &mut UrlRequest<UrlRequestCtx>,
+    request: Borrowed<UrlRequest<UrlRequestCtx>>,
     info: &UrlResponseInfo,
     buffer: Buffer<BufferCtx>,
     bytes_read: u64,
