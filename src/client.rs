@@ -188,7 +188,6 @@ mod test {
     use std::sync::Arc;
 
     use futures::executor::ThreadPool;
-    use futures_scopes::{relay::new_relay_scope, ScopedSpawnExt, SpawnScope};
     use http::Method;
 
     use super::*;
@@ -200,11 +199,6 @@ mod test {
         let pool = ThreadPool::new().unwrap();
         let client = Client::builder()
             .construct(Arc::new(move |fut| {
-                let scope = new_relay_scope!();
-                scope.relay_to(&pool).unwrap();
-                scope.spawner().spawn_scoped(fut).unwrap();
-                let fut = scope.until_empty();
-                std::thread::sleep(std::time::Duration::from_millis(1)); // have no idea, but works!
                 pool.spawn_ok(fut);
             }))
             .unwrap();
@@ -222,8 +216,8 @@ mod test {
             let mut body_buf = vec![];
             while let Some(data) = resp.body_mut().next().await {
                 let data = data.unwrap();
-                log::debug!("get body: {:?}", data.len());
-                body_buf.extend_from_slice(&data);
+                log::debug!("get body: {:?}", data.as_bytes().len());
+                body_buf.extend_from_slice(data.as_bytes());
             }
             body_buf
         });
