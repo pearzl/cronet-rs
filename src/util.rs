@@ -1,7 +1,6 @@
-use std::{future::Future, mem::ManuallyDrop, pin::Pin, sync::Arc};
+use std::{ mem::ManuallyDrop, sync::Arc};
 
-pub(crate) type BoxedFuture<T> = Pin<Box<dyn Future<Output = T> + Send + Sync + 'static>>;
-pub(crate) type RunAsyncFunc = Arc<dyn Fn(BoxedFuture<()>) + Send + Sync + 'static>;
+pub(crate) type AsyncRuntime = Arc<dyn Fn(BoxFuture<'static, ()>) + Send + Sync + 'static>;
 
 pub(crate) struct Borrowed<T> {
     inner: ManuallyDrop<T>,
@@ -134,3 +133,4 @@ macro_rules! define_impl {
     };
 }
 pub(crate) use define_impl;
+use futures::future::BoxFuture;

@@ -17,7 +17,7 @@ use crate::{
         Buffer, HttpHeader, UrlRequest, UrlRequestCallback, UrlRequestCallbackExt,
         UrlRequestParams, UrlResponseInfo,
     },
-    util::RunAsyncFunc,
+    util::AsyncRuntime,
 };
 
 pub async fn send(client: &Client, req: Request<Body>) -> Result<Response<Body>, Error> {
@@ -83,7 +83,7 @@ fn to_cstr(s: impl Into<Vec<u8>>) -> CString {
 }
 
 fn new_callback(
-    run_async_func: RunAsyncFunc,
+    run_async_func: AsyncRuntime,
     resp_tx: oneshot::Sender<Result<Response<Body>>>,
 ) -> UrlRequestCallback<UrlRequestCallbackContext> {
     let (body_tx, body_rx) = mpsc::channel(1);
@@ -98,7 +98,7 @@ fn new_callback(
 }
 
 pub(crate) struct UrlRequestCallbackContext {
-    run_async_func: RunAsyncFunc,
+    run_async_func: AsyncRuntime,
     buffer_size: usize,
     // on_response_started
     resp_tx: Option<oneshot::Sender<Result<Response<Body>>>>,

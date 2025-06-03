@@ -9,7 +9,7 @@ use crate::error::Result;
 use crate::sys::{
     Buffer, CloseFunc, GetLengthFunc, ReadFunc, RewindFunc, UploadDataProvider, UploadDataProviderExt
 };
-use crate::util::RunAsyncFunc;
+use crate::util::AsyncRuntime;
 
 /// http body
 pub struct Body {
@@ -56,7 +56,7 @@ impl DerefMut for Body {
 impl Body {
     pub(crate) fn into_upload_data_provider(
         self,
-        run_async: RunAsyncFunc,
+        run_async: AsyncRuntime,
     ) -> UploadDataProvider<ReqBodyContext> {
         let ctx = ReqBodyContext {
             body: self,
@@ -69,7 +69,7 @@ impl Body {
 
 pub(crate) struct ReqBodyContext {
     body: Body,
-    run_async: RunAsyncFunc,
+    run_async: AsyncRuntime,
 }
 
 impl UploadDataProviderExt<ReqBodyContext> for ReqBodyContext {

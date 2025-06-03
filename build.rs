@@ -16,7 +16,6 @@ fn bindgen_ffi() {
     let bindings = builder()
         .headers(["stdbool.h", "include/cronet.idl_c.h"])
         .allowlist_item(CRONET_PREFIX)
-        .blocklist_function("Cronet_RequestFinishedInfoListener_OnRequestFinished")
         .parse_callbacks(Box::new(BindgenParseCallback))
         .rustified_non_exhaustive_enum(CRONET_PREFIX)
         .prepend_enum_name(false)

@@ -8,12 +8,12 @@ use crate::{
     body::Body,
     error::Error,
     sys::{Engine, EngineParams, ExecuteExt, Executor, Runnable},
-    util::RunAsyncFunc,
+    util::AsyncRuntime,
 };
 
 pub struct Client {
     pub(crate) engine: Engine<EngineContext>,
-    pub(crate) run_async: crate::util::RunAsyncFunc,
+    pub(crate) run_async: crate::util::AsyncRuntime,
     pub(crate) executor: Executor<ExecutorContext>,
 }
 
@@ -57,7 +57,7 @@ pub struct ClientBuilder {
 }
 
 impl ClientBuilder {
-    pub fn construct(self, run_async: RunAsyncFunc) -> Result<Client, Cronet_RESULT> {
+    pub fn construct(self, run_async: AsyncRuntime) -> Result<Client, Cronet_RESULT> {
         let engine = Engine::create();
         let ret = engine.start_with_params(&self.engine_params);
         if ret != Cronet_RESULT::SUCCESS {
