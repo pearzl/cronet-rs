@@ -1,0 +1,9 @@
+### build
+```shell
+CRONET_RS_LIB_DIR=./ cargo build
+```
+
+### run test
+```shell
+LD_LIBRARY_PATH=./ CRONET_RS_LIB_DIR=./ cargo test
+```
